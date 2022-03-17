@@ -20,7 +20,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
-On `pages/_app_.tsx`, you'll find our `ThirdwebProvider` wrapping your app, this is necessary for our hooks to work.
+On `pages/_app.tsx`, you'll find our `ThirdwebProvider` wrapping your app, this is necessary for our hooks to work.
 
 on `pages/index.tsx`, you'll find the `useMetamask` hook that we use to connect the user's wallet to MetaMask, `useDisconnect` that we use to disconnect it, and `useAddress` to check the user's wallet address once connected. 
 
