@@ -29,8 +29,8 @@ on `pages/index.tsx`, you'll find the `useMetamask` hook that we use to connect 
 To learn more about thirdweb and Next.js, take a look at the following resources:
 
 - [thirdweb React Documentation](https://docs.thirdweb.com/react) - learn about our React SDK.
-- [thirdweb TypeScript Documentation](https://docs.thirdweb.com/react) - learn about our JavaScript/TypeScript SDK.
-- [thirdweb Portal](https://docs.thirdweb.com/react) - check our guides and development resources.
+- [thirdweb TypeScript Documentation](https://docs.thirdweb.com/typescript) - learn about our JavaScript/TypeScript SDK.
+- [thirdweb Portal](https://docs.thirdweb.com) - check our guides and development resources.
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 
 You can check out [the thirdweb GitHub organization](https://github.com/thirdweb-dev) - your feedback and contributions are welcome!
