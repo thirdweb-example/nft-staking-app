@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^4.6.0",
+    "@openzeppelin/contracts-upgradeable": "^4.6.0",
+    "@thirdweb-dev/contracts": "2.3.8",
     "@thirdweb-dev/react": "^2",
     "@thirdweb-dev/sdk": "^2",
     "ethers": "^5.6.1",
