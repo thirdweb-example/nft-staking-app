@@ -1,8 +1,6 @@
 import {
   ThirdwebNftMedia,
   useAddress,
-  useContract,
-  useDisconnect,
   useMetamask,
   useNFTDrop,
   useToken,
@@ -11,12 +9,16 @@ import {
   useSigner,
   useSDK,
 } from "@thirdweb-dev/react";
-import { NFTMetadataOwner, ThirdwebSDK } from "@thirdweb-dev/sdk";
+import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { BigNumber, ethers } from "ethers";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
+
+const nftDropContractAddress = "0x322067594DBCE69A9a9711BC393440aA5e3Aaca1";
+const tokenContractAddress = "0xb1cF059e6847e4270920a02e969CA2E016AeA22B";
+const stakingContractAddress = "0x2042e64f23aCBFf871fB85E0867a7Cb261e1BBf3";
 
 const Stake: NextPage = () => {
   const router = useRouter();
@@ -26,13 +28,10 @@ const Stake: NextPage = () => {
   // Wallet Connection Hooks
   const address = useAddress();
   const connectWithMetamask = useMetamask();
-  const disconnectWallet = useDisconnect();
 
   // Contract Hooks
-  const nftDropContract = useNFTDrop(
-    "0x322067594DBCE69A9a9711BC393440aA5e3Aaca1"
-  );
-  const tokenContract = useToken("0xb1cF059e6847e4270920a02e969CA2E016AeA22B");
+  const nftDropContract = useNFTDrop(nftDropContractAddress);
+  const tokenContract = useToken(tokenContractAddress);
 
   // Load Unstaked NFTs
   const { data: ownedNfts } = useOwnedNFTs(nftDropContract, address);
@@ -48,9 +47,8 @@ const Stake: NextPage = () => {
 
   useEffect(() => {
     async function loadStakedNfts() {
-      const contract = await sdk.getContract(
-        "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7"
-      );
+      const sdk = new ThirdwebSDK("mumbai");
+      const contract = await sdk.getContract(stakingContractAddress);
 
       const stakedTokens = await contract?.call("getStakedTokens", address);
 
@@ -75,12 +73,14 @@ const Stake: NextPage = () => {
 
   useEffect(() => {
     async function loadClaimableRewards() {
-      const contract = await sdk.getContract(
-        "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7"
-      );
+      if (!address || !signer) {
+        return;
+      }
+      const sdk = new ThirdwebSDK(signer);
+      const contract = await sdk.getContract(stakingContractAddress);
 
       try {
-        const cr = await contract?.call("availableRewards", address);
+        const cr = await contract?.call("availableRewards");
         console.log("Loaded claimable rewards", cr);
         setClaimableRewards(cr);
       } catch (e) {
@@ -95,35 +95,44 @@ const Stake: NextPage = () => {
   // Write Functions
   ///////////////////////////////////////////////////////////////////////////
   async function stakeNft(id: BigNumber) {
-    const contract = await sdk.getContract(
-      "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7"
-    );
+    if (!address || !signer) {
+      alert("Please connect to your wallet");
+      return;
+    }
+
+    const sdk = new ThirdwebSDK(signer);
+    const contract = await sdk.getContract(stakingContractAddress);
 
     const isApproved = await nftDropContract?.isApproved(
       address,
-      "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7"
+      stakingContractAddress
     );
     // If not approved, request approval
     if (!isApproved) {
-      await nftDropContract?.setApprovalForAll(
-        "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7",
-        true
-      );
+      await nftDropContract?.setApprovalForAll(stakingContractAddress, true);
     }
     const stake = await contract.call("stake", id);
   }
 
   async function withdraw(id: BigNumber) {
-    const contract = await sdk.getContract(
-      "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7"
-    );
+    if (!address || !signer) {
+      alert("Please connect to your wallet");
+      return;
+    }
+
+    const sdk = new ThirdwebSDK(signer);
+    const contract = await sdk.getContract(stakingContractAddress);
     const withdraw = await contract.call("withdraw", id);
   }
 
   async function claimRewards() {
-    const contract = await sdk.getContract(
-      "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7"
-    );
+    if (!address || !signer) {
+      alert("Please connect to your wallet");
+      return;
+    }
+
+    const sdk = new ThirdwebSDK(signer);
+    const contract = await sdk.getContract(stakingContractAddress);
     const claim = await contract.call("claimRewards");
   }
 
