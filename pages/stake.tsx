@@ -9,6 +9,7 @@ import {
   useTokenBalance,
   useOwnedNFTs,
   useSigner,
+  useSDK,
 } from "@thirdweb-dev/react";
 import { NFTMetadataOwner, ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { BigNumber, ethers } from "ethers";
@@ -20,6 +21,7 @@ import styles from "../styles/Home.module.css";
 const Stake: NextPage = () => {
   const router = useRouter();
   const signer = useSigner();
+  const sdk = useSDK();
 
   // Wallet Connection Hooks
   const address = useAddress();
@@ -31,9 +33,6 @@ const Stake: NextPage = () => {
     "0x322067594DBCE69A9a9711BC393440aA5e3Aaca1"
   );
   const tokenContract = useToken("0xb1cF059e6847e4270920a02e969CA2E016AeA22B");
-  const { data: stakingContract } = useContract(
-    "0x60e43fe4fC2f9B2C6E883BBf991979E225866370"
-  );
 
   // Load Unstaked NFTs
   const { data: ownedNfts } = useOwnedNFTs(nftDropContract, address);
@@ -49,83 +48,83 @@ const Stake: NextPage = () => {
 
   useEffect(() => {
     async function loadStakedNfts() {
-      const sdk = new ThirdwebSDK("mumbai");
       const contract = await sdk.getContract(
-        "0x60e43fe4fC2f9B2C6E883BBf991979E225866370"
+        "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7"
       );
-      const stakedTokens = await contract?.functions?.getStakedTokens(address);
+
+      const stakedTokens = await contract?.call("getStakedTokens", address);
 
       // For each staked token, fetch it from the sdk
       const stakedNfts = await Promise.all(
-        stakedTokens.map(async (tokenId) => {
-          const nft = await nftDropContract?.get(tokenId);
-          return nft;
-        })
+        stakedTokens.map(
+          async (stakedToken: { staker: string; tokenId: BigNumber }) => {
+            const nft = await nftDropContract?.get(stakedToken.tokenId);
+            return nft;
+          }
+        )
       );
+
       setStakedNfts(stakedNfts);
       console.log("setStakedNfts", stakedNfts);
     }
 
+    if (address) {
+      loadStakedNfts();
+    }
+  }, [address, nftDropContract]);
+
+  useEffect(() => {
     async function loadClaimableRewards() {
-      const sdk = new ThirdwebSDK("mumbai");
       const contract = await sdk.getContract(
-        "0x60e43fe4fC2f9B2C6E883BBf991979E225866370"
+        "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7"
       );
+
       try {
-        const claimableRewards = await contract?.functions?.userStakeInfo(
-          address
-        );
-        console.log("Loaded claimable rewards", claimableRewards);
-        setClaimableRewards(claimableRewards._availableRewards);
+        const cr = await contract?.call("availableRewards", address);
+        console.log("Loaded claimable rewards", cr);
+        setClaimableRewards(cr);
       } catch (e) {
-        setClaimableRewards(BigNumber.from(0));
+        console.error(e);
       }
-      console.log(claimableRewards);
     }
 
-    if (stakingContract) {
-      loadStakedNfts();
-      loadClaimableRewards();
-    }
-  }, [address, stakingContract]);
+    loadClaimableRewards();
+  }, [address, signer]);
 
   ///////////////////////////////////////////////////////////////////////////
   // Write Functions
   ///////////////////////////////////////////////////////////////////////////
   async function stakeNft(id: BigNumber) {
-    const sdk = new ThirdwebSDK(signer);
     const contract = await sdk.getContract(
-      "0x60e43fe4fC2f9B2C6E883BBf991979E225866370"
+      "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7"
     );
 
     const isApproved = await nftDropContract?.isApproved(
       address,
-      "0x60e43fe4fC2f9B2C6E883BBf991979E225866370"
+      "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7"
     );
     // If not approved, request approval
     if (!isApproved) {
       await nftDropContract?.setApprovalForAll(
-        "0x60e43fe4fC2f9B2C6E883BBf991979E225866370",
+        "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7",
         true
       );
     }
-    const stake = await contract.functions.stake(id);
+    const stake = await contract.call("stake", id);
   }
 
   async function withdraw(id: BigNumber) {
-    const sdk = new ThirdwebSDK(signer);
     const contract = await sdk.getContract(
-      "0x60e43fe4fC2f9B2C6E883BBf991979E225866370"
+      "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7"
     );
-    const withdraw = await contract.functions.withdraw(id);
+    const withdraw = await contract.call("withdraw", id);
   }
 
   async function claimRewards() {
-    const sdk = new ThirdwebSDK(signer);
     const contract = await sdk.getContract(
-      "0x60e43fe4fC2f9B2C6E883BBf991979E225866370"
+      "0x602DaEf2193b60AD6F1dC3cDF147224a7223Dae7"
     );
-    const claim = await contract.functions.claimRewards();
+    const claim = await contract.call("claimRewards");
   }
 
   return (

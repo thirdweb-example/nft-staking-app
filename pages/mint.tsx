@@ -1,4 +1,9 @@
-import { useAddress, useMetamask, useNFTDrop } from "@thirdweb-dev/react";
+import {
+  useAddress,
+  useMetamask,
+  useNFTDrop,
+  useSDK,
+} from "@thirdweb-dev/react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import styles from "../styles/Home.module.css";

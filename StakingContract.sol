@@ -6,22 +6,25 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-import "@thirdweb-dev/contracts/ThirdwebContract.sol";
-
-contract ERC721Staking is ThirdwebContract, ReentrancyGuard {
+contract ERC721Staking is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     // Interfaces for ERC20 and ERC721
     IERC20 public immutable rewardsToken;
     IERC721 public immutable nftCollection;
+
+    struct StakedToken {
+        address staker;
+        uint256 tokenId;
+    }
     
     // Staker info
     struct Staker {
         // Amount of tokens staked by the staker
         uint256 amountStaked;
 
-        // Staked tokens (where (2**256 - 1) value means it has been unstaked)
-        uint256[] stakedTokens;
+        // Staked tokens 
+        StakedToken[] stakedTokens;
 
         // Last time of the rewards were calculated for this user
         uint256 timeOfLastUpdate;
@@ -69,11 +72,14 @@ contract ERC721Staking is ThirdwebContract, ReentrancyGuard {
         // Transfer the token from the wallet to the Smart contract
         nftCollection.transferFrom(msg.sender, address(this), _tokenId);
 
-        // Increment the amount staked for this wallet
-        stakers[msg.sender].amountStaked++;
+        // Create StakedToken
+        StakedToken memory stakedToken = StakedToken(msg.sender, _tokenId);
 
         // Add the token to the stakedTokens array
-        stakers[msg.sender].stakedTokens.push(_tokenId);
+        stakers[msg.sender].stakedTokens.push(stakedToken);
+
+        // Increment the amount staked for this wallet
+        stakers[msg.sender].amountStaked++;
 
         // Update the mapping of the tokenId to the staker's address
         stakerAddress[_tokenId] = msg.sender;
@@ -100,20 +106,20 @@ contract ERC721Staking is ThirdwebContract, ReentrancyGuard {
         uint256 rewards = calculateRewards(msg.sender);
         stakers[msg.sender].unclaimedRewards += rewards;
 
-        // Decrement the amount staked for this wallet
-        stakers[msg.sender].amountStaked--;
-
         // Find the index of this token id in the stakedTokens array
         uint256 index = 0;
         for (uint256 i = 0; i < stakers[msg.sender].stakedTokens.length; i++) {
-            if (stakers[msg.sender].stakedTokens[i] == _tokenId) {
+            if (stakers[msg.sender].stakedTokens[i].tokenId == _tokenId) {
                 index = i;
                 break;
             }
         }
 
-        // Set this token id to a value that will be ignored by the SC
-        stakers[msg.sender].stakedTokens[index] = 2**256 - 1;
+        // Remove this token from the stakedTokens array
+        stakers[msg.sender].stakedTokens[index].staker = address(0);
+
+        // Decrement the amount staked for this wallet
+        stakers[msg.sender].amountStaked--;
 
         // Update the mapping of the tokenId to the be address(0) to indicate that the token is no longer staked
         stakerAddress[_tokenId] = address(0);
@@ -142,41 +148,37 @@ contract ERC721Staking is ThirdwebContract, ReentrancyGuard {
     // View //
     //////////
 
-    function userStakeInfo(address _user)
-        public
-        view
-        returns (uint256 _tokensStaked, uint256 _availableRewards)
-    {
-        return (stakers[_user].amountStaked, availableRewards(_user));
+    function availableRewards(address _user) public view returns (uint256) {
+        if (stakers[_user].amountStaked > 0) {
+            uint256 _rewards = stakers[_user].unclaimedRewards +
+                calculateRewards(_user);
+            return _rewards;
+        }
+        else {
+            return 0;
+        }
     }
 
-    function availableRewards(address _user) internal view returns (uint256) {
-        require(stakers[_user].amountStaked > 0, "User has no tokens staked");
-        uint256 _rewards = stakers[_user].unclaimedRewards +
-            calculateRewards(_user);
-        return _rewards;
-    }
-
-    function getStakedTokens(address _user) public view returns (uint256[] memory) {
+    function getStakedTokens(address _user) public view returns (StakedToken[] memory) {
         // Check if we know this user
         if (stakers[_user].amountStaked > 0) {
+            // Return all the tokens in the stakedToken Array for this user that are not -1
+            StakedToken[] memory _stakedTokens = new StakedToken[](stakers[_user].amountStaked);
+            uint256 _index = 0;
 
-        // Return all the tokens in the stakedToken Array for this user that are not -1
-        uint256[] memory _stakedTokens = new uint256[](stakers[_user].amountStaked);
-        uint256 _index = 0;
-
-        for (uint256 j = 0; j < stakers[_user].stakedTokens.length; j++) {
-            if (stakers[_user].stakedTokens[j] != (2**256 - 1)) {
-                _stakedTokens[_index] = stakers[_user].stakedTokens[j];
-                _index++;
+            for (uint256 j = 0; j < stakers[_user].stakedTokens.length; j++) {
+                if (stakers[_user].stakedTokens[j].staker != (address(0))) {
+                    _stakedTokens[_index] = stakers[_user].stakedTokens[j];
+                    _index++;
+                }
             }
-        }
 
-        return _stakedTokens;
+            return _stakedTokens;
         }
         
+        // Otherwise, return empty array
         else {
-            return new uint256[](0);
+            return new StakedToken[](0);
         }
     }
 
