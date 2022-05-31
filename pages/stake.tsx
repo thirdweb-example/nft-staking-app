@@ -15,7 +15,7 @@ import styles from "../styles/Home.module.css";
 
 const nftDropContractAddress = "0x322067594DBCE69A9a9711BC393440aA5e3Aaca1";
 const tokenContractAddress = "0xb1cF059e6847e4270920a02e969CA2E016AeA22B";
-const stakingContractAddress = "0x7aDC2c38Dcd3e398e8c790557Fb0DEbb2c5b485C";
+const stakingContractAddress = "0x4583E3aae5C712892Da391691bAe9a578DAaA7C9";
 
 const Stake: NextPage = () => {
   // Wallet Connection Hooks
@@ -68,7 +68,7 @@ const Stake: NextPage = () => {
     if (!contract || !address) return;
 
     async function loadClaimableRewards() {
-      const cr = await contract?.call("userStakeInfo", address);
+      const cr = await contract?.call("availableRewards");
       console.log("Loaded claimable rewards", cr);
       setClaimableRewards(cr);
     }
@@ -122,7 +122,14 @@ const Stake: NextPage = () => {
           <div className={styles.tokenGrid}>
             <div className={styles.tokenItem}>
               <h3 className={styles.tokenLabel}>Claimable Rewards</h3>
-              <p className={styles.tokenValue}>{tokenBalance?.symbol}</p>
+              <p className={styles.tokenValue}>
+                <b>
+                  {!claimableRewards
+                    ? "Loading..."
+                    : ethers.utils.formatUnits(claimableRewards, 18)}
+                </b>{" "}
+                {tokenBalance?.symbol}
+              </p>
             </div>
             <div className={styles.tokenItem}>
               <h3 className={styles.tokenLabel}>Current Balance</h3>
