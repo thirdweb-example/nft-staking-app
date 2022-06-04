@@ -29,7 +29,7 @@ contract ERC721Staking is ReentrancyGuard {
         // Amount of tokens staked by the staker
         uint256 amountStaked;
 
-        // Staked tokens 
+        // Staked token ids
         StakedToken[] stakedTokens;
 
         // Last time of the rewards were calculated for this user
@@ -41,7 +41,6 @@ contract ERC721Staking is ReentrancyGuard {
     }
 
     // Rewards per hour per token deposited in wei.
-    // Rewards are cumulated once every hour.
     uint256 private rewardsPerHour = 100000;
 
     // Mapping of User Address to Staker info
@@ -52,8 +51,7 @@ contract ERC721Staking is ReentrancyGuard {
     mapping(uint256 => address) public stakerAddress;
 
     // If address already has ERC721 Token/s staked, calculate the rewards.
-    // For every new Token Id in param transferFrom user to this Smart Contract,
-    // increment the amountStaked and map msg.sender to the Token Id of the staked
+    // Increment the amountStaked and map msg.sender to the Token Id of the staked
     // Token to later send back on withdrawal. Finally give timeOfLastUpdate the
     // value of now.
     function stake(uint256 _tokenId) external nonReentrant {
@@ -88,10 +86,9 @@ contract ERC721Staking is ReentrancyGuard {
         stakers[msg.sender].timeOfLastUpdate = block.timestamp;
     }
     
-    // Check if user has any ERC721 Tokens Staked and if he tried to withdraw,
-    // calculate the rewards and store them in the unclaimedRewards and for each
-    // ERC721 Token in param: check if msg.sender is the original staker, decrement
-    // the amountStaked of the user and transfer the ERC721 token back to them
+    // Check if user has any ERC721 Tokens Staked and if they tried to withdraw,
+    // calculate the rewards and store them in the unclaimedRewards
+    // decrement the amountStaked of the user and transfer the ERC721 token back to them
     function withdraw(uint256 _tokenId) external nonReentrant {
         // Make sure the user has at least one token staked before withdrawing
         require(
@@ -115,7 +112,7 @@ contract ERC721Staking is ReentrancyGuard {
             }
         }
 
-        // Remove this token from the stakedTokens array
+        // Set this token's .staker to be address 0 to mark it as no longer staked
         stakers[msg.sender].stakedTokens[index].staker = address(0);
 
         // Decrement the amount staked for this wallet
