@@ -13,6 +13,12 @@ contract ERC721Staking is ReentrancyGuard {
     IERC20 public immutable rewardsToken;
     IERC721 public immutable nftCollection;
 
+    // Constructor function to set the rewards token and the NFT collection addresses
+    constructor(IERC721 _nftCollection, IERC20 _rewardsToken) {
+        nftCollection = _nftCollection;
+        rewardsToken = _rewardsToken;
+    }
+
     struct StakedToken {
         address staker;
         uint256 tokenId;
@@ -44,12 +50,6 @@ contract ERC721Staking is ReentrancyGuard {
     // Mapping of Token Id to staker. Made for the SC to remeber
     // who to send back the ERC721 Token to.
     mapping(uint256 => address) public stakerAddress;
-
-    // Constructor function to set the rewards token and the NFT collection addresses
-    constructor(IERC721 _nftCollection, IERC20 _rewardsToken) {
-        nftCollection = _nftCollection;
-        rewardsToken = _rewardsToken;
-    }
 
     // If address already has ERC721 Token/s staked, calculate the rewards.
     // For every new Token Id in param transferFrom user to this Smart Contract,
@@ -87,7 +87,7 @@ contract ERC721Staking is ReentrancyGuard {
         // Update the timeOfLastUpdate for the staker   
         stakers[msg.sender].timeOfLastUpdate = block.timestamp;
     }
-
+    
     // Check if user has any ERC721 Tokens Staked and if he tried to withdraw,
     // calculate the rewards and store them in the unclaimedRewards and for each
     // ERC721 Token in param: check if msg.sender is the original staker, decrement
@@ -148,9 +148,9 @@ contract ERC721Staking is ReentrancyGuard {
     // View //
     //////////
 
-    function availableRewards() public view returns (uint256) {
-        uint256 rewards = calculateRewards(msg.sender) +
-            stakers[msg.sender].unclaimedRewards;
+    function availableRewards(address _staker) public view returns (uint256) {
+        uint256 rewards = calculateRewards(_staker) +
+            stakers[_staker].unclaimedRewards;
         return rewards;
     }
 
@@ -191,7 +191,7 @@ contract ERC721Staking is ReentrancyGuard {
     {
         return (((
             ((block.timestamp - stakers[_staker].timeOfLastUpdate) *
-                stakers[msg.sender].amountStaked)
+                stakers[_staker].amountStaked)
         ) * rewardsPerHour) / 3600);
     }
 }

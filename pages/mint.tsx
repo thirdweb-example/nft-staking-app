@@ -1,9 +1,4 @@
-import {
-  useAddress,
-  useMetamask,
-  useNFTDrop,
-  useSDK,
-} from "@thirdweb-dev/react";
+import { useAddress, useMetamask, useNFTDrop } from "@thirdweb-dev/react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import styles from "../styles/Home.module.css";
@@ -51,20 +46,12 @@ const Mint: NextPage = () => {
           Connect Wallet
         </button>
       ) : (
-        <>
-          <img
-            src={`/yellow_star.png`}
-            alt={"Example NFT Image"}
-            width={300}
-            height={300}
-          />
-          <button
-            className={`${styles.mainButton} ${styles.spacerBottom}`}
-            onClick={() => claimNft()}
-          >
-            Claim An NFT
-          </button>
-        </>
+        <button
+          className={`${styles.mainButton} ${styles.spacerBottom}`}
+          onClick={() => claimNft()}
+        >
+          Claim An NFT
+        </button>
       )}
     </div>
   );
