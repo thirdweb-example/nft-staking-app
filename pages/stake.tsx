@@ -103,7 +103,7 @@ const Stake: NextPage = () => {
   }
 
   if (isLoading) {
-    return <div>Connecting</div>;
+    return <div>Loading</div>;
   }
 
   return (
@@ -114,15 +114,15 @@ const Stake: NextPage = () => {
 
       {!address ? (
         <button className={styles.mainButton} onClick={connectWithMetamask}>
-          Connect Metamask
+          Connect Wallet
         </button>
       ) : (
         <>
-          <h2>AVY Token Rewards</h2>
+          <h2>Your AVY Tokens</h2>
 
           <div className={styles.tokenGrid}>
             <div className={styles.tokenItem}>
-              <h3 className={styles.tokenLabel}>Claimable AVY Rewards</h3>
+              <h3 className={styles.tokenLabel}>Claimable Rewards</h3>
               <p className={styles.tokenValue}>
                 <b>
                   {!claimableRewards
@@ -133,7 +133,7 @@ const Stake: NextPage = () => {
               </p>
             </div>
             <div className={styles.tokenItem}>
-              <h3 className={styles.tokenLabel}>STAKED FHM NFTs</h3>
+              <h3 className={styles.tokenLabel}>Current AVY Balance</h3>
               <p className={styles.tokenValue}>
                 <b>{tokenBalance?.displayValue}</b> {tokenBalance?.symbol}
               </p>
@@ -144,12 +144,12 @@ const Stake: NextPage = () => {
             className={`${styles.mainButton} ${styles.spacerTop}`}
             onClick={() => claimRewards()}
           >
-            CLAIM MY REWARDS
+            Claim Rewards
           </button>
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
-          <h2>YOUR STAKED FHM NFTs</h2>
+          <h2>Your Staked NFTs</h2>
           <div className={styles.nftBoxGrid}>
             {stakedNfts?.map((nft) => (
               <div className={styles.nftBox} key={nft.metadata.id.toString()}>
@@ -162,7 +162,7 @@ const Stake: NextPage = () => {
                   className={`${styles.mainButton} ${styles.spacerBottom}`}
                   onClick={() => withdraw(nft.metadata.id)}
                 >
-                  WITHDRAW
+                  Withdraw
                 </button>
               </div>
             ))}
@@ -170,7 +170,7 @@ const Stake: NextPage = () => {
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
-          <h2>YOUR UNSTAKED FHM NFTs</h2>
+          <h2>Your Unstaked NFTs</h2>
 
           <div className={styles.nftBoxGrid}>
             {ownedNfts?.map((nft) => (
@@ -184,7 +184,7 @@ const Stake: NextPage = () => {
                   className={`${styles.mainButton} ${styles.spacerBottom}`}
                   onClick={() => stakeNft(nft.metadata.id)}
                 >
-                  STAKE
+                  Stake
                 </button>
               </div>
             ))}
