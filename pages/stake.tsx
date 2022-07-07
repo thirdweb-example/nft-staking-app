@@ -162,8 +162,8 @@ const Stake: NextPage = () => {
                   className={`${styles.mainButton} ${styles.spacerBottom}`}
                   onClick={() => withdraw(nft.metadata.id)}
                 >
-                  Withdraw
-                </button>
+              Withdraw
+            </button>
               </div>
             ))}
           </div>
