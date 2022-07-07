@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
 
 const nftDropContractAddress = "0x269f26c44aAD70Cf9c53b5105823743FAF467c07";
-const tokenContractAddress = "0x95209E87f851404d748Fc1eAd020baFFf1DF8457";
+const tokenContractAddress = "0x7719a1a7b8528B5E628a5BA54A0Ea3AeaA21b063";
 const stakingContractAddress = "0x9C50b865f3a6a683DFf50FAC5cf909313c03C831";
 
 const Stake: NextPage = () => {
@@ -108,7 +108,7 @@ const Stake: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.h1}>FALCON HEAVY MARS GEYSER</h1>
+      <h1 className={styles.h1}>Stake Your NFTs</h1>
 
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
@@ -118,7 +118,7 @@ const Stake: NextPage = () => {
         </button>
       ) : (
         <>
-          <h2>Your AVY Tokens</h2>
+          <h2>Your Tokens</h2>
 
           <div className={styles.tokenGrid}>
             <div className={styles.tokenItem}>
@@ -133,7 +133,7 @@ const Stake: NextPage = () => {
               </p>
             </div>
             <div className={styles.tokenItem}>
-              <h3 className={styles.tokenLabel}>Current AVY Balance</h3>
+              <h3 className={styles.tokenLabel}>Current Balance</h3>
               <p className={styles.tokenValue}>
                 <b>{tokenBalance?.displayValue}</b> {tokenBalance?.symbol}
               </p>
@@ -162,8 +162,8 @@ const Stake: NextPage = () => {
                   className={`${styles.mainButton} ${styles.spacerBottom}`}
                   onClick={() => withdraw(nft.metadata.id)}
                 >
-              Withdraw
-            </button>
+                  Withdraw
+                </button>
               </div>
             ))}
           </div>
