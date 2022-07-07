@@ -13,7 +13,7 @@ const Mint: NextPage = () => {
 
   // Get the NFT Collection contract
   const nftDropContract = useNFTDrop(
-    "0x322067594DBCE69A9a9711BC393440aA5e3Aaca1"
+    "0x269f26c44aAD70Cf9c53b5105823743FAF467c07"
   );
 
   async function claimNft() {
@@ -30,11 +30,11 @@ const Mint: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.h1}>Mint An NFT!</h1>
+      <h1 className={styles.h1}>MINT A FRESH FALCON HEAVY MARS NFT</h1>
 
       <p className={styles.explain}>
-        Here is where we use our <b>NFT Drop</b> contract to allow users to mint
-        one of the NFTs that we lazy minted.
+      Falcon Heavy Mars is a collection of <b>10,000 unique NFTs</b> that are similar to Pokemon playing cards. 
+      Stake your <b>FHM NFTs</b> on the <b>GEYSER</b> and farm <b>AVY</b> tokens.
       </p>
       <hr className={`${styles.smallDivider} ${styles.detailPageHr}`} />
 
@@ -43,14 +43,14 @@ const Mint: NextPage = () => {
           className={`${styles.mainButton} ${styles.spacerBottom}`}
           onClick={connectWithMetamask}
         >
-          Connect Wallet
+          Connect Metamask
         </button>
       ) : (
         <button
           className={`${styles.mainButton} ${styles.spacerBottom}`}
           onClick={() => claimNft()}
         >
-          Claim An NFT
+          MINT NFT
         </button>
       )}
     </div>
