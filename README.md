@@ -22,7 +22,7 @@ We deploy the NFT Staking Smart contract using [thirdweb deploy](https://portal.
 - Create a copy of this repo by running the below command:
 
 ```bash
-npx thirdweb create --example nft-staking-app
+npx thirdweb create --template nft-staking-app
 ```
 
 - Deploy the `StakingContract.sol` smart contract by running the below command from the root of the project directory:
