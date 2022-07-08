@@ -12,10 +12,15 @@ import { BigNumber, ethers } from "ethers";
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
+import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 
-const nftDropContractAddress = "0x322067594DBCE69A9a9711BC393440aA5e3Aaca1";
-const tokenContractAddress = "0xb1cF059e6847e4270920a02e969CA2E016AeA22B";
-const stakingContractAddress = "0xB712975e13427ac804177E7CebF08781bbF9B89c";
+const sdk = new ThirdwebSDK("polygon");
+const contract = await sdk.getContract("0xD9EaFf0D99f1260C0036fdaF92512E8D44C373e2");
+
+
+const nftDropContractAddress = "0x269f26c44aAD70Cf9c53b5105823743FAF467c07";
+const tokenContractAddress = "0x7719a1a7b8528B5E628a5BA54A0Ea3AeaA21b063";
+const stakingContractAddress = "0xD9EaFf0D99f1260C0036fdaF92512E8D44C373e2";
 
 const Stake: NextPage = () => {
   // Wallet Connection Hooks
@@ -46,6 +51,7 @@ const Stake: NextPage = () => {
     async function loadStakedNfts() {
       const stakedTokens = await contract?.call("getStakedTokens", address);
 
+      
       // For each staked token, fetch it from the sdk
       const stakedNfts = await Promise.all(
         stakedTokens?.map(
@@ -108,7 +114,7 @@ const Stake: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.h1}>Stake Your NFTs</h1>
+      <h1 className={styles.h1}>FALCON HEAVY MARS GEYSER</h1>
 
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
@@ -196,3 +202,7 @@ const Stake: NextPage = () => {
 };
 
 export default Stake;
+function _tokenId(arg0: string, _tokenId: any) {
+  throw new Error("Function not implemented.");
+}
+
