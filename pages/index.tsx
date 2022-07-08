@@ -8,7 +8,7 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       {/* Top Section */}
-      <h1 className={styles.h1}>thirdweb Deploy - Custom Staking Contract</h1>
+      <h1 className={styles.h1}>FALCON HEAVY MARS NFT</h1>
 
       <div
         className={styles.nftBoxGrid}
@@ -20,7 +20,7 @@ const Home: NextPage = () => {
           <img src={`/icons/drop.webp`} alt="drop" />
           <h2 className={styles.selectBoxTitle}>Mint a new NFT</h2>
           <p className={styles.selectBoxDescription}>
-            Use the NFT Drop Contract to claim an NFT from the collection.
+            Mint a fresh Falcon Heavy Mars NFT from the collection.
           </p>
         </div>
 
@@ -32,8 +32,8 @@ const Home: NextPage = () => {
           <img src={`/icons/token.webp`} alt="drop" />
           <h2 className={styles.selectBoxTitle}>Stake Your NFTs</h2>
           <p className={styles.selectBoxDescription}>
-            Use the custom staking contract deployed via <b>thirdweb Deploy</b>{" "}
-            to stake your NFTs, and earn tokens from the <b>Token</b> contract.
+            Stake your <b>FHM NFTs</b> on the <b>Geyser</b> and farm AVY tokens.{" "}
+            
           </p>
         </div>
       </div>
