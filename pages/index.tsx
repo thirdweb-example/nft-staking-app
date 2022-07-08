@@ -1,7 +1,11 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import styles from "../styles/Home.module.css";
+import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 
+const sdk = new ThirdwebSDK("polygon");
+const contract = await sdk.getContract("0xD9EaFf0D99f1260C0036fdaF92512E8D44C373e2");
+const result = await contract.call("withdraw", _tokenId);
 const Home: NextPage = () => {
   const router = useRouter();
 
@@ -42,3 +46,7 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+function _tokenId(arg0: string, _tokenId: any) {
+  throw new Error("Function not implemented.");
+}
+
