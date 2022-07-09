@@ -30,11 +30,11 @@ const Mint: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.h1}>Mint An NFT!</h1>
+      <h1 className={styles.h1}>FALCON HEAVY MARS NFTs</h1>
 
       <p className={styles.explain}>
-        Here is where we use our <b>NFT Drop</b> contract to allow users to mint
-        one of the NFTs that we lazy minted.
+      A secret super intelligent society of Falcons has been growing on mars for the past 413,000 years. 
+      The Falcon Heavy Mars edition is a collection of <b>10,000 unique NFTs</b> that are similar to Pokemon playing cards.
       </p>
       <hr className={`${styles.smallDivider} ${styles.detailPageHr}`} />
 
@@ -43,14 +43,14 @@ const Mint: NextPage = () => {
           className={`${styles.mainButton} ${styles.spacerBottom}`}
           onClick={connectWithMetamask}
         >
-          Connect Wallet
+          Connect Metamask
         </button>
       ) : (
         <button
           className={`${styles.mainButton} ${styles.spacerBottom}`}
           onClick={() => claimNft()}
         >
-          Claim An NFT
+          MINT NFT
         </button>
       )}
     </div>
