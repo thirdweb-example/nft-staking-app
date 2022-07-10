@@ -122,7 +122,7 @@ const Stake: NextPage = () => {
 
           
           
-          <h2>YOUR FHM NFTS</h2>
+          <h2>YOUR FHM NFTs</h2>
 
           <div className={styles.nftBoxGrid}>
             {ownedNfts?.map((nft) => (

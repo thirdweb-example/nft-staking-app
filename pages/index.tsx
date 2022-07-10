@@ -32,7 +32,7 @@ const Home: NextPage = () => {
           <img src={`/icons/token.webp`} alt="drop" />
           <h2 className={styles.selectBoxTitle}>NFT PORTAL</h2>
           <p className={styles.selectBoxDescription}>
-            VIEW YOUR <b>FALCON HEAVY MARS</b> COLLECTION.
+            VIEW YOUR <b>FALCON HEAVY MARS</b> COLLECTION
           </p>
         </div>
       </div>
