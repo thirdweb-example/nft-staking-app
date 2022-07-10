@@ -140,7 +140,7 @@ const Stake: NextPage = () => {
           </div>
           
           <h2></h2>
-          <h2>YOUR AVY TOKENS</h2>
+          <h2>YOUR AVY TOKENs</h2>
           
           <div className={styles.tokenGrid}>
             

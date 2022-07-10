@@ -20,7 +20,7 @@ const Home: NextPage = () => {
           <img src={`/icons/drop.webp`} alt="drop" />
           <h2 className={styles.selectBoxTitle}>MINT NFT</h2>
           <p className={styles.selectBoxDescription}>
-            MINT A FRESH FALCON HEAVY MARS NFT
+            MINT A FRESH <b>FALCON HEAVY MARS</b> NFT
           </p>
         </div>
 
