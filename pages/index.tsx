@@ -20,7 +20,7 @@ const Home: NextPage = () => {
           <img src={`/icons/drop.webp`} alt="drop" />
           <h2 className={styles.selectBoxTitle}>MINT NFT</h2>
           <p className={styles.selectBoxDescription}>
-            MINT A FRESH <b>FALCON HEAVY MARS</b> NFT
+            MINT A FRESH <b>FALCON HEAVY PUNKS</b> NFT
           </p>
         </div>
 
@@ -32,7 +32,7 @@ const Home: NextPage = () => {
           <img src={`/icons/token.webp`} alt="drop" />
           <h2 className={styles.selectBoxTitle}>NFT PORTAL</h2>
           <p className={styles.selectBoxDescription}>
-            VIEW YOUR <b>FALCON HEAVY MARS</b> COLLECTION
+            VIEW YOUR <b>FALCON HEAVY NFTs</b> COLLECTION
           </p>
         </div>
       </div>

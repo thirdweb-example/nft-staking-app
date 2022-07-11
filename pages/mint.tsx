@@ -13,7 +13,7 @@ const Mint: NextPage = () => {
 
   // Get the NFT Collection contract
   const nftDropContract = useNFTDrop(
-    "0x269f26c44aAD70Cf9c53b5105823743FAF467c07"
+    "0x65722043850D02a16Cc4A8F45687778b298Ef58E"
   );
 
   async function claimNft() {
@@ -30,11 +30,11 @@ const Mint: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.h1}>FALCON HEAVY MARS NFTs</h1>
+      <h1 className={styles.h1}>FALCON HEAVY PUNKS NFTs</h1>
 
       <p className={styles.explain}>
       A secret super intelligent society of Falcons has been growing on mars for the past 413,000 years. 
-      The Falcon Heavy Mars edition is a collection of <b>10,000 unique NFTs</b> that are similar to Pokemon playing cards.
+      The Falcon Heavy Punks edition is a collection of <b>10,000 unique NFTs</b> that are similar to Crypto Punks in mars.
       </p>
       <hr className={`${styles.smallDivider} ${styles.detailPageHr}`} />
 

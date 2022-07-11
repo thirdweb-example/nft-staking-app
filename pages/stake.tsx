@@ -13,6 +13,7 @@ import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
 
+const nftDropContractAddress = "0x65722043850D02a16Cc4A8F45687778b298Ef58E";
 const nftDropContractAddress = "0x269f26c44aAD70Cf9c53b5105823743FAF467c07";
 const tokenContractAddress = "0x40B6450E958e899c972731392A4074A29E97eac4";
 const stakingContractAddress = "0xD9EaFf0D99f1260C0036fdaF92512E8D44C373e2";
@@ -108,7 +109,7 @@ const Stake: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.h1}>FALCON HEAVY MARS PORTAL</h1>
+      <h1 className={styles.h1}>FALCON HEAVY PORTAL</h1>
 
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
@@ -122,7 +123,7 @@ const Stake: NextPage = () => {
 
           
           
-          <h2>YOUR FHM NFTs</h2>
+          <h2>YOUR FALCON HEAVY NFTs</h2>
 
           <div className={styles.nftBoxGrid}>
             {ownedNfts?.map((nft) => (
