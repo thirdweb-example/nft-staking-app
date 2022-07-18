@@ -106,7 +106,11 @@ contract ERC721Staking is ReentrancyGuard {
         // Find the index of this token id in the stakedTokens array
         uint256 index = 0;
         for (uint256 i = 0; i < stakers[msg.sender].stakedTokens.length; i++) {
-            if (stakers[msg.sender].stakedTokens[i].tokenId == _tokenId) {
+            if (
+                stakers[msg.sender].stakedTokens[i].tokenId == _tokenId 
+                && 
+                stakers[msg.sender].stakedTokens[i].staker != address(0)
+            ) {
                 index = i;
                 break;
             }
