@@ -65,13 +65,22 @@ const Stake: NextPage = () => {
 
 
   const processError = (error) => {
-    console.log(error.message)
-    switch (error.message) {
+    let metamaskError = false
+    try {
+      metamaskError = error.message.replace(`Internal JSON-RPC error.`,``)
+      metamaskError = JSON.parse(metamaskError)
+    } catch (e) {}
+    const errMsg = (metamaskError && metamaskError.message) ? metamaskError.message : error.message
+    
+    switch (errMsg) {
       case `execution reverted: You don't own this token!`:
         console.log(`You dont own this token`)
         break;
       case `MetaMask Tx Signature: User denied transaction signature.`:
         console.log('Transaction denied')
+        break;
+      case `execution reverted: ERC721: invalid token ID`:
+        console.log('Invalid token ID')
         break;
       default:
         console.log('Unkrnown error', error.message)
