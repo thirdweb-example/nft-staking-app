@@ -12,8 +12,6 @@ const Home: NextPage = () => {
 
       <div
         className={styles.nftBoxGrid}
-        role="button"
-        onClick={() => router.push(`/mint`)}
       >
         {/* Mint a new NFT */}
 {/*
@@ -28,9 +26,8 @@ const Home: NextPage = () => {
         <div
           className={styles.optionSelectBox}
           role="button"
-          onClick={() => router.push(`/stake`)}
+          onClick={() => router.push(`/stake.html`)}
         >
-          <img src={`/icons/token.webp`} alt="drop" />
           <h2 className={styles.selectBoxTitle}>Stake Your NFTs</h2>
           <p className={styles.selectBoxDescription}>
             Use the custom staking contract deployed via <b>thirdweb Deploy</b>{" "}

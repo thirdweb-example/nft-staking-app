@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "prepare": "node prepare-static",
+    "buildstatic": "next build && next export && node prepare-static",
     "start": "next start",
     "lint": "next lint"
   },
@@ -24,6 +26,7 @@
     "@types/react": "^17.0.40",
     "eslint": "^8.11.0",
     "eslint-config-next": "^12.1.0",
+    "glob": "^8.0.3",
     "human-standard-token-abi": "^2.0.0",
     "typescript": "^4.6.2",
     "web3": "^1.7.4"
