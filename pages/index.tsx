@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import styles from "../styles/Home.module.css";
+import { getLink } from "../helpers/getLink";
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -26,7 +27,7 @@ const Home: NextPage = () => {
         <div
           className={styles.optionSelectBox}
           role="button"
-          onClick={() => router.push(`/stake.html`)}
+          onClick={() => router.push(getLink(`/stake`))}
         >
           <h2 className={styles.selectBoxTitle}>Stake Your NFTs</h2>
           <p className={styles.selectBoxDescription}>
