@@ -61,6 +61,23 @@ const Stake: NextPage = () => {
   const [ownedNftsLoading, setOwnedNftsLoading] = useState(true)
   const [canListOwnedNfts, setCanListOwnedNfts] = useState(false)
 
+  const [customTokenId, setCustomTokenId] = useState(false)
+
+
+  const processError = (error) => {
+    console.log(error.message)
+    switch (error.message) {
+      case `execution reverted: You don't own this token!`:
+        console.log(`You dont own this token`)
+        break;
+      case `MetaMask Tx Signature: User denied transaction signature.`:
+        console.log('Transaction denied')
+        break;
+      default:
+        console.log('Unkrnown error', error.message)
+        break;
+    }
+  }
   const fetchAvailableReward = () => {
     farmContract.methods.availableRewards(address).call().then((rewardsWei) => {
       setClaimableRewards(rewardsWei)
@@ -75,6 +92,7 @@ const Stake: NextPage = () => {
         setRewardTokenBalanceLoading(false)
       }).catch((err) => {
         console.log('>>> fetchTotalRewardBalance', err)
+        processError(err)
       })
     }
   }
@@ -143,6 +161,7 @@ const Stake: NextPage = () => {
           setOwnedNftsLoading(false)
         }).catch((err) => {
           console.log('>>> fetchUserNfts', err)
+          processError(err)
         })
       }
     }
@@ -192,6 +211,7 @@ const Stake: NextPage = () => {
         setFarmContract(_farmContract)
       }).catch((err) => {
         console.log('>>> initOnWeb3Ready', err)
+        processError(err)
       })
     }
   }
@@ -208,6 +228,7 @@ const Stake: NextPage = () => {
         fetchTotalRewardBalance()
       }).catch((err) => {
         console.log('>>> claimRewards', err)
+        processError(err)
       })
     }
   }
@@ -215,24 +236,36 @@ const Stake: NextPage = () => {
   async function stakeNft(id: BigNumber) {
     if (address && farmContract && nftContract) {
       const _doStake = async () => {
-        const stakeTxData = await calcSendArgWithFee(address, farmContract, "stake", [id])
-        farmContract.methods.stake(id).send(stakeTxData).then(() => {
-          const _stakedNfts = stakedNfts
-          _stakedNfts.push(id)
-          setStakedNfts(_stakedNfts)
-          setOwnedNfts(ownedNfts.filter((tokenId) => { return tokenId !== id }))
-        }).catch((err) => {
-          console.log('>> stakeNft', err)
-        })
+        try {
+          const stakeTxData = await calcSendArgWithFee(address, farmContract, "stake", [id])
+          farmContract.methods.stake(id).send(stakeTxData).then(() => {
+            const _stakedNfts = stakedNfts
+            _stakedNfts.push(id)
+            setStakedNfts(_stakedNfts)
+            setOwnedNfts(ownedNfts.filter((tokenId) => { return tokenId !== id }))
+          }).catch((err) => {
+            console.log('>> stakeNft', err)
+            processError(err)
+          })
+        } catch (err) {
+          console.log('>> stakeNft calc gas', err)
+          processError(err)
+        }
       }
       if (!isApproved) {
-        const approveTxData = await calcSendArgWithFee(address, nftContract, "setApprovalForAll", [stakingContractAddress, true]);
-        nftContract.methods.setApprovalForAll(stakingContractAddress, true).send(approveTxData).then(async (ok) => {
-          setIsApproved(true)
-          _doStake()
-        }).catch((err) => {
-          console.log('>> stakeNft do approve', err)
-        })
+        try {
+          const approveTxData = await calcSendArgWithFee(address, nftContract, "setApprovalForAll", [stakingContractAddress, true]);
+          nftContract.methods.setApprovalForAll(stakingContractAddress, true).send(approveTxData).then(async (ok) => {
+            setIsApproved(true)
+            _doStake()
+          }).catch((err) => {
+            console.log('>> stakeNft do approve', err)
+            processError(err)
+          })
+        } catch (err) {
+          console.log('>>> stakeNft do approve calc gas', err)
+          processError(err)
+        }
       } else {
         _doStake()
       }
@@ -241,15 +274,21 @@ const Stake: NextPage = () => {
 
   async function withdraw(id: BigNumber) {
     if (address && farmContract) {
-      const sendArgs = await calcSendArgWithFee(address, farmContract, "withdraw", [id])
-      farmContract.methods.withdraw(id).send(sendArgs).then((res) => {
-        const _ownedNtfs = ownedNfts
-        _ownedNtfs.push(id)
-        setOwnedNfts(_ownedNtfs)
-        setStakedNfts(stakedNfts.filter((tokenId) => { return tokenId !== id }))
-      }).catch((err) => {
-        console.log('>>> withdraw', err)
-      })
+      try {
+        const sendArgs = await calcSendArgWithFee(address, farmContract, "withdraw", [id])
+        farmContract.methods.withdraw(id).send(sendArgs).then((res) => {
+          const _ownedNtfs = ownedNfts
+          _ownedNtfs.push(id)
+          setOwnedNfts(_ownedNtfs)
+          setStakedNfts(stakedNfts.filter((tokenId) => { return tokenId !== id }))
+        }).catch((err) => {
+          console.log('>>> withdraw', err)
+          processError(err)
+        })
+      } catch (err) {
+        console.log('>>> withdraw calc gas', err)
+        processError(err)
+      }
     }
   }
 
@@ -262,13 +301,40 @@ const Stake: NextPage = () => {
       } = answer
       setActiveChainId(activeChainId)
       setActiveWeb3(web3)
-    }).catch((e) => {
-      console.log(">>>> connectWithMetamask", e)
+    }).catch((err) => {
+      console.log(">>>> connectWithMetamask", err)
+      processError(err)
     })
   }
 
+  const doStakeCustomNft = () => {
+    console.log(customTokenId)
+    if (customTokenId) {
+      stakeNft(customTokenId)
+    }
+  }
+
+  const stakeCustomNft = (
+    <div>
+      <b>TokenId</b>
+      <input type="number" onChange={(v) => setCustomTokenId(v.target.value)} />
+      <button
+        className={`${styles.mainButton} ${styles.spacerBottom}`}
+        onClick={doStakeCustomNft}
+      >
+        {isApproved ? 'Stake' : 'Approve & Stake'}
+      </button>
+    </div>
+  )
+
   return (
     <div className={styles.container}>
+      <nav className={`${styles.mainNav}`}>
+        <a href="#">About</a>
+        <a href="#">Stake</a>
+        <a href="#">Settings</a>
+      </nav>
+      <hr className={`${styles.divider} ${styles.spacerTop}`} />
       <h1 className={styles.h1}>Stake Your NFTs</h1>
 
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
@@ -306,6 +372,8 @@ const Stake: NextPage = () => {
             </div>
           </div>
 
+          <hr className={`${styles.divider} ${styles.spacerTop}`} />
+          <b>Connected wallet {address}</b>
           <button
             className={`${styles.mainButton} ${styles.spacerTop}`}
             onClick={() => claimRewards()}
@@ -354,7 +422,7 @@ const Stake: NextPage = () => {
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
           <h2>Your Unstaked NFTs</h2>
-
+          {stakeCustomNft}
           <div className={styles.nftBoxGrid}>
             {ownedNftsLoading ? (
               <p className={styles.tokenValue}>

@@ -34,7 +34,7 @@
 }
 
 .container {
-  margin-top: 96px;
+  margin-top: 26px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -461,4 +461,15 @@
 
 .noGapBottom {
   margin-bottom: 0px;
+}
+
+.mainNav {
+  display: block;
+}
+
+.mainNav A {
+  display: inline-block;
+  padding-left: 10px;
+  padding-right: 10px;
+  color: #FFF;
 }
