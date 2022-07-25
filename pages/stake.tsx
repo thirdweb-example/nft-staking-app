@@ -15,8 +15,10 @@ import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
 
-import setupWeb3 from "../helpers/setupWeb3";
+import { setupWeb3, switchOrAddChain } from "../helpers/setupWeb3"
 import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee";
+import navBlock from "../components/navBlock";
+
 
 const chainId = 97;
 const nftDropContractAddress = "0x7682598A861336359740C08b3D1C5981F9473979";
@@ -206,7 +208,7 @@ const Stake: NextPage = () => {
   }, [address, nftContract])
 
   const initOnWeb3Ready = async () => {
-    if (activeWeb3) {
+    if (activeWeb3 && (`${activeChainId}` == `${chainId}`)) {
       activeWeb3.eth.getAccounts().then((accounts) => {
         setAddress(accounts[0])
         const _mcContract = new activeWeb3.eth.Contract(MulticallAbi, MULTICALL_CONTRACTS[activeChainId])
@@ -309,7 +311,12 @@ const Stake: NextPage = () => {
         activeChainId, web3
       } = answer
       setActiveChainId(activeChainId)
-      setActiveWeb3(web3)
+      if (`${activeChainId}` === `${chainId}`) {
+        setActiveWeb3(web3)
+      } else {
+        console.log('>>> need change chain')
+        switchOrAddChain(chainId)
+      }
     }).catch((err) => {
       console.log(">>>> connectWithMetamask", err)
       processError(err)
@@ -338,12 +345,7 @@ const Stake: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <nav className={`${styles.mainNav}`}>
-        <a href="#">About</a>
-        <a href="#">Stake</a>
-        <a href="#">Settings</a>
-      </nav>
-      <hr className={`${styles.divider} ${styles.spacerTop}`} />
+      {navBlock(`stake`, true)}
       <h1 className={styles.h1}>Stake Your NFTs</h1>
 
       <hr className={`${styles.divider} ${styles.spacerTop}`} />

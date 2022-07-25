@@ -473,3 +473,8 @@
   padding-right: 10px;
   color: #FFF;
 }
+
+.mainNav A.active {
+  font-weight: bold;
+  text-decoration: none;
+}

@@ -1,6 +1,49 @@
 import Web3 from 'web3'
 import { AVAILABLE_NETWORKS_INFO } from './constants'
 
+const switchOrAddChain = async (neededChainId) => {
+  const {
+    chainId,
+    chainName,
+    rpcUrls,
+    blockExplorerUrls,
+    nativeCurrency,
+  } = getChainInfoById(neededChainId)
+
+  const params = [
+    {
+      chainId,
+      chainName,
+      rpcUrls,
+      blockExplorerUrls,
+      nativeCurrency,
+    }
+  ]
+
+  try {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: `0x${Number(chainId).toString(16)}` }],
+    });
+  } catch (switchError) {
+    // This error code indicates that the chain has not been added to MetaMask.
+    if (switchError.code === 4902) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params,
+        });
+      } catch (addError) {
+        // handle "add" error
+      }
+    } else {
+      console.error('Switch chain error: ', switchError.message)
+    }
+
+  }
+}
+
+const getChainInfoById = (chainId: string) => AVAILABLE_NETWORKS_INFO.find(networkInfo => networkInfo.networkVersion === chainId)
 
 const setupWeb3 = () => new Promise((resolve, reject) => {
   if (window.ethereum) {
@@ -30,5 +73,10 @@ const setupWeb3 = () => new Promise((resolve, reject) => {
   }
 })
 
+
+export {
+  switchOrAddChain,
+  setupWeb3
+}
 
 export default setupWeb3
