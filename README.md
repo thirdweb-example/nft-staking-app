@@ -50,7 +50,7 @@ In this section, we'll dive into the code and explain how it works.
 
 ## NFT Staking Smart Contract
 
-The NFT Staking contract in [StakingContract.sol](/StakingContract.sol) can be broken down into three parts:
+The NFT Staking contract in [StakingContract.sol](./StakingContract.sol) can be broken down into three parts:
 
 1. Staking
 2. Withdrawing
