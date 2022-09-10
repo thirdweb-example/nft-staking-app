@@ -50,6 +50,9 @@ contract ERC721Staking is ReentrancyGuard {
     // who to send back the ERC721 Token to.
     mapping(uint256 => address) public stakerAddress;
 
+    // map to keep track of the "index" of tokenId in stakedToken[]
+    mapping(uint256 => uint256) private stakedTokenIdxs;
+
     // If address already has ERC721 Token/s staked, calculate the rewards.
     // Increment the amountStaked and map msg.sender to the Token Id of the staked
     // Token to later send back on withdrawal. Finally give timeOfLastUpdate the
@@ -79,6 +82,9 @@ contract ERC721Staking is ReentrancyGuard {
         // Increment the amount staked for this wallet
         stakers[msg.sender].amountStaked++;
 
+        //Add the index of newly stakedToken in stakedTokenIdxs mapping
+        stakedTokenIdxs[_tokenId] = stakers[msg.sender].stakedTokens.length - 1;
+
         // Update the mapping of the tokenId to the staker's address
         stakerAddress[_tokenId] = msg.sender;
 
@@ -103,33 +109,24 @@ contract ERC721Staking is ReentrancyGuard {
         uint256 rewards = calculateRewards(msg.sender);
         stakers[msg.sender].unclaimedRewards += rewards;
 
-        // Find the index of this token id in the stakedTokens array
-        uint256 index = 0;
-        for (uint256 i = 0; i < stakers[msg.sender].stakedTokens.length; i++) {
-            if (
-                stakers[msg.sender].stakedTokens[i].tokenId == _tokenId 
-                && 
-                stakers[msg.sender].stakedTokens[i].staker != address(0)
-            ) {
-                index = i;
-                break;
-            }
+        // Get the index of stakedToken from stakedTokenIdxs mapping
+        uint256 tokenIdx = stakedTokenIdxs[_tokenId];
+        if (stakers[msg.sender].stakedTokens[tokenIdx].staker != address(0)) {
+            // Set this token's .staker to be address 0 to mark it as no longer staked
+            stakers[msg.sender].stakedTokens[index].staker = address(0);
+
+            // Decrement the amount staked for this wallet
+            stakers[msg.sender].amountStaked--;
+
+            // Update the mapping of the tokenId to the be address(0) to indicate that the token is no longer staked
+            stakerAddress[_tokenId] = address(0);
+
+            // Transfer the token back to the withdrawer
+            nftCollection.transferFrom(address(this), msg.sender, _tokenId);
+
+            // Update the timeOfLastUpdate for the withdrawer   
+            stakers[msg.sender].timeOfLastUpdate = block.timestamp;
         }
-
-        // Set this token's .staker to be address 0 to mark it as no longer staked
-        stakers[msg.sender].stakedTokens[index].staker = address(0);
-
-        // Decrement the amount staked for this wallet
-        stakers[msg.sender].amountStaked--;
-
-        // Update the mapping of the tokenId to the be address(0) to indicate that the token is no longer staked
-        stakerAddress[_tokenId] = address(0);
-
-        // Transfer the token back to the withdrawer
-        nftCollection.transferFrom(address(this), msg.sender, _tokenId);
-
-        // Update the timeOfLastUpdate for the withdrawer   
-        stakers[msg.sender].timeOfLastUpdate = block.timestamp;
     }
 
     // Calculate rewards for the msg.sender, check if there are any rewards
