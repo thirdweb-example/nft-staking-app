@@ -1,5 +1,7 @@
 # NFT Staking App
 
+**Disclaimer**: This smart contract is not tested or audited by thirdweb. It is not intended for production use cases.
+
 ## Introduction
 
 This example demonstrates a use of several thirdweb tools to create an NFT Staking application. In this example, users can stake their ERC721 NFTs and earn ERC20 tokens as a reward. It combines:
