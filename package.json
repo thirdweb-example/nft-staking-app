@@ -11,9 +11,9 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
     "@openzeppelin/contracts-upgradeable": "^4.6.0",
-    "@thirdweb-dev/contracts": "^2.3.9",
-    "@thirdweb-dev/react": "^2",
-    "@thirdweb-dev/sdk": "^2",
+    "@thirdweb-dev/contracts": "^3",
+    "@thirdweb-dev/react": "^3",
+    "@thirdweb-dev/sdk": "^3",
     "ethers": "^5.6.8",
     "next": "^12.1.6",
     "react": "^18.1.0",
