@@ -2,8 +2,6 @@ import {
   ThirdwebNftMedia,
   useAddress,
   useMetamask,
-  useNFTDrop,
-  useToken,
   useTokenBalance,
   useOwnedNFTs,
   useContract,
@@ -23,8 +21,15 @@ const Stake: NextPage = () => {
   const connectWithMetamask = useMetamask();
 
   // Contract Hooks
-  const nftDropContract = useNFTDrop(nftDropContractAddress);
-  const tokenContract = useToken(tokenContractAddress);
+  const { contract: nftDropContract } = useContract(
+    nftDropContractAddress,
+    "nft-drop"
+  );
+
+  const { contract: tokenContract } = useContract(
+    tokenContractAddress,
+    "token"
+  );
 
   const { contract, isLoading } = useContract(stakingContractAddress);
 
@@ -80,7 +85,7 @@ const Stake: NextPage = () => {
   ///////////////////////////////////////////////////////////////////////////
   // Write Functions
   ///////////////////////////////////////////////////////////////////////////
-  async function stakeNft(id: BigNumber) {
+  async function stakeNft(id: string) {
     if (!address) return;
 
     const isApproved = await nftDropContract?.isApproved(
