@@ -46,7 +46,7 @@ contract ERC721Staking is ReentrancyGuard {
     // Mapping of User Address to Staker info
     mapping(address => Staker) public stakers;
 
-    // Mapping of Token Id to staker. Made for the SC to remeber
+    // Mapping of Token Id to staker. Made for the SC to remember
     // who to send back the ERC721 Token to.
     mapping(uint256 => address) public stakerAddress;
 
