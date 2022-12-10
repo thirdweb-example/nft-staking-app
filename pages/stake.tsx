@@ -113,7 +113,7 @@ const Stake: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.h1}>Stake Your NFTs</h1>
+      <h1 className={styles.h1}>Stake Your Weed</h1>
 
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
@@ -149,12 +149,12 @@ const Stake: NextPage = () => {
             className={`${styles.mainButton} ${styles.spacerTop}`}
             onClick={() => claimRewards()}
           >
-            Claim Rewards
+            Claim $DFM Rewards
           </button>
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
-          <h2>Your Staked NFTs</h2>
+          <h2>Your Staked Weed</h2>
           <div className={styles.nftBoxGrid}>
             {stakedNfts?.map((nft) => (
               <div className={styles.nftBox} key={nft.metadata.id.toString()}>
@@ -175,7 +175,7 @@ const Stake: NextPage = () => {
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
-          <h2>Your Unstaked NFTs</h2>
+          <h2>Your Unstaked Weed</h2>
 
           <div className={styles.nftBoxGrid}>
             {ownedNfts?.map((nft) => (

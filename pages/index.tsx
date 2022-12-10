@@ -8,7 +8,7 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       {/* Top Section */}
-      <h1 className={styles.h1}>Welcome to the Dutch Farm! Mint and stake your NFTs here</h1>
+      <h1 className={styles.h1}>Welcome to the Dutch Farm! Mint and stake your NFTs </h1>
       <div className={styles.nftBoxGrid}>
         <div
           className={styles.optionSelectBox}
