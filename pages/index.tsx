@@ -30,10 +30,9 @@ const Home: NextPage = () => {
         >
           {/* Staking an NFT */}
           <img src={`/icons/token.webp`} alt="drop" />
-          <h2 className={styles.selectBoxTitle}>Stake Your NFTs</h2>
+          <h2 className={styles.selectBoxTitle}>Stake Your Weed NFTs</h2>
           <p className={styles.selectBoxDescription}>
-            Use the custom staking contract deployed via <b>thirdweb Deploy</b>{" "}
-            to stake your NFTs, and earn tokens from the <b>Token</b> contract.
+            Stake your Weed NFTs and get rewarded with the $DFM token! 
           </p>
         </div>
       </div>
