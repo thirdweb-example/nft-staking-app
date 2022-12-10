@@ -19,7 +19,7 @@ const Home: NextPage = () => {
             <img src={`/icons/drop.webp`} alt="drop" />
             <h2 className={styles.selectBoxTitle}>Mint a new Weed NFT</h2>
             <p className={styles.selectBoxDescription}>
-              Buy here your plot of land on the Dutch
+              Buy here your plot of land on the Dutch Farm
             </p>
         </div>
 
