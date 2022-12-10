@@ -8,7 +8,7 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       {/* Top Section */}
-      <h1 className={styles.h1}>thirdweb Deploy - Custom Staking Contract</h1>
+      <h1 className={styles.h1}>Welcome to the Dutch Farm! Mint and stake your NFTs </h1>
       <div className={styles.nftBoxGrid}>
         <div
           className={styles.optionSelectBox}
@@ -17,9 +17,9 @@ const Home: NextPage = () => {
         >
           {/* Mint a new NFT */}
             <img src={`/icons/drop.webp`} alt="drop" />
-            <h2 className={styles.selectBoxTitle}>Mint a new NFT</h2>
+            <h2 className={styles.selectBoxTitle}>Mint a new Weed NFT</h2>
             <p className={styles.selectBoxDescription}>
-              Use the NFT Drop Contract to claim an NFT from the collection.
+              Buy here your plot of land on the Dutch Farm
             </p>
         </div>
 
@@ -30,10 +30,9 @@ const Home: NextPage = () => {
         >
           {/* Staking an NFT */}
           <img src={`/icons/token.webp`} alt="drop" />
-          <h2 className={styles.selectBoxTitle}>Stake Your NFTs</h2>
+          <h2 className={styles.selectBoxTitle}>Stake Your Weed NFTs</h2>
           <p className={styles.selectBoxDescription}>
-            Use the custom staking contract deployed via <b>thirdweb Deploy</b>{" "}
-            to stake your NFTs, and earn tokens from the <b>Token</b> contract.
+            Stake your Weed NFTs and get rewarded with the $DFM token! 
           </p>
         </div>
       </div>

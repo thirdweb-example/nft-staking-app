@@ -8,18 +8,17 @@ const Mint: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.h1}>Mint An NFT!</h1>
+      <h1 className={styles.h1}>Mint A Weed NFT!</h1>
 
       <p className={styles.explain}>
-        Here is where we use our <b>NFT Drop</b> contract to allow users to mint
-        one of the NFTs that we lazy minted.
+        At Dutch Farm, each unit of weed costs 5$. Mint them and <b>stake</b> them to enjoy rewards in our native token $DFM.
       </p>
       <hr className={`${styles.smallDivider} ${styles.detailPageHr}`} />
 
       <Web3Button
         colorMode="dark"
         accentColor="#5204BF"
-        contractAddress="0x322067594DBCE69A9a9711BC393440aA5e3Aaca1"
+        contractAddress="0xeF4Ff095e0AAE69287e05D5AAD85146D602AE843"
         action={(contract) => contract.erc721.claim(1)}
         onSuccess={() => {
           alert("NFT Claimed!");
@@ -30,7 +29,7 @@ const Mint: NextPage = () => {
           alert(error);
         }}
       >
-        Claim An NFT
+        Mint some weed
       </Web3Button>
     </div>
   );
