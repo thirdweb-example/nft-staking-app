@@ -1,6 +1,7 @@
 import { Web3Button } from "@thirdweb-dev/react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
+import { nftDropContractAddress } from "../consts/contractAddresses";
 import styles from "../styles/Home.module.css";
 
 const Mint: NextPage = () => {
@@ -19,14 +20,13 @@ const Mint: NextPage = () => {
       <Web3Button
         colorMode="dark"
         accentColor="#5204BF"
-        contractAddress="0x322067594DBCE69A9a9711BC393440aA5e3Aaca1"
+        contractAddress={nftDropContractAddress}
         action={(contract) => contract.erc721.claim(1)}
         onSuccess={() => {
           alert("NFT Claimed!");
-          router.push(`/stake`);
+          router.push("/stake");
         }}
         onError={(error) => {
-          console.error(error);
           alert(error);
         }}
       >
