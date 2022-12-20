@@ -1,12 +1,11 @@
 import {
   ThirdwebNftMedia,
   useAddress,
-  useMetamask,
-  useTokenBalance,
-  useOwnedNFTs,
   useContract,
   useContractWrite,
-  useContractRead,
+  useMetamask,
+  useOwnedNFTs,
+  useTokenBalance,
 } from "@thirdweb-dev/react";
 import { NFT } from "@thirdweb-dev/sdk";
 import { BigNumber, ethers } from "ethers";
@@ -37,11 +36,6 @@ const Stake: NextPage = () => {
     contract,
     "claimRewards"
   );
-  const { data: stakerInfo } = useContractRead(
-    contract,
-    "getStakeInfo",
-    address
-  );
   const [stakedNfts, setStakedNfts] = useState<NFT[]>([]);
   const [claimableRewards, setClaimableRewards] = useState<BigNumber>();
 
@@ -65,7 +59,7 @@ const Stake: NextPage = () => {
     if (address) {
       loadStakedNfts();
     }
-  }, [address, contract, nftDropContract, stakerInfo]);
+  }, [address, contract, nftDropContract]);
 
   useEffect(() => {
     if (!contract || !address) return;
@@ -102,7 +96,6 @@ const Stake: NextPage = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.h1}>Stake Your NFTs</h1>
-
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
       {!address ? (
@@ -112,7 +105,6 @@ const Stake: NextPage = () => {
       ) : (
         <>
           <h2>Your Tokens</h2>
-
           <div className={styles.tokenGrid}>
             <div className={styles.tokenItem}>
               <h3 className={styles.tokenLabel}>Claimable Rewards</h3>
@@ -141,7 +133,6 @@ const Stake: NextPage = () => {
           </button>
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
-
           <h2>Your Staked NFTs</h2>
           <div className={styles.nftBoxGrid}>
             {stakedNfts?.map((nft) => (
@@ -164,9 +155,7 @@ const Stake: NextPage = () => {
           </div>
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
-
           <h2>Your Unstaked NFTs</h2>
-
           <div className={styles.nftBoxGrid}>
             {ownedNfts?.map((nft) => (
               <div className={styles.nftBox} key={nft.metadata.id.toString()}>
