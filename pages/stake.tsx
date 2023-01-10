@@ -1,16 +1,18 @@
 import {
+  ConnectWallet,
   ThirdwebNftMedia,
   useAddress,
   useContract,
+  useContractRead,
   useContractWrite,
-  useMetamask,
   useOwnedNFTs,
   useTokenBalance,
+  Web3Button,
 } from "@thirdweb-dev/react";
-import { NFT } from "@thirdweb-dev/sdk";
 import { BigNumber, ethers } from "ethers";
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
+import NFTCard from "../components/NFTCard";
 import {
   nftDropContractAddress,
   stakingContractAddress,
@@ -20,7 +22,6 @@ import styles from "../styles/Home.module.css";
 
 const Stake: NextPage = () => {
   const address = useAddress();
-  const connectWithMetamask = useMetamask();
   const { contract: nftDropContract } = useContract(
     nftDropContractAddress,
     "nft-drop"
@@ -36,30 +37,12 @@ const Stake: NextPage = () => {
     contract,
     "claimRewards"
   );
-  const [stakedNfts, setStakedNfts] = useState<NFT[]>([]);
   const [claimableRewards, setClaimableRewards] = useState<BigNumber>();
-
-  useEffect(() => {
-    if (!contract) return;
-
-    async function loadStakedNfts() {
-      const stakedTokens = await contract?.call("getStakeInfo", address);
-
-      // For each staked token, fetch it from the sdk
-      const stakedNfts = await Promise.all(
-        stakedTokens[0]?.map(async (stakedToken: BigNumber) => {
-          const nft = await nftDropContract?.get(stakedToken.toNumber());
-          return nft;
-        })
-      );
-
-      setStakedNfts(stakedNfts);
-    }
-
-    if (address) {
-      loadStakedNfts();
-    }
-  }, [address, contract, nftDropContract]);
+  const { data: stakedTokens } = useContractRead(
+    contract,
+    "getStakeInfo",
+    address
+  );
 
   useEffect(() => {
     if (!contract || !address) return;
@@ -85,10 +68,6 @@ const Stake: NextPage = () => {
     await contract?.call("stake", [id]);
   }
 
-  async function withdraw(id: string) {
-    await contract?.call("withdraw", [id]);
-  }
-
   if (isLoading) {
     return <div>Loading</div>;
   }
@@ -99,9 +78,7 @@ const Stake: NextPage = () => {
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
       {!address ? (
-        <button className={styles.mainButton} onClick={connectWithMetamask}>
-          Connect Wallet
-        </button>
+        <ConnectWallet />
       ) : (
         <>
           <h2>Your Tokens</h2>
@@ -125,33 +102,23 @@ const Stake: NextPage = () => {
             </div>
           </div>
 
-          <button
-            className={`${styles.mainButton} ${styles.spacerTop}`}
-            onClick={() => claimRewards([])}
+          <Web3Button
+            action={() => claimRewards([])}
+            contractAddress={stakingContractAddress}
           >
             Claim Rewards
-          </button>
+          </Web3Button>
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
           <h2>Your Staked NFTs</h2>
           <div className={styles.nftBoxGrid}>
-            {stakedNfts?.map((nft) => (
-              <div className={styles.nftBox} key={nft.metadata.id.toString()}>
-                {nft?.metadata && (
-                  <ThirdwebNftMedia
-                    metadata={nft.metadata}
-                    className={styles.nftMedia}
-                  />
-                )}
-                <h3>{nft.metadata.name}</h3>
-                <button
-                  className={`${styles.mainButton} ${styles.spacerBottom}`}
-                  onClick={() => withdraw(nft.metadata.id)}
-                >
-                  Withdraw
-                </button>
-              </div>
-            ))}
+            {stakedTokens &&
+              stakedTokens[0]?.map((stakedToken: BigNumber) => (
+                <NFTCard
+                  tokenId={stakedToken.toNumber()}
+                  key={stakedToken.toString()}
+                />
+              ))}
           </div>
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
@@ -164,12 +131,12 @@ const Stake: NextPage = () => {
                   className={styles.nftMedia}
                 />
                 <h3>{nft.metadata.name}</h3>
-                <button
-                  className={`${styles.mainButton} ${styles.spacerBottom}`}
-                  onClick={() => stakeNft(nft.metadata.id)}
+                <Web3Button
+                  contractAddress={stakingContractAddress}
+                  action={() => stakeNft(nft.metadata.id)}
                 >
                   Stake
-                </button>
+                </Web3Button>
               </div>
             ))}
           </div>
