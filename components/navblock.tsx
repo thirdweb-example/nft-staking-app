@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 const menus = [
   {
     id: 'index',
-    title: 'About',
+    title: 'Home',
     link: 'index'
   },
   {

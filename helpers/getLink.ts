@@ -1,3 +1,6 @@
 export const getLink = (url) => {
-  return (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') ? url : url + '.html'
+  if (url == `index`) {
+    return (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') ? `/NFTFARMBUILDURL/` : `./index.html`
+  }
+  return (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') ? `/NFTFARMBUILDURL/${url}` : `./${url}.html`
 }

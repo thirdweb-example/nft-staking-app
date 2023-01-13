@@ -1,29 +1,21 @@
-/*
-import {
-  ThirdwebNftMedia,
-  useAddress,
-  useMetamask,
-  useNFTDrop,
-  useToken,
-  useTokenBalance,
-  useOwnedNFTs,
-  useContract,
-} from "@thirdweb-dev/react";
-*/
-import { BigNumber, ethers } from "ethers";
-import type { NextPage } from "next";
-import { useEffect, useState } from "react";
-import styles from "../styles/Home.module.css";
+import { BigNumber, ethers } from "ethers"
+import type { NextPage } from "next"
+import { useEffect, useState } from "react"
+import styles from "../styles/Home.module.css"
 
 import { setupWeb3, switchOrAddChain } from "../helpers/setupWeb3"
-import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee";
-import navBlock from "../components/navBlock";
+import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
+import navBlock from "../components/navBlock"
+import logoBlock from "../components/logoBlock"
+import { getText } from "../helpers"
+
+import nftToken from "../components/nftToken"
 
 
 const chainId = 97;
-const nftDropContractAddress = "0x7682598A861336359740C08b3D1C5981F9473979";
-const tokenContractAddress = "0x703f112bda4cc6cb9c5fb4b2e6140f6d8374f10b";
-const stakingContractAddress = "0xAcf15259F8B99094b7051679a9e60B2F270558ce";
+const nftDropContractAddress = "0x7682598A861336359740C08b3D1C5981F9473979"
+const tokenContractAddress = "0x703f112bda4cc6cb9c5fb4b2e6140f6d8374f10b"
+const stakingContractAddress = "0xAcf15259F8B99094b7051679a9e60B2F270558ce"
 
 import TokenAbi from 'human-standard-token-abi'
 import ERC721Abi from '../contracts/ERC721Abi.json'
@@ -34,6 +26,8 @@ import { MULTICALL_CONTRACTS } from '../helpers/constants'
 import { Interface as AbiInterface } from '@ethersproject/abi'
 
 const ERC721_INTERFACE = new AbiInterface(ERC721Abi)
+
+const debugLog = (msg) => { console.log(msg) }
 
 const Stake: NextPage = () => {
   const isLoading = false
@@ -58,15 +52,29 @@ const Stake: NextPage = () => {
   const [isApproveCheck, setIsApproveCheck] = useState(true)
   const [stakedNftsLoading, setStakedNftsLoading] = useState(true)
   const [stakedNfts, setStakedNfts] = useState([])
+  const [stakedNftsUris, setStakedNftsUris] = useState({})
+  const [stakedNftsUrisFetching, setStakedNftsUrisFetching] = useState(false)
 
   const [ownedNfts, setOwnedNfts] = useState([])
+  const [ownedNftsUris, setOwnedNftsUris] = useState({})
+  const [ownedNftsUrisFetching, setOwnedNftsUrisFetching] = useState(true)
   const [ownedNftsLoading, setOwnedNftsLoading] = useState(true)
   const [canListOwnedNfts, setCanListOwnedNfts] = useState(false)
 
   const [customTokenId, setCustomTokenId] = useState(false)
 
+  const [isStakingDo, setIsStakingDo] = useState(false)
+  const [isStakingId, setIsStakingId] = useState(false)
 
-  const processError = (error) => {
+  const [isDeStakingDo, setIsDeStakingDo] = useState(false)
+  const [isDeStakingId, setIsDeStakingId] = useState(false)
+
+  const [isApproveDo, setIsApproveDo] = useState(false)
+  const [isApproveId, setIsApproveId] = useState(false)
+
+  const [isWalletConecting, setIsWalletConnecting] = useState(false)
+
+  const processError = (error, error_namespace) => {
     let metamaskError = false
     try {
       metamaskError = error.message.replace(`Internal JSON-RPC error.`,``)
@@ -89,13 +97,21 @@ const Stake: NextPage = () => {
         break;
     }
   }
+
   const fetchAvailableReward = () => {
-    farmContract.methods.availableRewards(address).call().then((rewardsWei) => {
-      setClaimableRewards(rewardsWei)
-    })
+    debugLog('do fetchAvailableReward')
+    try {
+      farmContract.methods.availableRewards(address).call().then((rewardsWei) => {
+        setClaimableRewards(rewardsWei)
+      })
+    } catch (err) {
+      console.log('>>> fail fetchAvailableReward')
+      processError(err, 'fetchAvailableReward')
+    }
   }
 
   const fetchTotalRewardBalance = () => {
+    debugLog('do fetchTotalRewardBalance')
     setRewardTokenBalanceLoading(true)
     if (rewardTokenContract) {
       rewardTokenContract.methods.balanceOf(stakingContractAddress).call().then((balanceWei) => {
@@ -103,12 +119,13 @@ const Stake: NextPage = () => {
         setRewardTokenBalanceLoading(false)
       }).catch((err) => {
         console.log('>>> fetchTotalRewardBalance', err)
-        processError(err)
+        processError(err, 'fetchTotalRewardBalance')
       })
     }
   }
 
   const fetchStakedNfts = () => {
+    debugLog('do fetchStakedNfts')
     if (address && farmContract) {
       setStakedNftsLoading(true)
       farmContract.methods.getStakedTokens(address).call().then((userStackedTokens) => {
@@ -116,19 +133,66 @@ const Stake: NextPage = () => {
 
         setStakedNfts(userStackedTokens)
         setStakedNftsLoading(false)
+        setStakedNftsUrisFetching(true)
+        fetchTokenUris(userStackedTokens).then((tokenUris) => {
+          setStakedNftsUris(tokenUris)
+          setStakedNftsUrisFetching(false)
+        }).catch((e) => {
+          setStakedNftsUrisFetching(true)
+        })
+      }).then((err) => {
+        console.log('>>> fail fetchStakedNfts', err)
+        processError(err, 'fetchStakedNfts')
       })
     }
   }
 
   const fetchIsApproved = async () => {
+    debugLog('do fetchIsApproved')
     setIsApproveCheck(true)
-    nftContract.methods.isApprovedForAll(address, stakingContractAddress).call().then((_isApproved) => {
-      setIsApproved(_isApproved)
+    try {
+      nftContract.methods.isApprovedForAll(address, stakingContractAddress).call().then((_isApproved) => {
+        setIsApproved(_isApproved)
+        setIsApproveCheck(false)
+      })
+    } catch (err) {
+      console.log('>>> fail check is approved')
+      processError(err, 'approve_check')
       setIsApproveCheck(false)
+    }
+  }
+
+  const fetchTokenUris = (tokenIds) => {
+    debugLog('do fetchTokenUris')
+    return new Promise((resolve, reject) => {
+      if (address && nftContract && mcContract) {
+        const urisCalls = tokenIds.map((tokenId) => {
+          return {
+            target: nftDropContractAddress,
+            tokenId,
+            callData: ERC721_INTERFACE.encodeFunctionData('tokenURI', [tokenId])
+          }
+        })
+        mcContract.methods.aggregate(urisCalls).call().then((tokenUrisAnswer) => {
+          const _userTokenUris = {}
+          tokenUrisAnswer.returnData.forEach((retData, _tokenNumberInCall) => {
+            const tokenUri = ERC721_INTERFACE.decodeFunctionResult('tokenURI', retData)[0]
+            _userTokenUris[tokenIds[_tokenNumberInCall]] = tokenUri
+          })
+          resolve(_userTokenUris)
+        }).catch((err) => {
+          processError(err, 'fetchTokenUris')
+          reject()
+        })
+      } else {
+        reject()
+      }
     })
   }
 
+
   const fetchUserNfts = async () => {
+    debugLog('do fetchUserNfts')
     if (address && nftContract && mcContract && !stakedNftsLoading) {
       setOwnedNftsLoading(true)
       let hasTotalSupply = false
@@ -170,9 +234,16 @@ const Stake: NextPage = () => {
           })
           setOwnedNfts(_userTokenIds)
           setOwnedNftsLoading(false)
+          setOwnedNftsUrisFetching(true)
+          fetchTokenUris(_userTokenIds).then((tokenUris) => {
+            setOwnedNftsUris(tokenUris)
+            setOwnedNftsUrisFetching(false)
+          }).catch((e) => {
+            setOwnedNftsUrisFetching(false)
+          })
         }).catch((err) => {
           console.log('>>> fetchUserNfts', err)
-          processError(err)
+          processError(err, fetchUserNfts)
         })
       }
     }
@@ -184,6 +255,7 @@ const Stake: NextPage = () => {
 
   useEffect(() => {
     if(rewardTokenContract) {
+      debugLog('on useEffect rewardTokenContract')
       rewardTokenContract.methods.decimals().call().then((decimals) => {
         rewardTokenContract.methods.symbol().call().then((symbol) => {
           setRewardTokenDecimals(decimals)
@@ -196,6 +268,7 @@ const Stake: NextPage = () => {
 
   useEffect(() => {
     if (farmContract && address) {
+      debugLog('on useEffect farmContract && address')
       fetchAvailableReward()
       fetchStakedNfts()
     }
@@ -203,6 +276,7 @@ const Stake: NextPage = () => {
 
   useEffect(() => {
     if (address && nftContract) {
+      debugLog('on useEffect address && nftContract')
       fetchIsApproved()
     }
   }, [address, nftContract])
@@ -228,6 +302,7 @@ const Stake: NextPage = () => {
   }
 
   useEffect(() => {
+    debugLog('on useEffect activeWeb3 initOnWeb3Ready')
     initOnWeb3Ready()
   }, [activeWeb3])
 
@@ -248,19 +323,38 @@ const Stake: NextPage = () => {
     if (address && farmContract && nftContract) {
       const _doStake = async () => {
         try {
+          setIsStakingDo(true)
+          setIsStakingId(id)
           const stakeTxData = await calcSendArgWithFee(address, farmContract, "stake", [id])
           farmContract.methods.stake(id).send(stakeTxData).then(() => {
             const _stakedNfts = stakedNfts
             _stakedNfts.push(id)
             setStakedNfts(_stakedNfts)
+            setStakedNftsUris({
+              ...stakedNftsUris,
+              [`${id}`]: ownedNftsUris[id],
+            })
             setOwnedNfts(ownedNfts.filter((tokenId) => { return tokenId !== id }))
+            setOwnedNftsUris({
+              ...ownedNftsUris,
+              [`${id}`]: false,
+            })
+
+            setIsStakingDo(false)
+            setIsStakingId(false)
           }).catch((err) => {
             console.log('>> stakeNft', err)
             processError(err)
+
+            setIsStakingDo(false)
+            setIsStakingId(false)
           })
         } catch (err) {
           console.log('>> stakeNft calc gas', err)
           processError(err)
+
+          setIsStakingDo(false)
+          setIsStakingId(false)
         }
       }
       if (!isApproved) {
@@ -286,41 +380,70 @@ const Stake: NextPage = () => {
   async function withdraw(id: BigNumber) {
     if (address && farmContract) {
       try {
+        setIsDeStakingDo(true)
+        setIsDeStakingId(id)
         const sendArgs = await calcSendArgWithFee(address, farmContract, "withdraw", [id])
         farmContract.methods.withdraw(id).send(sendArgs).then((res) => {
           const _ownedNtfs = ownedNfts
           _ownedNtfs.push(id)
           setOwnedNfts(_ownedNtfs)
           setStakedNfts(stakedNfts.filter((tokenId) => { return tokenId !== id }))
+          setOwnedNftsUris({
+            ...ownedNftsUris,
+            [`${id}`]: stakedNftsUris[id],
+          })
+          setStakedNftsUris({
+            ...stakedNftsUris,
+            [`${id}`]: false,
+          })
+
+          setIsDeStakingDo(false)
+          setIsDeStakingId(false)
         }).catch((err) => {
           console.log('>>> withdraw', err)
           processError(err)
+
+          setIsDeStakingDo(false)
+          setIsDeStakingId(false)
         })
       } catch (err) {
         console.log('>>> withdraw calc gas', err)
         processError(err)
+
+        setIsDeStakingDo(false)
+        setIsDeStakingId(false)
       }
     }
   }
 
   const connectWithMetamask = async () => {
-    await window.ethereum.enable()
-    setupWeb3().then((answer) => {
-      console.log(answer)
-      const {
-        activeChainId, web3
-      } = answer
-      setActiveChainId(activeChainId)
-      if (`${activeChainId}` === `${chainId}`) {
-        setActiveWeb3(web3)
-      } else {
-        console.log('>>> need change chain')
-        switchOrAddChain(chainId)
-      }
-    }).catch((err) => {
-      console.log(">>>> connectWithMetamask", err)
+    setIsWalletConnecting(true)
+    try {
+      await window.ethereum.enable()
+      setupWeb3().then((answer) => {
+        console.log(answer)
+        const {
+          activeChainId, web3
+        } = answer
+        setActiveChainId(activeChainId)
+        if (`${activeChainId}` === `${chainId}`) {
+          setActiveWeb3(web3)
+          setIsWalletConnecting(false)
+        } else {
+          console.log('>>> need change chain')
+          switchOrAddChain(chainId)
+          setIsWalletConnecting(false)
+        }
+      }).catch((err) => {
+        console.log(">>>> connectWithMetamask", err)
+        processError(err)
+        setIsWalletConnecting(false)
+      })
+    } catch (err) {
+      console.log('>>> fail connect wallet', err)
       processError(err)
-    })
+      setIsWalletConnecting(false)
+    }
   }
 
   const doStakeCustomNft = () => {
@@ -346,17 +469,20 @@ const Stake: NextPage = () => {
   return (
     <div className={styles.container}>
       {navBlock(`stake`, true)}
-      <h1 className={styles.h1}>Stake Your NFTs</h1>
+      {logoBlock()}
+      <h1 className={styles.h1}>
+        {getText(`Stake Your NFTs - Earn ERC20`, `StakePage_Title`)}
+      </h1>
 
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
       {!address ? (
-        <button className={styles.mainButton} onClick={connectWithMetamask}>
-          Connect Wallet
+        <button disabled={isWalletConecting} className={styles.mainButton} onClick={connectWithMetamask}>
+          {isWalletConecting ? `Connecting` : `Connect Wallet`}
         </button>
       ) : (
         <>
-          <h2>Your Tokens</h2>
+          <h2>Your reward</h2>
 
           <div className={styles.tokenGrid}>
             <div className={styles.tokenItem}>
@@ -404,23 +530,22 @@ const Stake: NextPage = () => {
               <>
                 {stakedNfts.length > 0 ? (
                   <>
-                    {stakedNfts?.map((tokenId) => (
-                      <div className={styles.nftBox} key={tokenId.toString()}>
-                        {/*
-                        <ThirdwebNftMedia
-                          metadata={nft.metadata}
-                          className={styles.nftMedia}
-                        />
-                        */}
-                        <h3>#{tokenId}</h3>
-                        <button
-                          className={`${styles.mainButton} ${styles.spacerBottom}`}
-                          onClick={() => withdraw(tokenId)}
-                        >
-                          Withdraw
-                        </button>
-                      </div>
-                    ))}
+                    {stakedNfts?.map((tokenId) => {
+                      return nftToken({
+                        tokenId,
+                        tokenUri: stakedNftsUris[tokenId] ? stakedNftsUris[tokenId] : false,
+                        isApproved,
+                        onDeStake: () => withdraw(tokenId),
+                        onStake: null,
+                        isFetchUri: stakedNftsUrisFetching,
+                        deStakeId: isDeStakingId,
+                        stakeId: isStakingId,
+                        isStaking: isStakingDo,
+                        isDeStaking: isDeStakingDo,
+                        isApproveDo,
+                        isApproveId,
+                      })
+                    })}
                   </>
                 ) : (
                   <p className={styles.tokenValue}>
@@ -443,23 +568,22 @@ const Stake: NextPage = () => {
               <>
                 {ownedNfts.length > 0 ? (
                   <>
-                    {ownedNfts?.map((tokenId) => (
-                      <div className={styles.nftBox} key={tokenId.toString()}>
-                        {/*
-                        <ThirdwebNftMedia
-                          metadata={nft.metadata}
-                          className={styles.nftMedia}
-                        />
-                        */}
-                        <h3>#{tokenId}</h3>
-                        <button
-                          className={`${styles.mainButton} ${styles.spacerBottom}`}
-                          onClick={() => stakeNft(tokenId)}
-                        >
-                          {isApproved ? 'Stake' : 'Approve & Stake'}
-                        </button>
-                      </div>
-                    ))}
+                    {ownedNfts?.map((tokenId) => {
+                      return nftToken({
+                        tokenId,
+                        tokenUri: ownedNftsUris[tokenId] ? ownedNftsUris[tokenId] : false,
+                        isApproved,
+                        onDeStake: null,
+                        onStake: () => stakeNft(tokenId),
+                        isFetchUri: ownedNftsUrisFetching,
+                        deStakeId: isDeStakingId,
+                        stakeId: isStakingId,
+                        isStaking: isStakingDo,
+                        isDeStaking: isDeStakingDo,
+                        isApproveDo,
+                        isApproveId,
+                      })
+                    })}
                   </>
                 ) : (
                   <p className={styles.tokenValue}>
