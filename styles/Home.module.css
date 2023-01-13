@@ -253,6 +253,34 @@
   max-width: 300px;
 }
 
+.stakeCustomNftHolder {
+  border-bottom: 2px solid gray;
+  width: 50%;
+}
+.stakeCustomNftHolder B {
+  display: block;
+}
+.stakeCustomNftHolder INPUT {
+  display: block;
+  margin: 10px auto;
+  width: 200px;
+}
+
+@media only screen and (max-width: 800px) {
+  .stakeCustomNftHolder {
+    width: 90%;
+  }
+}
+
+.debugBlock {
+  padding-top: 100px;
+}
+.debugBlock DIV {
+  display: none;
+}
+.debugBlock.opened DIV {
+  display: block;
+}
 /* Between 700px and 900px */
 @media screen and (min-width: 700px) and (max-width: 900px) {
   .contractBoxGrid {

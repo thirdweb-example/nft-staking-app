@@ -1,0 +1,45 @@
+{
+	"compiler": {
+		"version": "0.8.7+commit.e28d00a7"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"source/Farm.sol": "Address"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"source/Farm.sol": {
+			"keccak256": "0xa4afbd35cf3cd468ceaf154cc598c426be6019c8545fb9171b33c3b11ae7b52f",
+			"license": "Unlicense",
+			"urls": [
+				"bzz-raw://3fd7c8e9c2d6c224261cad776f856090b91c209b74bf34d80860901a035e9776",
+				"dweb:/ipfs/QmT2P7EQPukza6aNJR4xywhsMpDyWB2Dk8M1GCdYxzKk7Z"
+			]
+		}
+	},
+	"version": 1
+}

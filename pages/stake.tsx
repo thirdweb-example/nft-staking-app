@@ -12,10 +12,18 @@ import { getText } from "../helpers"
 import nftToken from "../components/nftToken"
 
 
+// Eth-testnet
+const chainId = 5;
+const nftDropContractAddress = "0x2f87d23cd8d788bc9a32e540cdd8253f9b1f54cf"
+const tokenContractAddress = "0xaFF4481D10270F50f203E0763e2597776068CBc5"
+const stakingContractAddress = "0xb9b990517e07A07d18A753DE6b539F950F1B24a5"
+// Bnb-testnet
+/*
 const chainId = 97;
 const nftDropContractAddress = "0x7682598A861336359740C08b3D1C5981F9473979"
 const tokenContractAddress = "0x703f112bda4cc6cb9c5fb4b2e6140f6d8374f10b"
 const stakingContractAddress = "0xAcf15259F8B99094b7051679a9e60B2F270558ce"
+*/
 
 import TokenAbi from 'human-standard-token-abi'
 import ERC721Abi from '../contracts/ERC721Abi.json'
@@ -41,24 +49,39 @@ const Stake: NextPage = () => {
   const [farmContract, setFarmContract] = useState(false)
   const [nftContract, setNftContract] = useState(false)
   const [mcContract, setMcContract] = useState(false)
+
   const [claimableRewards, setClaimableRewards] = useState(false)
+  const [claimableRewardsLoading, setClaimableRewardsLoading] = useState(true)
+  const [claimableRewardsError, setClaimableRewardsError] = useState(false)
+  
   const [rewardTokenContract, setRewardTokenContract] = useState(false)
   const [rewardTokenSymbol, setRewardTokenSymbol] = useState(false)
   const [rewardTokenDecimals, setRewardTokenDecimals] = useState(false)
+  const [rewardTokenInfoLoading, setRewardTokenInfoLoading] = useState(true)
+  const [rewardTokenInfoLoadError, setRewardTokenInfoLoadError] = useState(false)
   const [rewardTokenBalance, setRewardTokenBalance] = useState(false)
   const [rewardTokenBalanceLoading, setRewardTokenBalanceLoading] = useState(true)
+  const [rewardTokenBalanceLoadError, setRewardTokenBalanceLoadError] = useState(false)
 
   const [isApproved, setIsApproved] = useState(false)
   const [isApproveCheck, setIsApproveCheck] = useState(true)
+
   const [stakedNftsLoading, setStakedNftsLoading] = useState(true)
+  const [stakedNftsLoadError, setStakedNftsLoadError] = useState(false)
   const [stakedNfts, setStakedNfts] = useState([])
+
   const [stakedNftsUris, setStakedNftsUris] = useState({})
   const [stakedNftsUrisFetching, setStakedNftsUrisFetching] = useState(false)
+  const [stakedNftsUrisLoadError, setStakedNftsUrisLoadError] = useState(false)
 
   const [ownedNfts, setOwnedNfts] = useState([])
   const [ownedNftsUris, setOwnedNftsUris] = useState({})
   const [ownedNftsUrisFetching, setOwnedNftsUrisFetching] = useState(true)
+  const [ownedNftsUrisLoadError, setOwnedNftsUrisLoadError] = useState(false)
+
   const [ownedNftsLoading, setOwnedNftsLoading] = useState(true)
+  const [ownedNftsLoadError, setOwnedNftsLoadError] = useState(false)
+
   const [canListOwnedNfts, setCanListOwnedNfts] = useState(false)
 
   const [customTokenId, setCustomTokenId] = useState(false)
@@ -73,6 +96,12 @@ const Stake: NextPage = () => {
   const [isApproveId, setIsApproveId] = useState(false)
 
   const [isWalletConecting, setIsWalletConnecting] = useState(false)
+
+  const [isDebugOpened, setIsDebugOpened] = useState(false)
+
+  const toggleDebug = () => {
+    setIsDebugOpened(!isDebugOpened)
+  }
 
   const processError = (error, error_namespace) => {
     let metamaskError = false
@@ -101,23 +130,29 @@ const Stake: NextPage = () => {
   const fetchAvailableReward = () => {
     debugLog('do fetchAvailableReward')
     try {
+      setClaimableRewardsError(false)
+      setClaimableRewardsLoading(true)
       farmContract.methods.availableRewards(address).call().then((rewardsWei) => {
         setClaimableRewards(rewardsWei)
+        setClaimableRewardsLoading(false)
       })
     } catch (err) {
       console.log('>>> fail fetchAvailableReward')
       processError(err, 'fetchAvailableReward')
+      setClaimableRewardsError(true)
     }
   }
 
   const fetchTotalRewardBalance = () => {
     debugLog('do fetchTotalRewardBalance')
     setRewardTokenBalanceLoading(true)
+    setRewardTokenBalanceLoadError(false)
     if (rewardTokenContract) {
       rewardTokenContract.methods.balanceOf(stakingContractAddress).call().then((balanceWei) => {
         setRewardTokenBalance(balanceWei)
         setRewardTokenBalanceLoading(false)
       }).catch((err) => {
+        setRewardTokenBalanceLoadError(true)
         console.log('>>> fetchTotalRewardBalance', err)
         processError(err, 'fetchTotalRewardBalance')
       })
@@ -127,6 +162,8 @@ const Stake: NextPage = () => {
   const fetchStakedNfts = () => {
     debugLog('do fetchStakedNfts')
     if (address && farmContract) {
+      setStakedNftsLoadError(false)
+      setStakedNftsUrisLoadError(false)
       setStakedNftsLoading(true)
       farmContract.methods.getStakedTokens(address).call().then((userStackedTokens) => {
         userStackedTokens = userStackedTokens.map((stackInfo) => { return stackInfo.tokenId })
@@ -134,13 +171,16 @@ const Stake: NextPage = () => {
         setStakedNfts(userStackedTokens)
         setStakedNftsLoading(false)
         setStakedNftsUrisFetching(true)
+
         fetchTokenUris(userStackedTokens).then((tokenUris) => {
           setStakedNftsUris(tokenUris)
           setStakedNftsUrisFetching(false)
         }).catch((e) => {
-          setStakedNftsUrisFetching(true)
+          setStakedNftsUrisFetching(false)
+          setStakedNftsUrisLoadError(true)
         })
-      }).then((err) => {
+      }).catch((err) => {
+        setStakedNftsLoadError(true)
         console.log('>>> fail fetchStakedNfts', err)
         processError(err, 'fetchStakedNfts')
       })
@@ -195,6 +235,7 @@ const Stake: NextPage = () => {
     debugLog('do fetchUserNfts')
     if (address && nftContract && mcContract && !stakedNftsLoading) {
       setOwnedNftsLoading(true)
+      setOwnedNftsLoadError(false)
       let hasTotalSupply = false
       let hasMaxSupply = false
       let totalSupply = 0
@@ -243,6 +284,7 @@ const Stake: NextPage = () => {
           })
         }).catch((err) => {
           console.log('>>> fetchUserNfts', err)
+          setOwnedNftsLoadError(true)
           processError(err, fetchUserNfts)
         })
       }
@@ -253,16 +295,34 @@ const Stake: NextPage = () => {
     fetchUserNfts()
   }, [address, nftContract, mcContract, farmContract, stakedNftsLoading])
 
-  useEffect(() => {
+  const fetchRewardTokenInfoAndBalance = () => {
     if(rewardTokenContract) {
-      debugLog('on useEffect rewardTokenContract')
+      setRewardTokenBalanceLoadError(false)
+      setRewardTokenInfoLoadError(false)
+      setRewardTokenInfoLoading(true)
       rewardTokenContract.methods.decimals().call().then((decimals) => {
         rewardTokenContract.methods.symbol().call().then((symbol) => {
+          setRewardTokenInfoLoading(false)
           setRewardTokenDecimals(decimals)
           setRewardTokenSymbol(symbol)
           fetchTotalRewardBalance()
+        }).catch((e) => {
+          console.log('>>> reward token info - fail fetch symbol')
+          setRewardTokenBalanceLoadError(true)
+          setRewardTokenInfoLoadError(true)
         })
+      }).catch((e) => {
+        console.log('>>> reward token info - fail fetch decimals')
+        setRewardTokenBalanceLoadError(true)
+        setRewardTokenInfoLoadError(true)
       })
+    }
+  }
+
+  useEffect(() => {
+    if(rewardTokenContract) {
+      debugLog('on useEffect rewardTokenContract')
+      fetchRewardTokenInfoAndBalance()
     }
   }, [rewardTokenContract])
 
@@ -419,7 +479,9 @@ const Stake: NextPage = () => {
   const connectWithMetamask = async () => {
     setIsWalletConnecting(true)
     try {
+      console.log('>> do enable')
       await window.ethereum.enable()
+      console.log('>>> do setupWeb3')
       setupWeb3().then((answer) => {
         console.log(answer)
         const {
@@ -447,24 +509,35 @@ const Stake: NextPage = () => {
   }
 
   const doStakeCustomNft = () => {
-    console.log(customTokenId)
     if (customTokenId) {
       stakeNft(customTokenId)
     }
   }
 
   const stakeCustomNft = (
-    <div>
-      <b>TokenId</b>
+    <div className={`${styles.stakeCustomNftHolder}`}>
+      <b>Stake NFT by TokenId</b>
       <input type="number" onChange={(v) => setCustomTokenId(v.target.value)} />
       <button
         className={`${styles.mainButton} ${styles.spacerBottom}`}
         onClick={doStakeCustomNft}
+        disabled={isApproveDo || isStakingDo || isDeStakingDo}
       >
         {isApproved ? 'Stake' : 'Approve & Stake'}
       </button>
     </div>
   )
+
+  const errorBlock = (options) => {
+    const {
+      message,
+      onReload,
+    } = options
+
+    return (
+      <b>{message}</b>
+    )
+  }
 
   return (
     <div className={styles.container}>
@@ -488,23 +561,31 @@ const Stake: NextPage = () => {
             <div className={styles.tokenItem}>
               <h3 className={styles.tokenLabel}>Claimable Rewards</h3>
               <p className={styles.tokenValue}>
-                <b>
-                  {(!claimableRewards || (rewardTokenDecimals === false) || (rewardTokenSymbol === false))
-                    ? "Loading..."
-                    : `${ethers.utils.formatUnits(claimableRewards, rewardTokenDecimals)} ${rewardTokenSymbol}`
-                  }
-                </b>
+                {claimableRewardsError ? (
+                  <>{errorBlock({ message: `ERROR` })}</>
+                ) : (
+                  <b>
+                    {(!claimableRewards || (rewardTokenDecimals === false) || (rewardTokenSymbol === false))
+                      ? "Loading..."
+                      : `${ethers.utils.formatUnits(claimableRewards, rewardTokenDecimals)} ${rewardTokenSymbol}`
+                    }
+                  </b>
+                )}
               </p>
             </div>
             <div className={styles.tokenItem}>
               <h3 className={styles.tokenLabel}>Stake Farm balance</h3>
               <p className={styles.tokenValue}>
-                <b>
-                  {(rewardTokenBalanceLoading || !rewardTokenBalance || (rewardTokenDecimals === false) || (rewardTokenSymbol === false))
-                    ? "Loading..."
-                    : `${ethers.utils.formatUnits(rewardTokenBalance, rewardTokenDecimals)} ${rewardTokenSymbol}`
-                  }
-                </b>
+                {rewardTokenBalanceLoadError ? (
+                  <>{errorBlock({ message: `ERROR` })}</>
+                ) : (
+                  <b>
+                    {(rewardTokenBalanceLoading || !rewardTokenBalance || (rewardTokenDecimals === false) || (rewardTokenSymbol === false))
+                      ? "Loading..."
+                      : `${ethers.utils.formatUnits(rewardTokenBalance, rewardTokenDecimals)} ${rewardTokenSymbol}`
+                    }
+                  </b>
+                )}
               </p>
             </div>
           </div>
@@ -595,6 +676,27 @@ const Stake: NextPage = () => {
           </div>
         </>
       )}
+      <div className={`${styles.debugBlock} ${(isDebugOpened) ? styles.opened : ''}`} >
+        <button onClick={() => { toggleDebug() }}>{`${(isDebugOpened) ? 'Close debug info' : 'Open debug info'}`}</button>
+        {claimableRewardsError && (<div>claimableRewardsError</div>)}
+        {rewardTokenInfoLoadError && (<div>rewardTokenInfoLoadError</div>)}
+        {rewardTokenBalanceLoadError && (<div>rewardTokenBalanceLoadError</div>)}
+        {stakedNftsLoadError && (<div>stakedNftsLoadError</div>)}
+        {stakedNftsUrisLoadError && (<div>stakedNftsUrisLoadError</div>)}
+        {ownedNftsLoadError && (<div>ownedNftsLoadError</div>)}
+        {ownedNftsUrisLoadError && (<div>ownedNftsUrisLoadError</div>)}
+        {claimableRewardsLoading && (<div>claimableRewardsLoading</div>)}
+        {rewardTokenInfoLoading && (<div>rewardTokenInfoLoading</div>)}
+        {rewardTokenBalanceLoading && (<div>rewardTokenBalanceLoading</div>)}
+        {stakedNftsLoading && (<div>stakedNftsLoading</div>)}
+        {stakedNftsUrisFetching && (<div>stakedNftsUrisFetching</div>)}
+        {ownedNftsLoading && (<div>ownedNftsLoading</div>)}
+        {ownedNftsUrisFetching && (<div>ownedNftsUrisFetching</div>)}
+        {isStakingDo && (<div>isStakingDo</div>)}
+        {isDeStakingDo && (<div>isDeStakingDo</div>)}
+        {isApproveDo && (<div>isApproveDo</div>)}
+        {isWalletConecting && (<div>isWalletConecting</div>)}
+      </div>
     </div>
   );
 };

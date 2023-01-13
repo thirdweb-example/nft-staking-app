@@ -100,6 +100,16 @@ export const AVAILABLE_NETWORKS_INFO = [
     nativeCurrency: CURRENCIES.ETH
   },
   {
+    slug: 'eth_goerli',
+    chainName: 'Ethereum - Testnet (Goerli)',
+    chainId: '0x5',
+    networkVersion: 5,
+    rpcUrls: ['https://goerli.infura.io/v3/'],
+    blockExplorerUrls: ['https://goerli.etherscan.io'],
+    isTestnet: true,
+    nativeCurrency: CURRENCIES.ETH
+  },
+  {
     slug: 'eth_mainnet',
     chainName: 'Ethereum',
     chainId: '0x1',
