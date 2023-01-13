@@ -21,7 +21,7 @@ const switchOrAddChain = async (neededChainId) => {
   ]
 
   try {
-    await window.ethereum.request({
+    const isSwitch = await window.ethereum.request({
       method: 'wallet_switchEthereumChain',
       params: [{ chainId: `0x${Number(chainId).toString(16)}` }],
     });
@@ -29,7 +29,7 @@ const switchOrAddChain = async (neededChainId) => {
     // This error code indicates that the chain has not been added to MetaMask.
     if (switchError.code === 4902) {
       try {
-        await window.ethereum.request({
+        const isAdd = await window.ethereum.request({
           method: 'wallet_addEthereumChain',
           params,
         });
@@ -38,6 +38,7 @@ const switchOrAddChain = async (neededChainId) => {
       }
     } else {
       console.error('Switch chain error: ', switchError.message)
+      return false
     }
 
   }
@@ -73,9 +74,58 @@ const setupWeb3 = () => new Promise((resolve, reject) => {
   }
 })
 
+const doConnectWithMetamask = async (options) => {
+  const {
+    onBeforeConnect,
+    onConnected,
+    onError,
+    onSetActiveChain,
+    onSetActiveWeb3,
+    needChainId,
+  } = options
+
+  if (onBeforeConnect) onBeforeConnect()
+  
+  try {
+    await window.ethereum.enable()
+    setupWeb3().then(async (answer) => {
+      const {
+        activeChainId, web3
+      } = answer
+      if (onSetActiveChain) onSetActiveChain(activeChainId)
+
+      if (`${activeChainId}` === `${needChainId}`) {
+        if (onSetActiveWeb3) onSetActiveWeb3(web3)
+        if (onConnected) onConnected(activeChainId, web3)
+      } else {
+        try {
+          const isSwitched = await switchOrAddChain(needChainId)
+          if (isSwitched === false) {
+            if (onError) onError({ message: 'REJECT_SWITCH_NETWORK' })
+            return
+          }
+        } catch (err) {
+          if (onError) onError(err)
+        }
+        setTimeout(() => {
+          setupWeb3().then(async (afterSwitch) => {
+            if (`${afterSwitch.activeChainId}` === `${needChainId}`) {
+              await doConnectWithMetamask(options)
+            }
+          })
+        }, 1000)
+      }
+    }).catch((err) => {
+      if (onError) onError(err)
+    })
+  } catch (err) {
+    if (onError) onError(err)
+  }
+}
 
 export {
   switchOrAddChain,
+  doConnectWithMetamask,
   setupWeb3
 }
 

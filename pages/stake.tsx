@@ -3,7 +3,7 @@ import type { NextPage } from "next"
 import { useEffect, useState } from "react"
 import styles from "../styles/Home.module.css"
 
-import { setupWeb3, switchOrAddChain } from "../helpers/setupWeb3"
+import { setupWeb3, switchOrAddChain, doConnectWithMetamask } from "../helpers/setupWeb3"
 import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
 import navBlock from "../components/navBlock"
 import logoBlock from "../components/logoBlock"
@@ -14,9 +14,9 @@ import nftToken from "../components/nftToken"
 
 // Eth-testnet
 const chainId = 5;
-const nftDropContractAddress = "0x2f87d23cd8d788bc9a32e540cdd8253f9b1f54cf"
+const nftDropContractAddress = "0xefeffe4d50392998efe4cf46b6fbaa19a58a041a"
 const tokenContractAddress = "0xaFF4481D10270F50f203E0763e2597776068CBc5"
-const stakingContractAddress = "0xb9b990517e07A07d18A753DE6b539F950F1B24a5"
+const stakingContractAddress = "0x8b740b4ad15e2201f291cbfc487977b0ecb5fc84"
 // Bnb-testnet
 /*
 const chainId = 97;
@@ -42,6 +42,7 @@ const Stake: NextPage = () => {
   if (isLoading) {
     return <div>Loading</div>
   }
+  const showDebugPanel = false
 
   const [activeChainId, setActiveChainId] = useState(false)
   const [activeWeb3, setActiveWeb3] = useState(false)
@@ -394,7 +395,7 @@ const Stake: NextPage = () => {
               ...stakedNftsUris,
               [`${id}`]: ownedNftsUris[id],
             })
-            setOwnedNfts(ownedNfts.filter((tokenId) => { return tokenId !== id }))
+            setOwnedNfts(ownedNfts.filter((tokenId) => { return `${tokenId}` !== `${id}` }))
             setOwnedNftsUris({
               ...ownedNftsUris,
               [`${id}`]: false,
@@ -418,17 +419,22 @@ const Stake: NextPage = () => {
         }
       }
       if (!isApproved) {
+        setIsApproveId(id)
+        setIsApproveDo(true)
         try {
           const approveTxData = await calcSendArgWithFee(address, nftContract, "setApprovalForAll", [stakingContractAddress, true]);
           nftContract.methods.setApprovalForAll(stakingContractAddress, true).send(approveTxData).then(async (ok) => {
             setIsApproved(true)
+            setIsApproveDo(false)
             _doStake()
           }).catch((err) => {
             console.log('>> stakeNft do approve', err)
+            setIsApproveDo(false)
             processError(err)
           })
         } catch (err) {
           console.log('>>> stakeNft do approve calc gas', err)
+          setIsApproveDo(false)
           processError(err)
         }
       } else {
@@ -477,40 +483,26 @@ const Stake: NextPage = () => {
   }
 
   const connectWithMetamask = async () => {
-    setIsWalletConnecting(true)
-    try {
-      console.log('>> do enable')
-      await window.ethereum.enable()
-      console.log('>>> do setupWeb3')
-      setupWeb3().then((answer) => {
-        console.log(answer)
-        const {
-          activeChainId, web3
-        } = answer
-        setActiveChainId(activeChainId)
-        if (`${activeChainId}` === `${chainId}`) {
-          setActiveWeb3(web3)
-          setIsWalletConnecting(false)
-        } else {
-          console.log('>>> need change chain')
-          switchOrAddChain(chainId)
-          setIsWalletConnecting(false)
-        }
-      }).catch((err) => {
+    doConnectWithMetamask({
+      onBeforeConnect: () => { setIsWalletConnecting(true) },
+      onSetActiveChain: setActiveChainId,
+      onConnected: (cId, web3) => {
+        setActiveWeb3(web3)
+        setIsWalletConnecting(false)
+      },
+      onError: (err) => {
         console.log(">>>> connectWithMetamask", err)
         processError(err)
         setIsWalletConnecting(false)
-      })
-    } catch (err) {
-      console.log('>>> fail connect wallet', err)
-      processError(err)
-      setIsWalletConnecting(false)
-    }
+      },
+      needChainId: chainId,
+    })
   }
 
   const doStakeCustomNft = () => {
     if (customTokenId) {
-      stakeNft(customTokenId)
+      console.log('>>> stake custom nft', customTokenId)
+      stakeNft(BigNumber.from(customTokenId).toNumber())
     }
   }
 
@@ -541,7 +533,7 @@ const Stake: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      {navBlock(`stake`, true)}
+      {navBlock(`stake`, false)}
       {logoBlock()}
       <h1 className={styles.h1}>
         {getText(`Stake Your NFTs - Earn ERC20`, `StakePage_Title`)}
@@ -676,27 +668,29 @@ const Stake: NextPage = () => {
           </div>
         </>
       )}
-      <div className={`${styles.debugBlock} ${(isDebugOpened) ? styles.opened : ''}`} >
-        <button onClick={() => { toggleDebug() }}>{`${(isDebugOpened) ? 'Close debug info' : 'Open debug info'}`}</button>
-        {claimableRewardsError && (<div>claimableRewardsError</div>)}
-        {rewardTokenInfoLoadError && (<div>rewardTokenInfoLoadError</div>)}
-        {rewardTokenBalanceLoadError && (<div>rewardTokenBalanceLoadError</div>)}
-        {stakedNftsLoadError && (<div>stakedNftsLoadError</div>)}
-        {stakedNftsUrisLoadError && (<div>stakedNftsUrisLoadError</div>)}
-        {ownedNftsLoadError && (<div>ownedNftsLoadError</div>)}
-        {ownedNftsUrisLoadError && (<div>ownedNftsUrisLoadError</div>)}
-        {claimableRewardsLoading && (<div>claimableRewardsLoading</div>)}
-        {rewardTokenInfoLoading && (<div>rewardTokenInfoLoading</div>)}
-        {rewardTokenBalanceLoading && (<div>rewardTokenBalanceLoading</div>)}
-        {stakedNftsLoading && (<div>stakedNftsLoading</div>)}
-        {stakedNftsUrisFetching && (<div>stakedNftsUrisFetching</div>)}
-        {ownedNftsLoading && (<div>ownedNftsLoading</div>)}
-        {ownedNftsUrisFetching && (<div>ownedNftsUrisFetching</div>)}
-        {isStakingDo && (<div>isStakingDo</div>)}
-        {isDeStakingDo && (<div>isDeStakingDo</div>)}
-        {isApproveDo && (<div>isApproveDo</div>)}
-        {isWalletConecting && (<div>isWalletConecting</div>)}
-      </div>
+      {showDebugPanel && (
+        <div className={`${styles.debugBlock} ${(isDebugOpened) ? styles.opened : ''}`} >
+          <button onClick={() => { toggleDebug() }}>{`${(isDebugOpened) ? 'Close debug info' : 'Open debug info'}`}</button>
+          {claimableRewardsError && (<div>claimableRewardsError</div>)}
+          {rewardTokenInfoLoadError && (<div>rewardTokenInfoLoadError</div>)}
+          {rewardTokenBalanceLoadError && (<div>rewardTokenBalanceLoadError</div>)}
+          {stakedNftsLoadError && (<div>stakedNftsLoadError</div>)}
+          {stakedNftsUrisLoadError && (<div>stakedNftsUrisLoadError</div>)}
+          {ownedNftsLoadError && (<div>ownedNftsLoadError</div>)}
+          {ownedNftsUrisLoadError && (<div>ownedNftsUrisLoadError</div>)}
+          {claimableRewardsLoading && (<div>claimableRewardsLoading</div>)}
+          {rewardTokenInfoLoading && (<div>rewardTokenInfoLoading</div>)}
+          {rewardTokenBalanceLoading && (<div>rewardTokenBalanceLoading</div>)}
+          {stakedNftsLoading && (<div>stakedNftsLoading</div>)}
+          {stakedNftsUrisFetching && (<div>stakedNftsUrisFetching</div>)}
+          {ownedNftsLoading && (<div>ownedNftsLoading</div>)}
+          {ownedNftsUrisFetching && (<div>ownedNftsUrisFetching</div>)}
+          {isStakingDo && (<div>isStakingDo</div>)}
+          {isDeStakingDo && (<div>isDeStakingDo</div>)}
+          {isApproveDo && (<div>isApproveDo</div>)}
+          {isWalletConecting && (<div>isWalletConecting</div>)}
+        </div>
+      )}
     </div>
   );
 };

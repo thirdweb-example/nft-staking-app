@@ -1,6 +1,7 @@
 import { getLink } from "../helpers/getLink";
 import styles from "../styles/Home.module.css";
 import { useRouter } from "next/router";
+import { getBoolOption } from "../helpers"
 
 
 const menus = [
@@ -9,6 +10,15 @@ const menus = [
     title: 'Home',
     link: 'index'
   },
+  ...(
+    getBoolOption( `EnabledDemoMind` , true ) ? [
+      {
+        id: 'mint',
+        title: 'Mint NFT',
+        link: 'mint'
+      },
+    ] : []
+  ),
   {
     id: 'stake',
     title: 'Stake',

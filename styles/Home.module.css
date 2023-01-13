@@ -120,6 +120,7 @@
 
 .mainButton {
   cursor: pointer;
+  text-decoration: none;
   display: inline-flex;
   appearance: none;
   align-items: center;
@@ -230,6 +231,20 @@
   flex-wrap: wrap;
 }
 
+.mainFooter {
+  display: block;
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  padding: 10px;
+  border-top: 2px solid gray;
+  background: var(--black);
+}
+.mainFooter A {
+  color: #FFF;
+}
+
 .contractBox {
   display: flex;
   flex-direction: column;
@@ -319,6 +334,7 @@
   border: 1px solid #ccc;
   width: 19%;
   min-height: 200px;
+  margin-bottom: 10px;
 }
 
 .nftBox IMG {
@@ -342,6 +358,11 @@
   padding-left: 12px;
   padding-right: 12px;
   cursor: pointer;
+}
+
+.optionSelectBox A {
+  color: #FFF;
+  text-decoration: none;
 }
 
 .selectBoxTitle {

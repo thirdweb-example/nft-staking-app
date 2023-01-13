@@ -57,7 +57,7 @@ const nftToken = (options) => {
           ) : (
             <>
               {(isApproveDo && (isApproveId === tokenId)) ? (
-                <>Approving</>
+                <>Approving...</>
               ) : (
                 <>
                   {isApproved ? 'Stake' : 'Approve & Stake'}

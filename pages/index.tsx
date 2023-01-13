@@ -11,7 +11,7 @@ const Home: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      {navBlock(`index`, true)}
+      {navBlock(`index`, false)}
       {/* Top Section */}
       {logoBlock()}
       <h1 className={styles.h1}>{getText(`Stake NFT - earn ERC20`, `MainPage_Header`)}</h1>
@@ -20,30 +20,33 @@ const Home: NextPage = () => {
         className={styles.nftBoxGrid}
       >
         {/* Mint a new NFT */}
-        { getBoolOption( `MainPage_EnabledMind` , true ) && (
+        { getBoolOption( `EnabledDemoMind` , true ) && (
           <div className={styles.optionSelectBox}>
-            <h2 className={styles.selectBoxTitle}>
-              {getText(`Mint demo NFT`, `MainPage_Mint_Title`)}
-            </h2>
-            <p className={styles.selectBoxDescription}>
-              {getText(`Use the NFT Drop Contract to claim an NFT from the collection.`, `MainPage_Mint_Desc`)}
-            </p>
+            <a href={getLink(`mint`)}>
+              <h2 className={styles.selectBoxTitle}>
+                {getText(`Mint demo NFT`, `MainPage_Mint_Title`)}
+              </h2>
+              <p className={styles.selectBoxDescription}>
+                {getText(`Use the NFT Drop Contract to claim an NFT from the collection.`, `MainPage_Mint_Desc`)}
+              </p>
+            </a>
           </div>
         )}
         <div
           className={styles.optionSelectBox}
-          role="button"
-          onClick={() => router.push(getLink(`stake`))}
+          
         >
-          <h2 className={styles.selectBoxTitle}>
-            {getText(`Stake Your NFTs`, `MainPage_Stake_Title`)}
-          </h2>
-          <p className={styles.selectBoxDescription}>
-            {getText(
-              `By locking up NFTs on a platform, you can receive rewards depending on the annual interest rate, the staking duration, and the number of NFTs staked`,
-              `MainPage_Stake_Desc`
-            )}
-          </p>
+          <a href={getLink(`stake`)}>
+            <h2 className={styles.selectBoxTitle}>
+              {getText(`Stake Your NFTs`, `MainPage_Stake_Title`)}
+            </h2>
+            <p className={styles.selectBoxDescription}>
+              {getText(
+                `By locking up NFTs on a platform, you can receive rewards depending on the annual interest rate, the staking duration, and the number of NFTs staked`,
+                `MainPage_Stake_Desc`
+              )}
+            </p>
+          </a>
         </div>
       </div>
     </div>

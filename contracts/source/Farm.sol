@@ -816,6 +816,8 @@ contract Farm is ReentrancyGuard, Pausable, Ownable {
     address private nftCollectionAddress;
     // Rewards per hour per token deposited in wei
     uint256 private rewardsPerHour = 100000;
+
+    uint256 public version = 1;
     
     mapping(address => Staker) public stakers;
     // Mapping of tokenId to staker. For remember who to send back ther token
@@ -825,6 +827,10 @@ contract Farm is ReentrancyGuard, Pausable, Ownable {
         nftCollection = IERC721(_nftCollection);
         nftCollectionAddress = _nftCollection;
         rewardsToken = _rewardsToken;
+        rewardsPerHour = _rewardsPerHour;
+    }
+
+    function setRewardsPerHour(uint256 _rewardsPerHour) external onlyOwner {
         rewardsPerHour = _rewardsPerHour;
     }
 
