@@ -3,7 +3,7 @@ import type { NextPage } from "next"
 import { useEffect, useState } from "react"
 import styles from "../styles/Home.module.css"
 
-import { setupWeb3, switchOrAddChain, doConnectWithMetamask } from "../helpers/setupWeb3"
+import { setupWeb3, switchOrAddChain, doConnectWithMetamask, isMetamaskConnected } from "../helpers/setupWeb3"
 import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
 import navBlock from "../components/navBlock"
 import logoBlock from "../components/logoBlock"
@@ -54,6 +54,7 @@ const Stake: NextPage = () => {
   const [claimableRewards, setClaimableRewards] = useState(false)
   const [claimableRewardsLoading, setClaimableRewardsLoading] = useState(true)
   const [claimableRewardsError, setClaimableRewardsError] = useState(false)
+  const [isClaimbleRewards, setIsClaimbleRewards] = useState(false)
   
   const [rewardTokenContract, setRewardTokenContract] = useState(false)
   const [rewardTokenSymbol, setRewardTokenSymbol] = useState(false)
@@ -99,6 +100,25 @@ const Stake: NextPage = () => {
   const [isWalletConecting, setIsWalletConnecting] = useState(false)
 
   const [isDebugOpened, setIsDebugOpened] = useState(false)
+
+  /* ---- NOTIFY BLOCK ---- */
+  const [notifyBlocks, setNotifyBlocks] = useState([])
+  const [removeNotifyConfiged, setRemoveNotifyConfiged] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const _b = [...notifyBlocks]
+      _b.shift()
+      setNotifyBlocks(_b)
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [notifyBlocks])
+  
+  const addNotify = (msg, style = `info`) => {
+    const _t = [...notifyBlocks]
+    _t.push({ msg, style })
+    setNotifyBlocks([..._t])
+  }
 
   const toggleDebug = () => {
     setIsDebugOpened(!isDebugOpened)
@@ -359,6 +379,9 @@ const Stake: NextPage = () => {
         console.log('>>> initOnWeb3Ready', err)
         processError(err)
       })
+    } else {
+      const _isConnected = await isMetamaskConnected()
+      if (_isConnected) connectWithMetamask()
     }
   }
 
@@ -369,13 +392,19 @@ const Stake: NextPage = () => {
 
   async function claimRewards() {
     if (address && farmContract) {
+      setIsClaimbleRewards(true)
+      addNotify(`Confirm transaction...`)
       const sendArgs = await calcSendArgWithFee(address, farmContract, "claimRewards", [])
       farmContract.methods.claimRewards().send(sendArgs).then((res) => {
         fetchAvailableReward()
         fetchTotalRewardBalance()
+        setIsClaimbleRewards(false)
+        addNotify(`Reward claimed`, `success`)
       }).catch((err) => {
+        setIsClaimbleRewards(false)
         console.log('>>> claimRewards', err)
         processError(err)
+        addNotify(`Fail claim reward`, `error`)
       })
     }
   }
@@ -386,6 +415,7 @@ const Stake: NextPage = () => {
         try {
           setIsStakingDo(true)
           setIsStakingId(id)
+          addNotify(`Confirm stake transaction`)
           const stakeTxData = await calcSendArgWithFee(address, farmContract, "stake", [id])
           farmContract.methods.stake(id).send(stakeTxData).then(() => {
             const _stakedNfts = stakedNfts
@@ -403,7 +433,9 @@ const Stake: NextPage = () => {
 
             setIsStakingDo(false)
             setIsStakingId(false)
+            addNotify(`NFT Staked!`,`success`)
           }).catch((err) => {
+            addNotify(`Stake transaction failed`, `error`)
             console.log('>> stakeNft', err)
             processError(err)
 
@@ -411,6 +443,7 @@ const Stake: NextPage = () => {
             setIsStakingId(false)
           })
         } catch (err) {
+          addNotify(`Stake transaction failed`, `error`)
           console.log('>> stakeNft calc gas', err)
           processError(err)
 
@@ -421,18 +454,22 @@ const Stake: NextPage = () => {
       if (!isApproved) {
         setIsApproveId(id)
         setIsApproveDo(true)
+        addNotify(`Confirm approve transaction`)
         try {
           const approveTxData = await calcSendArgWithFee(address, nftContract, "setApprovalForAll", [stakingContractAddress, true]);
           nftContract.methods.setApprovalForAll(stakingContractAddress, true).send(approveTxData).then(async (ok) => {
             setIsApproved(true)
             setIsApproveDo(false)
+            addNotify(`Successfull approved!`,`success`)
             _doStake()
           }).catch((err) => {
+            addNotify(`Fail approve transaction`,`error`)
             console.log('>> stakeNft do approve', err)
             setIsApproveDo(false)
             processError(err)
           })
         } catch (err) {
+          addNotify(`Fail approve transaction`,`error`)
           console.log('>>> stakeNft do approve calc gas', err)
           setIsApproveDo(false)
           processError(err)
@@ -448,6 +485,7 @@ const Stake: NextPage = () => {
       try {
         setIsDeStakingDo(true)
         setIsDeStakingId(id)
+        addNotify(`Confirm withdraw transaction`)
         const sendArgs = await calcSendArgWithFee(address, farmContract, "withdraw", [id])
         farmContract.methods.withdraw(id).send(sendArgs).then((res) => {
           const _ownedNtfs = ownedNfts
@@ -465,12 +503,14 @@ const Stake: NextPage = () => {
 
           setIsDeStakingDo(false)
           setIsDeStakingId(false)
+          addNotify(`NFT withdrawed`,`success`)
         }).catch((err) => {
           console.log('>>> withdraw', err)
           processError(err)
 
           setIsDeStakingDo(false)
           setIsDeStakingId(false)
+          addNotify(`Withdraw NFT transaction failed`, `error`)
         })
       } catch (err) {
         console.log('>>> withdraw calc gas', err)
@@ -478,6 +518,7 @@ const Stake: NextPage = () => {
 
         setIsDeStakingDo(false)
         setIsDeStakingId(false)
+        addNotify(`Withdraw NFT transaction failed`, `error`)
       }
     }
   }
@@ -530,6 +571,9 @@ const Stake: NextPage = () => {
       <b>{message}</b>
     )
   }
+
+
+
 
   return (
     <div className={styles.container}>
@@ -585,10 +629,11 @@ const Stake: NextPage = () => {
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
           <b>Connected wallet {address}</b>
           <button
+            disabled={isClaimbleRewards}
             className={`${styles.mainButton} ${styles.spacerTop}`}
             onClick={() => claimRewards()}
           >
-            Claim Rewards
+            {isClaimbleRewards ? `Receiving an award...` : `Claim Rewards`}
           </button>
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
@@ -691,7 +736,16 @@ const Stake: NextPage = () => {
           {isWalletConecting && (<div>isWalletConecting</div>)}
         </div>
       )}
+      {/* ---- NOTIFY BLOCK ---- */}
+      {notifyBlocks.length > 0 && (
+        <div className={styles.notifyHolder}>
+          {notifyBlocks.map((block,blockIndex) => {
+            return (<div className={`${(block.style) ? styles[block.style] : styles.info}`} key={blockIndex}>{block.msg}</div>)
+          })}
+        </div>
+      )}
     </div>
+    
   );
 };
 

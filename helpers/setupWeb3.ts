@@ -123,10 +123,25 @@ const doConnectWithMetamask = async (options) => {
   }
 }
 
+const isMetamaskConnected = () => {
+  if (window && window.ethereum) {
+    return new Promise((resolve, reject) => {
+      ethereum.request({
+        method: 'eth_accounts'
+      }).then((accs) => {
+        resolve(accs.length > 0)
+      }).catch((err) => {
+        resolve(false)
+      })
+    })
+  } else return false
+}
+
 export {
   switchOrAddChain,
   doConnectWithMetamask,
-  setupWeb3
+  setupWeb3,
+  isMetamaskConnected,
 }
 
 export default setupWeb3

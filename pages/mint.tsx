@@ -3,11 +3,12 @@ import type { NextPage } from "next"
 import { useEffect, useState } from "react"
 import styles from "../styles/Home.module.css"
 
-import { setupWeb3, switchOrAddChain, doConnectWithMetamask } from "../helpers/setupWeb3"
+import { setupWeb3, switchOrAddChain, doConnectWithMetamask, isMetamaskConnected } from "../helpers/setupWeb3"
 import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
 import navBlock from "../components/navBlock"
 import logoBlock from "../components/logoBlock"
 import { getText, getLink } from "../helpers"
+import { useRouter } from "next/router"
 
 
 // Eth-testnet
@@ -32,6 +33,7 @@ const MyNFT_INTERFACE = new AbiInterface(MyNFTAbi)
 const debugLog = (msg) => { console.log(msg) }
 
 const Mint: NextPage = () => {
+
   const mintUris = [
     'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/apple.png',
     'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/bar.png',
@@ -54,6 +56,25 @@ const Mint: NextPage = () => {
   const [isMinting, setIsMinting] = useState(false)
   const [isMinted, setIsMinted] = useState(false)
 
+  /* ---- NOTIFY BLOCK ---- */
+  const [notifyBlocks, setNotifyBlocks] = useState([])
+  const [removeNotifyConfiged, setRemoveNotifyConfiged] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const _b = [...notifyBlocks]
+      _b.shift()
+      setNotifyBlocks(_b)
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [notifyBlocks])
+  
+  const addNotify = (msg, style = `info`) => {
+    const _t = [...notifyBlocks]
+    _t.push({ msg, style })
+    setNotifyBlocks([..._t])
+  }
+  /* ----- \\\\ NOTIFY BLOCK ----- */
 
   const processError = (error, error_namespace) => {
     let metamaskError = false
@@ -79,15 +100,6 @@ const Mint: NextPage = () => {
     }
   }
 
-/*
-  useEffect(() => {
-    if (address && nftContract) {
-      debugLog('on useEffect address && nftContract')
-      fetchIsApproved()
-    }
-  }, [address, nftContract])
-*/
-
   const initOnWeb3Ready = async () => {
     if (activeWeb3 && (`${activeChainId}` == `${chainId}`)) {
       activeWeb3.eth.getAccounts().then((accounts) => {
@@ -98,6 +110,11 @@ const Mint: NextPage = () => {
         console.log('>>> initOnWeb3Ready', err)
         processError(err)
       })
+    } else {
+      const _isConnected = await isMetamaskConnected()
+      if (_isConnected) {
+        connectWithMetamask()
+      }
     }
   }
 
@@ -127,17 +144,20 @@ const Mint: NextPage = () => {
   const doMintNFT = async () => {
     if (address && nftContract) {
       setIsMinting(true)
+      addNotify(`Confirm transaction for mint demo NFT`)
       try {
         const nftUri = mintUris[Math.floor(Math.random()*mintUris.length)]
-        console.log('>>> nftUri', nftUri)
         const mintTxData = await calcSendArgWithFee(address, nftContract, "claimNFT", [nftUri])
         nftContract.methods.claimNFT(nftUri).send(mintTxData).then(() => {
           setIsMinted(true)
           setIsMinting(false)
+          addNotify(`Demo NFT minted! Now you can test stake farm.`, `success`)
         }).catch((e) => {
+          addNotify(`Mint demo NFT transaction failed`, `error`)
           setIsMinting(false)
         })
       } catch (e) {
+        addNotify(`Mint demo NFT transaction failed`, `error`)
         setIsMinting(false)
       }
     }
@@ -150,7 +170,6 @@ const Mint: NextPage = () => {
       <h1 className={styles.h1}>
         {getText(`Mint Demo NFTs for test`, `MintPage_Title`)}
       </h1>
-
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
       {!address ? (
@@ -172,6 +191,14 @@ const Mint: NextPage = () => {
             </>
           )}
         </>
+      )}
+      {/* ---- NOTIFY BLOCK ---- */}
+      {notifyBlocks.length > 0 && (
+        <div className={styles.notifyHolder}>
+          {notifyBlocks.map((block,blockIndex) => {
+            return (<div className={`${(block.style) ? styles[block.style] : styles.info}`} key={blockIndex}>{block.msg}</div>)
+          })}
+        </div>
       )}
     </div>
   );

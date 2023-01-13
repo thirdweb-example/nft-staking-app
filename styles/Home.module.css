@@ -4,6 +4,39 @@
   left: 5%;
 }
 
+.notifyHolder {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  z-index: 1000000;
+  width: 300px;
+}
+
+.notifyHolder DIV {
+  display: block;
+  padding: 10px;
+  margin: 10px;
+  background: #FFF;
+  color: black;
+  border: 1px solid gray;
+  font-size: 10pt;
+  text-align: left;
+  line-height: 10pt;
+}
+
+.notifyHolder DIV.info {
+  color: #000;
+  background: #fff;
+}
+
+.notifyHolder DIV.error {
+  background: #e7c1c1;
+}
+
+.notifyHolder DIV.success {
+  background: #c1e7d2;
+}
+
 .btn {
   background-color: var(--tw-color1);
   outline: none;
