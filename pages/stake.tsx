@@ -8,15 +8,15 @@ import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
 import navBlock from "../components/navBlock"
 import logoBlock from "../components/logoBlock"
 import { getText } from "../helpers"
-
+import useStorage from "../storage/"
 import nftToken from "../components/nftToken"
 
 
 // Eth-testnet
-const chainId = 5;
-const nftDropContractAddress = "0xefeffe4d50392998efe4cf46b6fbaa19a58a041a"
-const tokenContractAddress = "0xaFF4481D10270F50f203E0763e2597776068CBc5"
-const stakingContractAddress = "0x8b740b4ad15e2201f291cbfc487977b0ecb5fc84"
+//const chainId = 0;//5;
+//const nftDropContractAddress = "" //"0xefeffe4d50392998efe4cf46b6fbaa19a58a041a"
+//const tokenContractAddress = "" //"0xaFF4481D10270F50f203E0763e2597776068CBc5"
+//const stakingContractAddress = "" //"0x8b740b4ad15e2201f291cbfc487977b0ecb5fc84"
 // Bnb-testnet
 /*
 const chainId = 97;
@@ -38,11 +38,14 @@ const ERC721_INTERFACE = new AbiInterface(ERC721Abi)
 const debugLog = (msg) => { console.log(msg) }
 
 const Stake: NextPage = () => {
-  const isLoading = false
-  if (isLoading) {
-    return <div>Loading</div>
-  }
+  const { storageData, isOwner } = useStorage()
+
   const showDebugPanel = false
+
+  const [ chainId, setChainId ] = useState(storageData?.chainId)
+  const [ nftDropContractAddress, setNftDropContractAddress ] = useState(storageData?.nftCollection)
+  const [ tokenContractAddress, setTokenContractAddress ] = useState(storageData?.rewardToken)
+  const [ stakingContractAddress, setStakingContractAddress ] = useState(storageData?.farmContract)
 
   const [activeChainId, setActiveChainId] = useState(false)
   const [activeWeb3, setActiveWeb3] = useState(false)
@@ -101,6 +104,19 @@ const Stake: NextPage = () => {
 
   const [isDebugOpened, setIsDebugOpened] = useState(false)
 
+  useEffect(() => {
+    if (storageData
+      && storageData.chainId
+      && storageData.nftCollection
+      && storageData.rewardToken
+      && storageData.farmContract
+    ) {
+      setChainId(storageData.chainId)
+      setNftDropContractAddress(storageData.nftCollection)
+      setTokenContractAddress(storageData.rewardToken)
+      setStakingContractAddress(storageData.farmContract)
+    }
+  }, [storageData])
   /* ---- NOTIFY BLOCK ---- */
   const [notifyBlocks, setNotifyBlocks] = useState([])
   const [removeNotifyConfiged, setRemoveNotifyConfiged] = useState(false)
@@ -119,6 +135,7 @@ const Stake: NextPage = () => {
     _t.push({ msg, style })
     setNotifyBlocks([..._t])
   }
+  /* ----- \\\\ NOTIFY BLOCK ----- */
 
   const toggleDebug = () => {
     setIsDebugOpened(!isDebugOpened)
@@ -387,8 +404,14 @@ const Stake: NextPage = () => {
 
   useEffect(() => {
     debugLog('on useEffect activeWeb3 initOnWeb3Ready')
-    initOnWeb3Ready()
-  }, [activeWeb3])
+    if (chainId
+      && nftDropContractAddress
+      && tokenContractAddress
+      && stakingContractAddress
+    ) {
+      initOnWeb3Ready()
+    }
+  }, [activeWeb3, chainId, nftDropContractAddress, tokenContractAddress, stakingContractAddress])
 
   async function claimRewards() {
     if (address && farmContract) {
@@ -572,12 +595,9 @@ const Stake: NextPage = () => {
     )
   }
 
-
-
-
   return (
     <div className={styles.container}>
-      {navBlock(`stake`, false)}
+      {navBlock(`stake`, isOwner)}
       {logoBlock()}
       <h1 className={styles.h1}>
         {getText(`Stake Your NFTs - Earn ERC20`, `StakePage_Title`)}

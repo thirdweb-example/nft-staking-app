@@ -147,8 +147,43 @@
   cursor: pointer;
   text-align: center;
   padding: 5px;
-  color: #fff;
+  color: #000;
   font-weight: 600;
+}
+
+.settingsTabsNav {
+  display: flex;
+  padding: 0px;
+  margin: 0px;
+  justify-content: space-evenly;
+}
+
+.settingsTabsNav LI {
+  display: block;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.settingsTabsNav LI.activeTab {
+  text-decoration: underline;
+  font-weight: bold;
+}
+.loadingHolder {
+  display: block;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  background: #000000b8;
+  z-index: 100000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.loadingHolder SPAN {
+  font-size: 20pt;
+  font-weight: bold;
 }
 
 .mainButton {
@@ -178,6 +213,12 @@
   text-align: center;
   border-radius: 9999px;
   border-style: none;
+}
+
+.mainButton.autoWidth {
+  width: auto;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .mainButton:hover {

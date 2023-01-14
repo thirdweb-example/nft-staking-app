@@ -4,14 +4,17 @@ import styles from "../styles/Home.module.css"
 import { getLink, getAssets, getText, getBoolOption, getIntOption } from "../helpers"
 import navBlock from "../components/navBlock"
 import logoBlock from "../components/logoBlock"
+import useStorage from "../storage/"
+import { useEffect, useState } from "react"
 
 
 const Home: NextPage = () => {
   const router = useRouter();
+  const { isOwner } = useStorage()
 
   return (
     <div className={styles.container}>
-      {navBlock(`index`, false)}
+      {navBlock(`index`, isOwner)}
       {/* Top Section */}
       {logoBlock()}
       <h1 className={styles.h1}>{getText(`Stake NFT - earn ERC20`, `MainPage_Header`)}</h1>

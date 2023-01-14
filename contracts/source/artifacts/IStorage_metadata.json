@@ -1,0 +1,208 @@
+{
+	"compiler": {
+		"version": "0.8.12+commit.f00d7308"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"name": "allKeys",
+				"outputs": [
+					{
+						"internalType": "string[]",
+						"name": "",
+						"type": "string[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "allKeysData",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "owner",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "info",
+								"type": "string"
+							}
+						],
+						"internalType": "struct IStorage.Data[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_key",
+						"type": "string"
+					}
+				],
+				"name": "clearKeyData",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string[]",
+						"name": "_keys",
+						"type": "string[]"
+					}
+				],
+				"name": "clearKeysData",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_key",
+						"type": "string"
+					}
+				],
+				"name": "getData",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "owner",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "info",
+								"type": "string"
+							}
+						],
+						"internalType": "struct IStorage.Data",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_key",
+						"type": "string"
+					},
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "owner",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "info",
+								"type": "string"
+							}
+						],
+						"internalType": "struct IStorage.Data",
+						"name": "_data",
+						"type": "tuple"
+					}
+				],
+				"name": "setKeyData",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "key",
+								"type": "string"
+							},
+							{
+								"components": [
+									{
+										"internalType": "address",
+										"name": "owner",
+										"type": "address"
+									},
+									{
+										"internalType": "string",
+										"name": "info",
+										"type": "string"
+									}
+								],
+								"internalType": "struct IStorage.Data",
+								"name": "data",
+								"type": "tuple"
+							}
+						],
+						"internalType": "struct IStorage.KeyData[]",
+						"name": "_keysData",
+						"type": "tuple[]"
+					}
+				],
+				"name": "setKeysData",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"source/Storage.sol": "IStorage"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"source/Storage.sol": {
+			"keccak256": "0xf06adfb024ce45ace49aa78c0246570e7ef7a1d4192cf9ac7f9189d957db2e0f",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://be6aaf5dea051774bc4b9c0e45be7338737222620260fe4a80cd52462501fbda",
+				"dweb:/ipfs/QmYyE62RAM3k14i9arvuPv56ZyYTk1vyF6i8opoCYnNo98"
+			]
+		}
+	},
+	"version": 1
+}

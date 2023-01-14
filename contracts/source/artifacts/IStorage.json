@@ -1,0 +1,225 @@
+{
+	"deploy": {
+		"VM:-": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"main:1": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"ropsten:3": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"rinkeby:4": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"kovan:42": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"goerli:5": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"Custom": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		}
+	},
+	"data": {
+		"bytecode": {
+			"functionDebugData": {},
+			"generatedSources": [],
+			"linkReferences": {},
+			"object": "",
+			"opcodes": "",
+			"sourceMap": ""
+		},
+		"deployedBytecode": {
+			"functionDebugData": {},
+			"generatedSources": [],
+			"immutableReferences": {},
+			"linkReferences": {},
+			"object": "",
+			"opcodes": "",
+			"sourceMap": ""
+		},
+		"gasEstimates": null,
+		"methodIdentifiers": {
+			"allKeys()": "cb965ae9",
+			"allKeysData()": "11d881b1",
+			"clearKeyData(string)": "28ce8638",
+			"clearKeysData(string[])": "ac193f1a",
+			"getData(string)": "ae55c888",
+			"setKeyData(string,(address,string))": "f14805c3",
+			"setKeysData((string,(address,string))[])": "be05133c"
+		}
+	},
+	"abi": [
+		{
+			"inputs": [],
+			"name": "allKeys",
+			"outputs": [
+				{
+					"internalType": "string[]",
+					"name": "",
+					"type": "string[]"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
+			"name": "allKeysData",
+			"outputs": [
+				{
+					"components": [
+						{
+							"internalType": "address",
+							"name": "owner",
+							"type": "address"
+						},
+						{
+							"internalType": "string",
+							"name": "info",
+							"type": "string"
+						}
+					],
+					"internalType": "struct IStorage.Data[]",
+					"name": "",
+					"type": "tuple[]"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "string",
+					"name": "_key",
+					"type": "string"
+				}
+			],
+			"name": "clearKeyData",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "string[]",
+					"name": "_keys",
+					"type": "string[]"
+				}
+			],
+			"name": "clearKeysData",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "string",
+					"name": "_key",
+					"type": "string"
+				}
+			],
+			"name": "getData",
+			"outputs": [
+				{
+					"components": [
+						{
+							"internalType": "address",
+							"name": "owner",
+							"type": "address"
+						},
+						{
+							"internalType": "string",
+							"name": "info",
+							"type": "string"
+						}
+					],
+					"internalType": "struct IStorage.Data",
+					"name": "",
+					"type": "tuple"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "string",
+					"name": "_key",
+					"type": "string"
+				},
+				{
+					"components": [
+						{
+							"internalType": "address",
+							"name": "owner",
+							"type": "address"
+						},
+						{
+							"internalType": "string",
+							"name": "info",
+							"type": "string"
+						}
+					],
+					"internalType": "struct IStorage.Data",
+					"name": "_data",
+					"type": "tuple"
+				}
+			],
+			"name": "setKeyData",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"components": [
+						{
+							"internalType": "string",
+							"name": "key",
+							"type": "string"
+						},
+						{
+							"components": [
+								{
+									"internalType": "address",
+									"name": "owner",
+									"type": "address"
+								},
+								{
+									"internalType": "string",
+									"name": "info",
+									"type": "string"
+								}
+							],
+							"internalType": "struct IStorage.Data",
+							"name": "data",
+							"type": "tuple"
+						}
+					],
+					"internalType": "struct IStorage.KeyData[]",
+					"name": "_keysData",
+					"type": "tuple[]"
+				}
+			],
+			"name": "setKeysData",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		}
+	]
+}

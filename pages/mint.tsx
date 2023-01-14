@@ -9,13 +9,15 @@ import navBlock from "../components/navBlock"
 import logoBlock from "../components/logoBlock"
 import { getText, getLink } from "../helpers"
 import { useRouter } from "next/router"
-
+import useStorage from "../storage"
 
 // Eth-testnet
+/*
 const chainId = 5;
 const nftDropContractAddress = "0xefeffe4d50392998efe4cf46b6fbaa19a58a041a"
 const tokenContractAddress = "0xaFF4481D10270F50f203E0763e2597776068CBc5"
 const stakingContractAddress = "0x8b740b4ad15e2201f291cbfc487977b0ecb5fc84"
+*/
 // Bnb-testnet
 /*
 const chainId = 97;
@@ -33,6 +35,7 @@ const MyNFT_INTERFACE = new AbiInterface(MyNFTAbi)
 const debugLog = (msg) => { console.log(msg) }
 
 const Mint: NextPage = () => {
+  const { storageData, isOwner } = useStorage()
 
   const mintUris = [
     'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/apple.png',
@@ -45,6 +48,9 @@ const Mint: NextPage = () => {
     'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/seven.png',
     'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/water-melon.png',
   ]
+
+  const [ chainId, setChainId ] = useState(storageData?.chainId)
+  const [ nftDropContractAddress, setNftDropContractAddress ] = useState(storageData?.nftCollection)
 
   const [activeChainId, setActiveChainId] = useState(false)
   const [activeWeb3, setActiveWeb3] = useState(false)
@@ -119,9 +125,21 @@ const Mint: NextPage = () => {
   }
 
   useEffect(() => {
+    if (storageData
+      && storageData.chainId
+      && storageData.nftCollection
+    ) {
+      setChainId(storageData.chainId)
+      setNftDropContractAddress(storageData.nftCollection)
+    }
+  }, [storageData])
+
+  useEffect(() => {
     debugLog('on useEffect activeWeb3 initOnWeb3Ready')
-    initOnWeb3Ready()
-  }, [activeWeb3])
+    if (chainId && nftDropContractAddress) {
+      initOnWeb3Ready()
+    }
+  }, [activeWeb3, chainId, nftDropContractAddress])
 
 
   const connectWithMetamask = async () => {
@@ -163,9 +181,10 @@ const Mint: NextPage = () => {
     }
   }
 
+
   return (
     <div className={styles.container}>
-      {navBlock(`mint`, false)}
+      {navBlock(`mint`, isOwner)}
       {logoBlock()}
       <h1 className={styles.h1}>
         {getText(`Mint Demo NFTs for test`, `MintPage_Title`)}
