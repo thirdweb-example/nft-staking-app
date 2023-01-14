@@ -9,7 +9,7 @@
   top: 0px;
   left: 0px;
   z-index: 1000000;
-  width: 300px;
+  min-width: 300px;
 }
 
 .notifyHolder DIV {

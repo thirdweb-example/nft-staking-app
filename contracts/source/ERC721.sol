@@ -12,7 +12,7 @@ contract DemoNFT is ERC721URIStorage, Ownable {
     Counters.Counter private _tokenIds;
     uint256 public constant MAX_SUPPLY = 8888;
 
-    constructor() ERC721("My ERC721", "ERC721NFT") {}
+    constructor() ERC721("NFTSkate Demo NFT ERC721", "NFTSTAKE_DEMO_ERC721NFT") {}
 
     function maxSupply()
         external

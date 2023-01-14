@@ -1,16 +1,13 @@
-import FarmContractData from "../contracts/source/artifacts/Farm.json"
-import FarmAbi from '../contracts/FarmAbi.json'
+import NftContractData from "../contracts/source/artifacts/DemoNFT.json"
 import { calcSendArgWithFee } from "./calcSendArgWithFee"
 import { BigNumber } from 'bignumber.js'
 
-const deployFarmContract = (options) => {
+const deployDemoNft = (options) => {
   return new Promise((resolve, reject) => {
     const {
       activeWeb3,
-      nftCollection,
-      rewardsToken,
-      rewardsPerHour,
     } = options
+
     const onTrx = options.onTrx || (() => {})
     const onSuccess = options.onSuccess || (() => {})
     const onError = options.onError || (() => {})
@@ -19,16 +16,16 @@ const deployFarmContract = (options) => {
     activeWeb3.eth.getAccounts().then(async (accounts) => {
       if (accounts.length>0) {
         const activeWallet = accounts[0]
-        const farmContract = new activeWeb3.eth.Contract(FarmAbi)
+        const nftContract = new activeWeb3.eth.Contract(NftContractData.abi)
 
         const txArguments = {
           from: activeWallet,
           gas: '0'
         }
 
-        const gasAmountCalculated = await farmContract.deploy({
-          arguments: [ nftCollection, rewardsToken, rewardsPerHour ],
-          data: FarmContractData.data.bytecode.object
+        const gasAmountCalculated = await nftContract.deploy({
+          arguments: [],
+          data: NftContractData.data.bytecode.object
         }).estimateGas(txArguments)
 
         const gasAmounWithPercentForSuccess = new BigNumber(
@@ -39,9 +36,9 @@ const deployFarmContract = (options) => {
 
         txArguments.gas = '0x' + gasAmounWithPercentForSuccess
 
-        farmContract.deploy({
-          data: '0x' + FarmContractData.data.bytecode.object,
-          arguments: [ nftCollection, rewardsToken, rewardsPerHour ],
+        nftContract.deploy({
+          data: '0x' + NftContractData.data.bytecode.object,
+          arguments: [],
         })
           .send(txArguments)
           .on('transactionHash', (hash) => {
@@ -63,10 +60,10 @@ const deployFarmContract = (options) => {
         reject('NO_ACTIVE_ACCOUNT')
       }
     }).catch((err) => {
-      console.log('>>> initOnWeb3Ready', err)
+      console.log('>>> deployDemoNft', err)
       reject(err)
     })
   })
 }
 
-export default deployFarmContract
+export default deployDemoNft

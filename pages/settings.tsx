@@ -16,9 +16,11 @@ import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
 import STORAGE_JSON from "../contracts/Storage.json"
 import { getCurrentDomain } from "../helpers/getCurrentDomain"
 import fetchTokenInfo from "../helpers/fetchTokenInfo"
+import fetchNftInfo from "../helpers/fetchNftInfo"
 import fetchFarmInfo from "../helpers/fetchFarmInfo"
 import fetchTokenBalance from "../helpers/fetchTokenBalance"
 import deployFarmContract from "../helpers/deployFarmContract"
+import deployDemoNft from "../helpers/deployDemoNft"
 import delay from "../helpers/delay"
 import { toWei, fromWei } from "../helpers/wei"
 import openInTab from "../components/openInTab"
@@ -356,6 +358,66 @@ const Settings: NextPage = (props) => {
     }
   }, [ farmInfo, farmInfoFetched ])
 
+  /* --- NFT Info ---- */
+  const [ isNFTInfoFetching, setIsNFTInfoFetching ] = useState(false)
+  const [ isNFTInfoFetched, setIsNFTInfoFetched ] = useState(false)
+  const [ nftCollectionInfo, setNftCollectionInfo ] = useState({
+    name: ``,
+    symbol: ``
+  })
+
+  const doFetchNFTInfo = () => {
+    setIsNFTInfoFetching(true)
+    setIsNFTInfoFetched(false)
+    setNftCollectionInfo({})
+    addNotify(`Fetching NFT collection info`)
+    if (newChainId && newNftCollection) {
+      fetchNftInfo(newNftCollection, newChainId).then((answ) => {
+        addNotify(`NFT collection info fetched`, `success`)
+        setNftCollectionInfo(answ)
+        setIsNFTInfoFetched(true)
+        setIsNFTInfoFetching(false)
+      }).catch((err) => {
+        console.log(err)
+        setIsNFTInfoFetching(false)
+        addNotify(`Fail fetch NFT info. ${err.message ? err.message : ''}`, `error`)
+      })
+    } else {
+      setIsNFTInfoFetching(false)
+      addNotify(`Fail fetch NFT info. No chainid or nft contract address`, `error`)
+    }
+  }
+  /* ----------------- */
+  /* --- Deploy demo NFT ---- */
+  const [ isDeployingNFTDemo, setIsDeployingNFTDemo ] = useState(false)
+
+  const doDeployDemoNFT = () => {
+    setIsDeployingNFTDemo(true)
+    setNftCollectionInfo({})
+    setIsNFTInfoFetched(false)
+    deployDemoNft({
+      activeWeb3,
+      onSuccess: (contractAddress) => {
+        console.log('>>> contract ', contractAddress)
+        setNewNftCollection(contractAddress)
+        setIsDeployingNFTDemo(false)
+        addNotify(`Demo NFT Collection deployed`, `success`)
+        doFetchNFTInfo()
+      },
+      onTrx: (hash) => {
+        addNotify(`NFT Collection deploy TX ${hash}...`, `success`)
+      },
+      onError: (err) => {
+        addNotify(`Fail deploy demo NFT collection. ${err.message ? err.message : ``}`, `error`)
+        setIsDeployingNFTDemo(false)
+      }
+    }).then((answ) => {
+    }).catch((err) => {
+      console.log(err)
+      addNotify(`Fail deploy demo NFT collection. ${err.message ? err.message : ``}`, `error`)
+      setIsDeployingNFTDemo(false)
+    })
+  }
   /* --- Deploy farm contract --- */
   const [ isOpenedDeployFarm, setIsOpenedDeployFarm ] = useState(false)
   const [ deployRewardPerHour, setDeployRewardPerHour ] = useState( 0.1 )
@@ -363,9 +425,6 @@ const Settings: NextPage = (props) => {
   const [ canDeploy, setCanDeploy ] = useState(false)
 
   const doDeployFarmContract = () => {
-  console.log('>>>> deployRewardPerHour', deployRewardPerHour, rewardTokenInfo, rewardTokenInfo.decimals)
-  console.log(toWei(deployRewardPerHour.toString(), rewardTokenInfo.decimals))
-    //return
     setIsFarmContractDeploying(true)
     if (newChainId && newRewardToken && newNftCollection) {
       addNotify(`Confirm deploy transaction`)
@@ -383,6 +442,11 @@ const Settings: NextPage = (props) => {
           setIsFarmContractDeploying(false)
           setIsOpenedDeployFarm(false)
           doFetchFarmInfo()
+        },
+        onError: (err) => {
+          addNotify(`Fail deploy contract. ${(err.message ? err.message : '')}`, `error`)
+          setIsFarmContractDeploying(false)
+          console.log(err)
         }
       }).then((answ) => {
         console.log(answ)
@@ -504,6 +568,7 @@ const Settings: NextPage = (props) => {
     )
   }
   /* -- */
+
   useEffect(() => {
     if (storageData) {
       setNewChainId(storageData.chainId)
@@ -551,7 +616,22 @@ const Settings: NextPage = (props) => {
   }
 
   const doTest = () => {
-
+    fetchNftInfo(newNftCollection, newChainId).then((answ) => {
+      console.log('>>> ', answ)
+    }).catch((err) => {
+      console.log(err)
+    })
+  /*
+    deployDemoNft({
+      activeWeb3,
+      onSuccess: (contractAddress) => {
+        console.log('>>> contract ', contractAddress)
+      }
+    }).then((answ) => {
+    }).catch((err) => {
+      console.log(err)
+    })
+    */
   }
 
   
@@ -559,6 +639,7 @@ const Settings: NextPage = (props) => {
   const renderMainTab = () => {
     return (
       <div className={styles.adminForm}>
+        <button onClick={doTest}>Test</button>
         {!isOpenedDeployFarm && (
           <>
             {adminFormRow({
@@ -575,11 +656,50 @@ const Settings: NextPage = (props) => {
               onChange: doSetNftCollection,
               placeholder: `Enter address of NFT collection for stack`,
               buttons: (
-                <button className={styles.secondaryButton} onClick={() => {}}>
-                  Deploy Demo NFT collection
-                </button>
+                <>
+                  <button disabled={isDeployingNFTDemo || isNFTInfoFetching} className={styles.secondaryButton} onClick={doFetchNFTInfo}>
+                    {isNFTInfoFetching ? `Fetching NFT info` : `Fetch NFT info`}
+                  </button>
+                  <button disabled={isDeployingNFTDemo || isNFTInfoFetching} className={styles.secondaryButton} onClick={doDeployDemoNFT}>
+                    {isDeployingNFTDemo ? `Deploying Demo NFT` : `Deploy Demo NFT collection`}
+                  </button>
+                </>
               )
             })}
+          </>
+        )}
+        {isNFTInfoFetched && nftCollectionInfo && nftCollectionInfo.symbol && (
+          <div className={styles.subFormInfo}>
+            <h3>NFT Collection info</h3>
+            <div className={styles.infoRow}>
+              <label>Chain ID:</label>
+              <span>
+                <b>{CHAIN_INFO(nftCollectionInfo.chainId).chainName} ({nftCollectionInfo.chainId})</b>
+              </span>
+            </div>
+            <div className={styles.infoRow}>
+              <label>Address:</label>
+              <span>
+                <b>{newNftCollection}</b>
+                {openInTab(CHAIN_EXPLORER_LINK({ address: nftCollectionInfo.address, chainId: nftCollectionInfo.chainId }), `Open in block explorer`)}
+              </span>
+            </div>
+            <div className={styles.infoRow}>
+              <label>Symbol:</label>
+              <span>
+                <b>{nftCollectionInfo.symbol}</b>
+              </span>
+            </div>
+            <div className={styles.infoRow}>
+              <label>Name:</label>
+              <span>
+                <b>{nftCollectionInfo.name}</b>
+              </span>
+            </div>
+          </div>
+        )}
+        {!isOpenedDeployFarm && (
+          <>
             {adminFormRow({
               label: `Reward Token address`,
               type: `address`,
@@ -599,19 +719,34 @@ const Settings: NextPage = (props) => {
             <h3>Reward Token info</h3>
             <div className={styles.infoRow}>
               <label>Chain ID:</label>
-              <span>{rewardTokenInfo.chainId}</span>
+              <span>
+                <b>{CHAIN_INFO(rewardTokenInfo.chainId).chainName} ({rewardTokenInfo.chainId})</b>
+              </span>
+            </div>
+            <div className={styles.infoRow}>
+              <label>Address:</label>
+              <span>
+                <b>{rewardTokenInfo.address}</b>
+                {openInTab(CHAIN_EXPLORER_LINK({ address: rewardTokenInfo.address, chainId: rewardTokenInfo.chainId }), `Open in block explorer`)}
+              </span>
             </div>
             <div className={styles.infoRow}>
               <label>Symbol:</label>
-              <span>{rewardTokenInfo.symbol}</span>
+              <span>
+                <b>{rewardTokenInfo.symbol}</b>
+              </span>
             </div>
             <div className={styles.infoRow}>
               <label>Name:</label>
-              <span>{rewardTokenInfo.name}</span>
+              <span>
+                <b>{rewardTokenInfo.name}</b>
+              </span>
             </div>
             <div className={styles.infoRow}>
               <label>Decimals:</label>
-              <span>{rewardTokenInfo.decimals}</span>
+              <span>
+                <b>{rewardTokenInfo.decimals}</b>
+              </span>
             </div>
           </div>
         )}
@@ -626,7 +761,7 @@ const Settings: NextPage = (props) => {
               buttons: (
                 <>
                   <button disabled={farmInfoFetching || isFarmContractDeploying} className={styles.secondaryButton} onClick={doFetchFarmInfo}>
-                    {(farmInfoFetching) ? `Fetching...` : `Fetch contract info`}
+                    {(farmInfoFetching) ? `Fetching...` : `Fetch Farm info`}
                   </button>
                   <button disabled={farmInfoFetching || isFarmContractDeploying} className={styles.secondaryButton} onClick={doShowFarmDeploy}>
                     Deploy new Farm
@@ -694,13 +829,15 @@ const Settings: NextPage = (props) => {
   }
   /* -------------------------------------------- */
   //console.log('>>> storageData', storageData, showInstallBox, (storageData && !storageData.isInstalled), !isInstalledOnDomain)
+  console.log('>>> showInstallBox', showInstallBox)
+  console.log('>>> isInstalledOnDomain', isInstalledOnDomain)
   return (
     <div className={styles.container}>
       {navBlock(`settings`, true)}
       <h1 className={styles.h1}>Settings</h1>
       {storageData !== null && (
         <>
-          {(showInstallBox && !isInstalledOnDomain) ? (
+          {(showInstallBox /* || !isInstalledOnDomain*/) ? (
             <>
               <h2>NFTStake need setup on this domain</h2>
               {!address ? (

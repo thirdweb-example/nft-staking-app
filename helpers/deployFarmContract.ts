@@ -63,7 +63,7 @@ const deployFarmContract = (options) => {
         reject('NO_ACTIVE_ACCOUNT')
       }
     }).catch((err) => {
-      console.log('>>> initOnWeb3Ready', err)
+      console.log('>>> deployFarmContract', err)
       reject(err)
     })
   })
