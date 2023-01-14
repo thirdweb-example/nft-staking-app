@@ -20,7 +20,7 @@ const settingsTabs = {
 const debugLog = (msg) => { console.log(msg) }
 
 const Settings: NextPage = () => {
-  const { storageData, storageIsLoading } = useStorage()
+  const { storageData, storageIsLoading, isOwner } = useStorage()
 
   /* ---- NOTIFY BLOCK ---- */
   const [notifyBlocks, setNotifyBlocks] = useState([])
@@ -303,44 +303,54 @@ const Settings: NextPage = () => {
     <div className={styles.container}>
       {navBlock(`settings`, true)}
       <h1 className={styles.h1}>Settings</h1>
-      {(showInstallBox && !isInstalledOnDomain) ? (
+      {storageData !== null && (
         <>
-          <h2>NFTStake need setup on this domain</h2>
-          {!address ? (
-            <button disabled={isWalletConecting} className={styles.mainButton} onClick={connectWithMetamask}>
-              {isWalletConecting ? `Connecting` : `Connect Wallet`}
-            </button>
-          ) : (
+          {(showInstallBox && !isInstalledOnDomain) ? (
             <>
-              <button disabled={isSettingUpOnDomain} className={`${styles.mainButton} ${styles.autoWidth}`} onClick={doSetupOnDomain}>
-                {isSettingUpOnDomain ? `Setup on domain...` : `Setup NFTStake on this domain`}
-              </button>
-            </>
-          )}
-        </>
-      ) : (
-        <>
-          {!address ? (
-            <button disabled={isWalletConecting} className={styles.mainButton} onClick={connectWithMetamask}>
-              {isWalletConecting ? `Connecting` : `Connect Wallet`}
-            </button>
-          ) : (
-            <>
-              <ul className={styles.settingsTabsNav}>
-                {Object.keys(settingsTabs).map((tabKey) => {
-                  return (
-                    <li onClick={() => { setActiveTab(tabKey) }} key={tabKey} className={(tabKey === activeTab) ? styles.activeTab : ``}>
-                      {settingsTabs[tabKey]}
-                    </li>
-                  )
-                })}
-              </ul>
-              <hr className={`${styles.divider} ${styles.spacerTop}`} />
-              {/* -------------------------------------------------*/ }
-              {activeTab === `main` && (
-                <>{renderMainTab()}</>
+              <h2>NFTStake need setup on this domain</h2>
+              {!address ? (
+                <button disabled={isWalletConecting} className={styles.mainButton} onClick={connectWithMetamask}>
+                  {isWalletConecting ? `Connecting` : `Connect Wallet`}
+                </button>
+              ) : (
+                <>
+                  <button disabled={isSettingUpOnDomain} className={`${styles.mainButton} ${styles.autoWidth}`} onClick={doSetupOnDomain}>
+                    {isSettingUpOnDomain ? `Setup on domain...` : `Setup NFTStake on this domain`}
+                  </button>
+                </>
               )}
-              {/* -------------------------------------------------*/ }
+            </>
+          ) : (
+            <>
+              {!address ? (
+                <button disabled={isWalletConecting} className={styles.mainButton} onClick={connectWithMetamask}>
+                  {isWalletConecting ? `Connecting` : `Connect Wallet`}
+                </button>
+              ) : (
+                <>
+                  {isOwner ? (
+                    <>
+                      <ul className={styles.settingsTabsNav}>
+                        {Object.keys(settingsTabs).map((tabKey) => {
+                          return (
+                            <li onClick={() => { setActiveTab(tabKey) }} key={tabKey} className={(tabKey === activeTab) ? styles.activeTab : ``}>
+                              {settingsTabs[tabKey]}
+                            </li>
+                          )
+                        })}
+                      </ul>
+                      <hr className={`${styles.divider} ${styles.spacerTop}`} />
+                      {/* -------------------------------------------------*/ }
+                      {activeTab === `main` && (
+                        <>{renderMainTab()}</>
+                      )}
+                      {/* -------------------------------------------------*/ }
+                    </>
+                  ) : (
+                    <h2>Access denied</h2>
+                  )}
+                </>
+              )}
             </>
           )}
         </>
