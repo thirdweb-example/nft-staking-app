@@ -10,10 +10,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   const { storageData, storageIsLoading } = useStorage()
   const router = useRouter()
 
-  const settingsUrl = (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') ? '/settings' : '/settings.html'
+  const settingsUrl = (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') ? 'settings' : 'settings.html'
+  const routerBaseName = router.asPath.split('/').reverse()[0];
 
-  const isSettingsPage = (router.asPath === settingsUrl)
+  const isSettingsPage = (routerBaseName === settingsUrl)
 
+  console.log('>>> isSettingsPage', isSettingsPage)
   return (
     <div>
       <Head>
