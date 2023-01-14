@@ -815,9 +815,9 @@ contract Farm is ReentrancyGuard, Pausable, Ownable {
     IERC721 public nftCollection;
     address private nftCollectionAddress;
     // Rewards per hour per token deposited in wei
-    uint256 private rewardsPerHour = 100000;
+    uint256 public rewardsPerHour = 100000;
 
-    uint256 public version = 1;
+    uint256 public version = 2;
     
     mapping(address => Staker) public stakers;
     // Mapping of tokenId to staker. For remember who to send back ther token

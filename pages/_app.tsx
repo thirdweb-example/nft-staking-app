@@ -7,7 +7,7 @@ import useStorage from "../storage/"
 import { useRouter } from "next/router"
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const { storageData, storageIsLoading } = useStorage()
+  const { storageData, storageIsLoading, isOwner } = useStorage()
   const router = useRouter()
 
   const settingsUrl = (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') ? 'settings' : 'settings.html'
@@ -15,7 +15,6 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const isSettingsPage = (routerBaseName === settingsUrl)
 
-  console.log('>>> isSettingsPage', isSettingsPage)
   return (
     <div>
       <Head>
@@ -46,7 +45,12 @@ function MyApp({ Component, pageProps }: AppProps) {
             </div>
           )}
           {((!storageIsLoading && storageData && storageData.isInstalled && storageData.isBaseConfigReady) || isSettingsPage) && (
-            <Component {...pageProps} />
+            <Component
+              {...pageProps }
+              storageData={storageData}
+              storageIsLoading={storageIsLoading}
+              isOwner={isOwner}
+            />
           )}
         </>
       )}

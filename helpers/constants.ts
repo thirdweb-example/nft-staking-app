@@ -180,3 +180,25 @@ export const AVAILABLE_NETWORKS_INFO = [
     nativeCurrency: CURRENCIES.FTM
   },
 ];
+
+export const CHAIN_EXPLORER_LINK = (options) => {
+  const {
+    address,
+    hash,
+    chainId,
+  } = options
+  const chainInfo = CHAIN_INFO(chainId)
+  if (chainInfo) {
+    if (address) return `${chainInfo.blockExplorerUrls[0]}/address/${address}`
+    if (hash) return `${chainId.blockExplorerUrls[0]}/tx/${hash}`
+  } else {
+    return ``
+  }
+}
+
+export const CHAIN_INFO = (chainId) => {
+  const exists = AVAILABLE_NETWORKS_INFO.filter((chainInfo) => {
+    return `${chainInfo.networkVersion}` == `${chainId}`
+  })
+  return exists.length ? exists[0] : 0
+} 

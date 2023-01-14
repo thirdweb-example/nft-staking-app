@@ -34,8 +34,8 @@ const MyNFT_INTERFACE = new AbiInterface(MyNFTAbi)
 
 const debugLog = (msg) => { console.log(msg) }
 
-const Mint: NextPage = () => {
-  const { storageData, isOwner } = useStorage()
+const Mint: NextPage = (props) => {
+  const { storageData, isOwner } = props
 
   const mintUris = [
     'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/apple.png',

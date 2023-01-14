@@ -88,11 +88,11 @@
 	},
 	"sources": {
 		"source/Farm.sol": {
-			"keccak256": "0xde3cecb5c7162ab32bfff4f9158b2c18eb9e960a5a4c861478606b03a2f93c51",
+			"keccak256": "0x4f4fdb96cb622a711a0cd632d21a6f0b36adf3007c7bf2c94168d209ca497e2c",
 			"license": "Unlicense",
 			"urls": [
-				"bzz-raw://8bb9a0c7fc5c8d8add319fe609fc18db8cbe0658fdd22504e89f5eb1a3c7a1ad",
-				"dweb:/ipfs/QmTSvj7As9i2xhX1EmAivqTVRHyPCM9y1a6zAVBQtD16Ps"
+				"bzz-raw://7316f31c2e84564dccdde758005a4cc98832aaf50f5cddb96c9e4363a52a7c7d",
+				"dweb:/ipfs/QmYfHP44dm9Dfbsy13uMVpZrdXkHpYSrTASg7rPZFpfWvx"
 			]
 		}
 	},

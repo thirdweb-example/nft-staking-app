@@ -27,7 +27,7 @@ const stakingContractAddress = "0xAcf15259F8B99094b7051679a9e60B2F270558ce"
 
 import TokenAbi from 'human-standard-token-abi'
 import ERC721Abi from '../contracts/ERC721Abi.json'
-import FarmAbi from '../contracts/FarmAbi.json'
+import FarmContractData from "../contracts/source/artifacts/Farm.json"
 import MulticallAbi from '../contracts/MulticallAbi.json'
 
 import { MULTICALL_CONTRACTS } from '../helpers/constants'
@@ -37,8 +37,8 @@ const ERC721_INTERFACE = new AbiInterface(ERC721Abi)
 
 const debugLog = (msg) => { console.log(msg) }
 
-const Stake: NextPage = () => {
-  const { storageData, isOwner } = useStorage()
+const Stake: NextPage = (props) => {
+  const { storageData, isOwner } = props
 
   const showDebugPanel = false
 
@@ -390,7 +390,7 @@ const Stake: NextPage = () => {
         setNftContract(_nftContract)
         const _rewardTokenContract = new activeWeb3.eth.Contract(TokenAbi, tokenContractAddress)
         setRewardTokenContract(_rewardTokenContract)
-        const _farmContract = new activeWeb3.eth.Contract(FarmAbi, stakingContractAddress)
+        const _farmContract = new activeWeb3.eth.Contract(FarmContractData.abi, stakingContractAddress)
         setFarmContract(_farmContract)
       }).catch((err) => {
         console.log('>>> initOnWeb3Ready', err)

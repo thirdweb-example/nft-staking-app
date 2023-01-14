@@ -8,9 +8,9 @@ import useStorage from "../storage/"
 import { useEffect, useState } from "react"
 
 
-const Home: NextPage = () => {
+const Home: NextPage = (props) => {
   const router = useRouter();
-  const { isOwner } = useStorage()
+  const { isOwner } = props
 
   return (
     <div className={styles.container}>

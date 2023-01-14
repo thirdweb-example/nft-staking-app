@@ -627,3 +627,147 @@
   font-weight: bold;
   text-decoration: none;
 }
+
+
+
+/* ==================== ADMIN */
+
+.adminForm {
+  width: 50%;
+}
+
+.adminFormInputHolder {
+  display: block;
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid gray;
+}
+
+.adminFormInputHolder SPAN.hasError {
+  display: block;
+  font-size: 10pt;
+  color: #dd0707;
+}
+.adminFormInputHolder LABEL {
+  display: block;
+  padding-bottom: 10px;
+}
+.adminFormInputHolder INPUT,
+.adminFormInputHolder SELECT {
+  display: block;
+  padding: 10px;
+  width: 100%;
+  background: #FFF;
+}
+
+.adminFormInputHolder.hasError INPUT,
+.adminFormInputHolder.hasError SELECT {
+  background: #f5a7a7;
+}
+.adminFormButtonsHolder {
+  padding-top: 10px;
+  text-align: right;
+}
+.adminFormButtonsHolder BUTTON {
+  margin-left: 10px;
+}
+
+.adminFormBottom {
+  padding-top: 20px;
+}
+
+.adminForm .subFormInfo {
+  border: 2px solid gray;
+  text-align: left;
+  padding: 10px;
+  padding-left: 20px;
+  margin-left: 20px;
+  border-top: 0px;
+  padding-bottom: 0px;
+}
+
+.adminForm .subFormInfo H3 {
+  background: gray;
+  margin: -10px;
+  margin-left: -20px;
+  margin-bottom: 0px;
+  padding: 5px;
+  font-size: 10pt;
+}
+
+.adminForm .subFormInfo B.hasError {
+  color: #e50606;
+}
+
+.adminForm .subFormInfo .infoRow {
+  display: flex;
+  border-bottom: 1px solid gray;
+  font-size: 10pt;
+  align-items: center;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.adminForm .subFormInfo .infoRow:last-child {
+  border-bottom: 0;
+}
+
+.adminForm .subFormInfo .infoRow LABEL {
+  display: block;
+  width: 30%;
+}
+.adminForm .subFormInfo .infoRow BUTTON {
+  padding-top: 0px;
+  padding-bottom: 0px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.adminForm .subFormInfo .actionsRow {
+    text-align: right;
+    padding: 10px;
+}
+.adminForm .subFormInfo .actionsRow BUTTON {
+  margin-left: 10px;
+}
+
+.openInNewTab {
+  padding: 10px;
+  color: #5baccb;
+}
+.confirmWindow {
+  display: flex;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  z-index: 100000;
+  background: #00000061;
+  justify-content: center;
+  align-items: center;
+}
+.confirmWindow>DIV {
+  background: #444444;
+  border: 2px solid #fff;
+  border-radius: 20px;
+  padding: 20px;
+}
+.confirmWindow H3 {
+  padding: 0px;
+  display: block;
+  margin: 0px;
+}
+.confirmWindow SPAN {
+  display: block;
+  padding: 10px;
+}
+
+.confirmWindow>DIV>DIV {
+  display: flex;
+  justify-content: space-around;
+}
+.confirmWindow BUTTON {
+  margin-left: 10px;
+  margin-right: 10px;
+}

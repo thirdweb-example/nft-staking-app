@@ -40,11 +40,14 @@ const switchOrAddChain = async (neededChainId) => {
       console.error('Switch chain error: ', switchError.message)
       return false
     }
-
   }
 }
 
 const getChainInfoById = (chainId: string) => AVAILABLE_NETWORKS_INFO.find(networkInfo => networkInfo.networkVersion === chainId)
+
+const getCurrentChainId = () => {
+  return window.ethereum && window.ethereum.networkVersion
+}
 
 const setupWeb3 = () => new Promise((resolve, reject) => {
   if (window.ethereum) {
@@ -161,6 +164,7 @@ export {
   setupWeb3,
   isMetamaskConnected,
   getConnectedAddress,
+  getCurrentChainId,
 }
 
 export default setupWeb3
