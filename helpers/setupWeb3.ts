@@ -43,7 +43,7 @@ const switchOrAddChain = async (neededChainId) => {
   }
 }
 
-const getChainInfoById = (chainId: string) => AVAILABLE_NETWORKS_INFO.find(networkInfo => networkInfo.networkVersion === chainId)
+const getChainInfoById = (chainId: string) => AVAILABLE_NETWORKS_INFO.find(networkInfo => `${networkInfo.networkVersion}` === `${chainId}`)
 
 const getCurrentChainId = () => {
   return window.ethereum && window.ethereum.networkVersion

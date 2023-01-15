@@ -43,6 +43,7 @@ const Stake: NextPage = (props) => {
   const showDebugPanel = false
 
   const [ chainId, setChainId ] = useState(storageData?.chainId)
+  console.log('>>> storageData', storageData, chainId)
   const [ nftDropContractAddress, setNftDropContractAddress ] = useState(storageData?.nftCollection)
   const [ tokenContractAddress, setTokenContractAddress ] = useState(storageData?.rewardToken)
   const [ stakingContractAddress, setStakingContractAddress ] = useState(storageData?.farmContract)
@@ -547,6 +548,7 @@ const Stake: NextPage = (props) => {
   }
 
   const connectWithMetamask = async () => {
+    console.log('>>> connectWithMetamask', chainId)
     doConnectWithMetamask({
       onBeforeConnect: () => { setIsWalletConnecting(true) },
       onSetActiveChain: setActiveChainId,
