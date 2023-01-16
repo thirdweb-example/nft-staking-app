@@ -10,11 +10,13 @@ import {
   doConnectWithMetamask,
   isMetamaskConnected,
   getCurrentChainId,
+  onBlockchainChanged,
 } from "../helpers/setupWeb3"
 import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
 
 import STORAGE_JSON from "../contracts/Storage.json"
 import { getCurrentDomain } from "../helpers/getCurrentDomain"
+import { getUnixTimestamp } from "../helpers/getUnixTimestamp"
 import fetchTokenInfo from "../helpers/fetchTokenInfo"
 import fetchNftInfo from "../helpers/fetchNftInfo"
 import fetchFarmInfo from "../helpers/fetchFarmInfo"
@@ -59,28 +61,15 @@ const CHAINS_LIST = (() => {
 
 const Settings: NextPage = (props) => {
 
-  const { storageData, storageIsLoading, isOwner } = props
+  const {
+    storageData,
+    storageIsLoading,
+    isOwner,
+    openConfirmWindow,
+    addNotify,
+    setDoReloadStorage,
+  } = props
 
-  /* ---- NOTIFY BLOCK ---- */
-  const [notifyBlocks, setNotifyBlocks] = useState([])
-  const [removeNotifyConfiged, setRemoveNotifyConfiged] = useState(false)
-
-  
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const _b = [...notifyBlocks]
-      _b.shift()
-      setNotifyBlocks(_b)
-    }, 5000)
-    return () => clearTimeout(timer)
-  }, [notifyBlocks])
-  
-  const addNotify = (msg, style = `info`) => {
-    const _t = [...notifyBlocks]
-    _t.push({ msg, style })
-    setNotifyBlocks([..._t])
-  }
-  /* ----- \\\\ NOTIFY BLOCK ----- */
   const [activeChainId, setActiveChainId] = useState(false)
   const [activeWeb3, setActiveWeb3] = useState(false)
   const [address, setAddress] = useState(false)
@@ -108,6 +97,11 @@ const Settings: NextPage = (props) => {
         console.log('Unkrnown error', error.message)
         break;
     }
+  }
+
+  const onNetworkChanged = (newActiveChainId) => {
+    console.log('>>> newActiveChainId', newActiveChainId)
+    setActiveChainId(newActiveChainId)
   }
 
   const initOnWeb3Ready = async () => {
@@ -141,6 +135,7 @@ const Settings: NextPage = (props) => {
       onSetActiveChain: setActiveChainId,
       onConnected: (cId, web3) => {
         setActiveWeb3(web3)
+        onBlockchainChanged(onNetworkChanged)
         setIsWalletConnecting(false)
       },
       onError: (err) => {
@@ -154,6 +149,7 @@ const Settings: NextPage = (props) => {
   /* ---------------------------- END WEB3 CONNECT --------- */
 
   const [storageContract, setStorageContract] = useState(false)
+  const [isStorageSave, setIsStorageSave] = useState(false)
 
   const saveStorageConfig = async (options) => {
     const {
@@ -163,61 +159,80 @@ const Settings: NextPage = (props) => {
       newData,
     } = options
 
-    if (getCurrentChainId() !== storageChainId) {
-      const storageChainInfo = CHAIN_INFO(storageChainId)
-      if (window.confirm(`Please change network Storage chain (${storageChainInfo.chainName})`)) {
-        await switchOrAddChain(storageChainId)
-        addNotify(`Switching to Storage chain`)
-        await delay(2000)
-      } else {
-        if (onError) onError()
-        return false
-      }
+    if (isStorageSave) {
+      addNotify(`Storage already saving...`, `error`)
+      return
     }
-    if (address && storageContract) {
-      if (onBegin) onBegin()
+    const _doSave = async () => {
+      if (address && storageContract) {
+        addNotify(`Saving config to storage. Confirm transaction`)
+        setIsStorageSave(true)
+        if (onBegin) onBegin()
 
-      const saveData = {
-        ...storageData,
-        ...newData,
-      }
+        const saveData = {
+          ...storageData,
+          ...newData,
+        }
 
-      try {
-        const setupTxData = await calcSendArgWithFee(
-          address,
-          storageContract,
-          "setKeyData",
-          [
+        try {
+          const setupTxData = await calcSendArgWithFee(
+            address,
+            storageContract,
+            "setKeyData",
+            [
+              getCurrentDomain(),
+              {
+                owner: address,
+                info: JSON.stringify(saveData)
+              }
+            ]
+          )
+          
+          storageContract.methods.setKeyData(
             getCurrentDomain(),
             {
               owner: address,
               info: JSON.stringify(saveData)
             }
-          ]
-        )
-        
-        storageContract.methods.setKeyData(
-          getCurrentDomain(),
-          {
-            owner: address,
-            info: JSON.stringify(saveData)
-          }
-        ).send(setupTxData).then(() => {
-          if (onReady) onReady()
-        }).catch((e) => {
+          ).send(setupTxData).then(() => {
+            setIsStorageSave(false)
+            if (onReady) onReady()
+          }).catch((e) => {
+            console.log('>>> error', e)
+            setIsStorageSave(false)
+            if (onError) onError(e)
+          })
+        } catch (e) {
           console.log('>>> error', e)
+          setIsStorageSave(false)
           if (onError) onError(e)
-        })
-      } catch (e) {
-        console.log('>>> error', e)
-        if (onError) onError(e)
+        }
+      } else {
+        addNotify(`Fail save storage. No active wallet or contract not ready yet`, `error`)
       }
+    }
+    console.log('>> do save', getCurrentChainId() !== storageChainId, getCurrentChainId(), storageChainId)
+    if (!getCurrentChainId(storageChainId)) {
+      const storageChainInfo = CHAIN_INFO(storageChainId)
+      openConfirmWindow({
+        title: `Need change active chain for save main config`,
+        message: `Please change network Storage chain (${storageChainInfo.chainName})`,
+        onConfirm: async () => {
+          addNotify(`Switching to Storage chain`)
+          await switchOrAddChain(storageChainId)
+          await delay(2000)
+          _doSave()
+        },
+        okLabel: `Switch`,
+      })
+    } else {
+      _doSave()
     }
   }
 
   let showInstallBox = (storageData && !storageData.isInstalled)
 
-  const [isInstalledOnDomain, setIsInstalledOnDomain] = useState(showInstallBox)
+  const [isInstalledOnDomain, setIsInstalledOnDomain] = useState(!showInstallBox)
   const [isSettingUpOnDomain, setIsSettingUpOnDomain] = useState(false)
   const doSetupOnDomain = () => {
     saveStorageConfig({
@@ -225,10 +240,11 @@ const Settings: NextPage = (props) => {
         setIsSettingUpOnDomain(true)
         addNotify(`Confirm transaction for setup NFTStake on this domain`)
       },
-      onReady: () => {
+      onReady: async () => {
         setIsSettingUpOnDomain(false)
         setIsInstalledOnDomain(true)
         addNotify(`NFTStake successfull installed on this domain. Now you can configure farm`, `success`)
+        setDoReloadStorage(true)
       },
       onError: (err) => {
         setIsSettingUpOnDomain(false)
@@ -366,24 +382,28 @@ const Settings: NextPage = (props) => {
     symbol: ``
   })
 
-  const doFetchNFTInfo = () => {
+  const _doFetchNFTInfo = (nftAddress, nftChainId) => {
     setIsNFTInfoFetching(true)
     setIsNFTInfoFetched(false)
     setNftCollectionInfo({})
     addNotify(`Fetching NFT collection info`)
-    if (newChainId && newNftCollection) {
-      fetchNftInfo(newNftCollection, newChainId).then((answ) => {
-        addNotify(`NFT collection info fetched`, `success`)
-        setNftCollectionInfo(answ)
-        setIsNFTInfoFetched(true)
-        setIsNFTInfoFetching(false)
-      }).catch((err) => {
-        console.log(err)
-        setIsNFTInfoFetching(false)
-        addNotify(`Fail fetch NFT info. ${err.message ? err.message : ''}`, `error`)
-      })
-    } else {
+  
+    fetchNftInfo(nftAddress, nftChainId).then((answ) => {
+      addNotify(`NFT collection info fetched`, `success`)
+      setNftCollectionInfo(answ)
+      setIsNFTInfoFetched(true)
       setIsNFTInfoFetching(false)
+    }).catch((err) => {
+      console.log(err)
+      setIsNFTInfoFetching(false)
+      addNotify(`Fail fetch NFT info. ${err.message ? err.message : ''}`, `error`)
+    })
+  }
+
+  const doFetchNFTInfo = () => {
+    if (newChainId && newNftCollection) {
+      _doFetchNFTInfo(newNftCollection, newChainId)
+    } else {
       addNotify(`Fail fetch NFT info. No chainid or nft contract address`, `error`)
     }
   }
@@ -392,30 +412,38 @@ const Settings: NextPage = (props) => {
   const [ isDeployingNFTDemo, setIsDeployingNFTDemo ] = useState(false)
 
   const doDeployDemoNFT = () => {
-    setIsDeployingNFTDemo(true)
-    setNftCollectionInfo({})
-    setIsNFTInfoFetched(false)
-    deployDemoNft({
-      activeWeb3,
-      onSuccess: (contractAddress) => {
-        console.log('>>> contract ', contractAddress)
-        setNewNftCollection(contractAddress)
-        setIsDeployingNFTDemo(false)
-        addNotify(`Demo NFT Collection deployed`, `success`)
-        doFetchNFTInfo()
+    const activeChainInfo = CHAIN_INFO(activeChainId)
+    openConfirmWindow({
+      title: `Deploying Demo NFT`,
+      message: `Deploy Demo NFT at ${activeChainInfo.chainName} (${activeChainId})?`,
+      okLabel: `Deploy`,
+      onConfirm: () => {
+        setIsDeployingNFTDemo(true)
+        setNftCollectionInfo({})
+        setIsNFTInfoFetched(false)
+        deployDemoNft({
+          activeWeb3,
+          onSuccess: (contractAddress) => {
+            console.log('>>> contract ', contractAddress)
+            setNewNftCollection(contractAddress)
+            setIsDeployingNFTDemo(false)
+            addNotify(`Demo NFT Collection deployed`, `success`)
+            _doFetchNFTInfo(contractAddress, newChainId || activeChainId)
+          },
+          onTrx: (hash) => {
+            addNotify(`NFT Collection deploy TX ${hash}...`, `success`)
+          },
+          onError: (err) => {
+            addNotify(`Fail deploy demo NFT collection. ${err.message ? err.message : ``}`, `error`)
+            setIsDeployingNFTDemo(false)
+          }
+        }).then((answ) => {
+        }).catch((err) => {
+          console.log(err)
+          addNotify(`Fail deploy demo NFT collection. ${err.message ? err.message : ``}`, `error`)
+          setIsDeployingNFTDemo(false)
+        })
       },
-      onTrx: (hash) => {
-        addNotify(`NFT Collection deploy TX ${hash}...`, `success`)
-      },
-      onError: (err) => {
-        addNotify(`Fail deploy demo NFT collection. ${err.message ? err.message : ``}`, `error`)
-        setIsDeployingNFTDemo(false)
-      }
-    }).then((answ) => {
-    }).catch((err) => {
-      console.log(err)
-      addNotify(`Fail deploy demo NFT collection. ${err.message ? err.message : ``}`, `error`)
-      setIsDeployingNFTDemo(false)
     })
   }
   /* --- Deploy farm contract --- */
@@ -425,40 +453,48 @@ const Settings: NextPage = (props) => {
   const [ canDeploy, setCanDeploy ] = useState(false)
 
   const doDeployFarmContract = () => {
-    setIsFarmContractDeploying(true)
-    if (newChainId && newRewardToken && newNftCollection) {
-      addNotify(`Confirm deploy transaction`)
-        deployFarmContract({
-        activeWeb3,
-        nftCollection: newNftCollection,
-        rewardsToken: newRewardToken,
-        rewardsPerHour: toWei(deployRewardPerHour.toString(), rewardTokenInfo.decimals),
-        onTrx: (hash) => {
-          addNotify(`Farm contract deploy TX ${hash}...`, `success`)
-        },
-        onSuccess: (newContractAddress) => {
-          addNotify(`Farm contract deployed. Now save settings`, `success`)
-          setNewFarmContract(newContractAddress)
+    const activeChainInfo = CHAIN_INFO(activeChainId)
+    openConfirmWindow({
+      title: `Deploy Farm contract`,
+      message: `Deploy Farm contract at ${activeChainInfo.chainName} (${activeChainId})?`,
+      okLabel: `Deploy`,
+      onConfirm: () => {
+        setIsFarmContractDeploying(true)
+        if (newChainId && newRewardToken && newNftCollection) {
+          addNotify(`Confirm deploy transaction`)
+            deployFarmContract({
+            activeWeb3,
+            nftCollection: newNftCollection,
+            rewardsToken: newRewardToken,
+            rewardsPerHour: toWei(deployRewardPerHour.toString(), rewardTokenInfo.decimals),
+            onTrx: (hash) => {
+              addNotify(`Farm contract deploy TX ${hash}...`, `success`)
+            },
+            onSuccess: (newContractAddress) => {
+              addNotify(`Farm contract deployed. Now save settings`, `success`)
+              setNewFarmContract(newContractAddress)
+              setIsFarmContractDeploying(false)
+              setIsOpenedDeployFarm(false)
+              doFetchFarmInfo()
+            },
+            onError: (err) => {
+              addNotify(`Fail deploy contract. ${(err.message ? err.message : '')}`, `error`)
+              setIsFarmContractDeploying(false)
+              console.log(err)
+            }
+          }).then((answ) => {
+            console.log(answ)
+          }).catch((err) => {
+            addNotify(`Fail deploy contract. ${(err.message ? err.message : '')}`, `error`)
+            setIsFarmContractDeploying(false)
+            console.log(err)
+          })
+        } else {
+          addNotify(`Fail deploy. Not selected chainId, nft collection or reward token`, `error`)
           setIsFarmContractDeploying(false)
-          setIsOpenedDeployFarm(false)
-          doFetchFarmInfo()
-        },
-        onError: (err) => {
-          addNotify(`Fail deploy contract. ${(err.message ? err.message : '')}`, `error`)
-          setIsFarmContractDeploying(false)
-          console.log(err)
         }
-      }).then((answ) => {
-        console.log(answ)
-      }).catch((err) => {
-        addNotify(`Fail deploy contract. ${(err.message ? err.message : '')}`, `error`)
-        setIsFarmContractDeploying(false)
-        console.log(err)
-      })
-    } else {
-      addNotify(`Fail deploy. Not selected chainId, nft collection or reward token`, `error`)
-      setIsFarmContractDeploying(false)
-    }
+      },
+    })
   }
 
   const doShowFarmDeploy = () => {
@@ -616,11 +652,9 @@ const Settings: NextPage = (props) => {
   }
 
   const doTest = () => {
-    fetchNftInfo(newNftCollection, newChainId).then((answ) => {
-      console.log('>>> ', answ)
-    }).catch((err) => {
-      console.log(err)
-    })
+    console.log('>>>', ReloadStorage)
+    ReloadStorage()
+    setDoReloadStorage(true)
   /*
     deployDemoNft({
       activeWeb3,
@@ -820,24 +854,39 @@ const Settings: NextPage = (props) => {
           </div>
         )}
         <div className={styles.adminFormBottom}>
-          <button className={styles.mainButton} onClick={doSaveMainConfig} >
+          <button disabled={isStorageSave} className={styles.mainButton} onClick={doSaveMainConfig} >
             Save changes
           </button>
         </div>
       </div>
     )
   }
+  const renderActiveChainInfo = () => {
+    const chainInfo = CHAIN_INFO(activeChainId)
+    const storageChainInfo = CHAIN_INFO(storageChainId)
+
+    return (
+      <div className={styles.adminActiveChainInfo}>
+        <span>
+          Current active network is <b>{chainInfo?.chainName || `Unknown`} ({activeChainId})</b>
+        </span>
+        <span>
+          Main config storage network is <b>{storageChainInfo?.chainName || `Unknown`} ({storageChainId})</b>
+        </span>
+      </div>
+    )
+  }
   /* -------------------------------------------- */
   //console.log('>>> storageData', storageData, showInstallBox, (storageData && !storageData.isInstalled), !isInstalledOnDomain)
-  console.log('>>> showInstallBox', showInstallBox)
-  console.log('>>> isInstalledOnDomain', isInstalledOnDomain)
+
+  if (isInstalledOnDomain) showInstallBox = false
   return (
     <div className={styles.container}>
       {navBlock(`settings`, true)}
       <h1 className={styles.h1}>Settings</h1>
       {storageData !== null && (
         <>
-          {(showInstallBox /* || !isInstalledOnDomain*/) ? (
+          {(showInstallBox) ? (
             <>
               <h2>NFTStake need setup on this domain</h2>
               {!address ? (
@@ -846,6 +895,7 @@ const Settings: NextPage = (props) => {
                 </button>
               ) : (
                 <>
+                  {renderActiveChainInfo()}
                   <button disabled={isSettingUpOnDomain} className={`${styles.mainButton} ${styles.autoWidth}`} onClick={doSetupOnDomain}>
                     {isSettingUpOnDomain ? `Setup on domain...` : `Setup NFTStake on this domain`}
                   </button>
@@ -862,6 +912,7 @@ const Settings: NextPage = (props) => {
                 <>
                   {isOwner ? (
                     <>
+                      {renderActiveChainInfo()}
                       <ul className={styles.settingsTabsNav}>
                         {Object.keys(settingsTabs).map((tabKey) => {
                           return (
@@ -887,31 +938,6 @@ const Settings: NextPage = (props) => {
           )}
         </>
       )}
-      {/* ---- NOTIFY BLOCK ---- */}
-      {notifyBlocks.length > 0 && (
-        <div className={styles.notifyHolder}>
-          {notifyBlocks.map((block,blockIndex) => {
-            return (<div className={`${(block.style) ? styles[block.style] : styles.info}`} key={blockIndex}>{block.msg}</div>)
-          })}
-        </div>
-      )}
-      {/* ---- Confirm block ---- */}
-      {/*
-      <div className={styles.confirmWindow}>
-        <div>
-          <h3>Title</h3>
-          <span>Message</span>
-          <div>
-            <button className={styles.mainButton} onClick={() => {}}>
-              Confirm
-            </button>
-            <button className={styles.mainButton} onClick={() => {}}>
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-      */}
     </div>
   )
 }

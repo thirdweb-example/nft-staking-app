@@ -5,9 +5,27 @@ import styles from "../styles/Home.module.css"
 import { getText, getLink } from "../helpers"
 import useStorage from "../storage/"
 import { useRouter } from "next/router"
+import { useEffect, useState } from "react"
+
+import { getUnixTimestamp } from "../helpers/getUnixTimestamp"
+
+
+let confirmWindowOnConfirm = () => {}
+let confirmWindowOnCancel = () => {}
+const defaultConfirmWindowLabels = {
+  title: `Message`,
+  message: `Confirm`,
+  ok: `Ok`,
+  cancel: `Cancel`,
+} 
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const { storageData, storageIsLoading, isOwner } = useStorage()
+  const {
+    storageData,
+    storageIsLoading,
+    isOwner,
+    setDoReloadStorage,
+  } = useStorage()
   const router = useRouter()
 
   const settingsUrl = (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') ? 'settings' : 'settings.html'
@@ -15,6 +33,58 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const isSettingsPage = (routerBaseName === settingsUrl)
 
+  /* ---- NOTIFY BLOCK ---- */
+  const [notifyBlocks, setNotifyBlocks] = useState([])
+  const notifyBlockTimeout = 5000
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const _b = [...notifyBlocks]
+      _b.shift()
+      setNotifyBlocks(_b)
+    }, notifyBlockTimeout)
+    return () => clearTimeout(timer)
+  }, [notifyBlocks])
+
+  
+  const addNotify = (msg, style = `info`) => {
+    const _t = [...notifyBlocks]
+    _t.push({ msg, style, time: getUnixTimestamp() })
+    setNotifyBlocks([..._t])
+  }
+  /* ----- \\\\ NOTIFY BLOCK ----- */
+  /* Confirm window */
+  const [ isConfirmWindowOpened, setIsConfirmWindowOpened ] = useState(false)
+  const [ confirmWindowLabels, setConfirmWindowLabels ] = useState(defaultConfirmWindowLabels)
+
+
+  const onConfirmWindowConfirm = () => {
+    confirmWindowOnConfirm()
+    setIsConfirmWindowOpened(false)
+  }
+  const onConfirmWindowCancel = () => {
+    confirmWindowOnCancel()
+    setIsConfirmWindowOpened(false)
+  }
+  const openConfirmWindow = (options = {}) => {
+    const {
+      onConfirm,
+      onCancel,
+    } = options
+
+    console.log(options)
+    confirmWindowOnConfirm = (onConfirm) ? onConfirm : () => {}
+    confirmWindowOnCancel = (onCancel) ? onCancel : () => {}
+    setConfirmWindowLabels({
+      title: options.title || defaultConfirmWindowLabels.title,
+      message: options.message || defaultConfirmWindowLabels.message,
+      ok: options.okLabel || defaultConfirmWindowLabels.ok,
+      cancel: options.cancelLabel || defaultConfirmWindowLabels.cancel,
+    })
+    setIsConfirmWindowOpened(true)
+  
+  }
+  /* -------------- */
   return (
     <div>
       <Head>
@@ -49,10 +119,47 @@ function MyApp({ Component, pageProps }: AppProps) {
               {...pageProps }
               storageData={storageData}
               storageIsLoading={storageIsLoading}
+              openConfirmWindow={openConfirmWindow}
               isOwner={isOwner}
+              addNotify={addNotify}
+              setDoReloadStorage={setDoReloadStorage}
             />
           )}
         </>
+      )}
+      {/* ---- NOTIFY BLOCK ---- */}
+      {notifyBlocks.length > 0 && (
+        <div className={styles.notifyHolder}>
+          {notifyBlocks.map((block,blockIndex) => {
+            let addClass = ``
+            if (getUnixTimestamp() > block.time + 2000) addClass = `showed`
+            if (getUnixTimestamp() > block.time + notifyBlockTimeout) addClass = `hidden`
+            return (
+              <div className={`${(block.style) ? styles[block.style] : styles.info}`}
+                key={blockIndex}
+              >
+                {block.msg}
+              </div>
+            )
+          })}
+        </div>
+      )}
+      {/* ---- Confirm block ---- */}
+      { isConfirmWindowOpened && (
+        <div className={styles.confirmWindow}>
+          <div>
+            <h3>{confirmWindowLabels.title}</h3>
+            <span>{confirmWindowLabels.message}</span>
+            <div>
+              <button className={styles.mainButton} onClick={onConfirmWindowConfirm}>
+                {confirmWindowLabels.ok}
+              </button>
+              <button className={styles.mainButton} onClick={onConfirmWindowCancel}>
+                {confirmWindowLabels.cancel}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
       <footer className={styles.mainFooter} >
         Powered by OnOut - <a href="https://onout.org/nftstake/" target="_blank">no-code tool to create NFTStake</a>

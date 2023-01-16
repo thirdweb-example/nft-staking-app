@@ -38,7 +38,12 @@ const ERC721_INTERFACE = new AbiInterface(ERC721Abi)
 const debugLog = (msg) => { console.log(msg) }
 
 const Stake: NextPage = (props) => {
-  const { storageData, isOwner } = props
+  const {
+    storageData,
+    isOwner,
+    openConfirmWindow,
+    addNotify,
+  } = props
 
   const showDebugPanel = false
 
@@ -118,25 +123,7 @@ const Stake: NextPage = (props) => {
       setStakingContractAddress(storageData.farmContract)
     }
   }, [storageData])
-  /* ---- NOTIFY BLOCK ---- */
-  const [notifyBlocks, setNotifyBlocks] = useState([])
-  const [removeNotifyConfiged, setRemoveNotifyConfiged] = useState(false)
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const _b = [...notifyBlocks]
-      _b.shift()
-      setNotifyBlocks(_b)
-    }, 5000)
-    return () => clearTimeout(timer)
-  }, [notifyBlocks])
-  
-  const addNotify = (msg, style = `info`) => {
-    const _t = [...notifyBlocks]
-    _t.push({ msg, style })
-    setNotifyBlocks([..._t])
-  }
-  /* ----- \\\\ NOTIFY BLOCK ----- */
 
   const toggleDebug = () => {
     setIsDebugOpened(!isDebugOpened)
@@ -756,14 +743,6 @@ const Stake: NextPage = (props) => {
           {isDeStakingDo && (<div>isDeStakingDo</div>)}
           {isApproveDo && (<div>isApproveDo</div>)}
           {isWalletConecting && (<div>isWalletConecting</div>)}
-        </div>
-      )}
-      {/* ---- NOTIFY BLOCK ---- */}
-      {notifyBlocks.length > 0 && (
-        <div className={styles.notifyHolder}>
-          {notifyBlocks.map((block,blockIndex) => {
-            return (<div className={`${(block.style) ? styles[block.style] : styles.info}`} key={blockIndex}>{block.msg}</div>)
-          })}
         </div>
       )}
     </div>

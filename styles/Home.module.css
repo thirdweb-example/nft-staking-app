@@ -771,3 +771,19 @@
   margin-left: 10px;
   margin-right: 10px;
 }
+
+.adminActiveChainInfo {
+  display: block;
+  width: 50%;
+  padding: 5px;
+  margin: 5px;
+  background: #7c8b7c;
+  color: #fff;
+  border: 1px solid #fff;
+}
+.adminActiveChainInfo SPAN {
+  display: block;
+}
+.adminActiveChainInfo SPAN:first-child {
+  border-bottom: 1px solid #fff;
+}

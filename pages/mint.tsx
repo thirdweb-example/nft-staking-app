@@ -35,7 +35,11 @@ const MyNFT_INTERFACE = new AbiInterface(MyNFTAbi)
 const debugLog = (msg) => { console.log(msg) }
 
 const Mint: NextPage = (props) => {
-  const { storageData, isOwner } = props
+  const {
+    storageData,
+    isOwner,
+    addNotify,
+  } = props
 
   const mintUris = [
     'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/apple.png',
@@ -62,25 +66,6 @@ const Mint: NextPage = (props) => {
   const [isMinting, setIsMinting] = useState(false)
   const [isMinted, setIsMinted] = useState(false)
 
-  /* ---- NOTIFY BLOCK ---- */
-  const [notifyBlocks, setNotifyBlocks] = useState([])
-  const [removeNotifyConfiged, setRemoveNotifyConfiged] = useState(false)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const _b = [...notifyBlocks]
-      _b.shift()
-      setNotifyBlocks(_b)
-    }, 5000)
-    return () => clearTimeout(timer)
-  }, [notifyBlocks])
-  
-  const addNotify = (msg, style = `info`) => {
-    const _t = [...notifyBlocks]
-    _t.push({ msg, style })
-    setNotifyBlocks([..._t])
-  }
-  /* ----- \\\\ NOTIFY BLOCK ----- */
 
   const processError = (error, error_namespace) => {
     let metamaskError = false
@@ -210,14 +195,6 @@ const Mint: NextPage = (props) => {
             </>
           )}
         </>
-      )}
-      {/* ---- NOTIFY BLOCK ---- */}
-      {notifyBlocks.length > 0 && (
-        <div className={styles.notifyHolder}>
-          {notifyBlocks.map((block,blockIndex) => {
-            return (<div className={`${(block.style) ? styles[block.style] : styles.info}`} key={blockIndex}>{block.msg}</div>)
-          })}
-        </div>
       )}
     </div>
   );

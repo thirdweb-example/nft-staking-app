@@ -200,5 +200,10 @@ export const CHAIN_INFO = (chainId) => {
   const exists = AVAILABLE_NETWORKS_INFO.filter((chainInfo) => {
     return `${chainInfo.networkVersion}` == `${chainId}`
   })
-  return exists.length ? exists[0] : 0
+  return exists.length
+    ? exists[0]
+    : {
+      networkVersion: chainId,
+      chainName: `Unknown`
+    }
 } 

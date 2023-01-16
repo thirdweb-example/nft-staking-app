@@ -45,8 +45,11 @@ const switchOrAddChain = async (neededChainId) => {
 
 const getChainInfoById = (chainId: string) => AVAILABLE_NETWORKS_INFO.find(networkInfo => `${networkInfo.networkVersion}` === `${chainId}`)
 
-const getCurrentChainId = () => {
-  return window.ethereum && window.ethereum.networkVersion
+const getCurrentChainId = (needChainId) => {
+  const curChainId = window.ethereum && window.ethereum.networkVersion
+  if (needChainId !== undefined) {
+    return `${curChainId}` === `${needChainId}`
+  } else return curChainId
 }
 
 const setupWeb3 = () => new Promise((resolve, reject) => {
@@ -140,6 +143,12 @@ const isMetamaskConnected = () => {
   } else return false
 }
 
+const onBlockchainChanged = (callback) => {
+  if (window && window.ethereum) {
+    window.ethereum.on('networkChanged', callback)
+  }
+}
+
 const getConnectedAddress = () => {
   if (window && window.ethereum) {
     return new Promise((resolve, reject) => {
@@ -160,6 +169,7 @@ const getConnectedAddress = () => {
 
 export {
   switchOrAddChain,
+  onBlockchainChanged,
   doConnectWithMetamask,
   setupWeb3,
   isMetamaskConnected,

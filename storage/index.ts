@@ -30,52 +30,61 @@ export default function useStorage() {
   const [error, setError] = useState(null)
 
   const storage = useStorageContract(97)
+  
+  const [ doReloadStorage, setDoReloadStorage ] = useState(true)
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!storage) return
-      
-      setError(null)
-      setStorageIsLoading(true)
-      
-      let parsed: any
-      let owner
-
-      try {
-        storageData = await storage.methods.getData(getCurrentDomain()).call()
-        parsed = parseInfo(storageData.info || '{}')
-      } catch (error) {
-        console.log('>>> error', error)
-        setError(error)
-      }
-      if (parsed) {
-        const { owner } = storageData
-
-        const isBaseConfigReady = (
-          parsed.chainId !== ''
-          && parsed.nftCollection !== ''
-          && parsed.rewardToken !== ''
-          && parsed.farmContract !== ''
-        )
-
-        setStorageData({
-          ...parsed,
-          owner: owner === ZERO_ADDRESS ? '' : owner,
-          isBaseConfigReady,
-          isInstalled: !(owner === ZERO_ADDRESS),
-        })
-        setIsInstalled(!(owner === ZERO_ADDRESS))
-        setStorageTexts(parsed.texts)
-        const connectedWallet = await getConnectedAddress()
-        if (connectedWallet && connectedWallet.toLowerCase() === owner.toLowerCase()) {
-          setIsOwner(true)
+    if (doReloadStorage) {
+      const fetchData = async () => {
+        if (!storage) {
+          console.log('>>> no storage')
+          return
         }
+        
+        setError(null)
+        setStorageIsLoading(true)
+        
+        let parsed: any
+        let owner
+
+        try {
+          storageData = await storage.methods.getData(getCurrentDomain()).call()
+          parsed = parseInfo(storageData.info || '{}')
+        } catch (error) {
+          console.log('>>> error', error)
+          setError(error)
+        }
+        console.log('>>> storageData parsed', parsed)
+        if (parsed) {
+          const { owner } = storageData
+
+          const isBaseConfigReady = (
+            parsed.chainId !== ''
+            && parsed.nftCollection !== ''
+            && parsed.rewardToken !== ''
+            && parsed.farmContract !== ''
+          )
+
+          setStorageData({
+            ...parsed,
+            owner: owner === ZERO_ADDRESS ? '' : owner,
+            isBaseConfigReady,
+            isInstalled: !(owner === ZERO_ADDRESS),
+          })
+          setIsInstalled(!(owner === ZERO_ADDRESS))
+          setStorageTexts(parsed.texts)
+          const connectedWallet = await getConnectedAddress()
+          if (connectedWallet && connectedWallet.toLowerCase() === owner.toLowerCase()) {
+            setIsOwner(true)
+          }
+        }
+        
+        setStorageIsLoading(false)
       }
-      
-      setStorageIsLoading(false)
+      fetchData()
+      setDoReloadStorage(false)
     }
-    fetchData()
-  }, [])
+  }, [ doReloadStorage ])
 
   return {
     storageIsLoading,
@@ -84,5 +93,6 @@ export default function useStorage() {
     isInstalled,
     error,
     storageTexts,
+    setDoReloadStorage,
   }
 }
