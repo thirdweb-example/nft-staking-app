@@ -26,6 +26,8 @@ import deployDemoNft from "../helpers/deployDemoNft"
 import delay from "../helpers/delay"
 import { toWei, fromWei } from "../helpers/wei"
 import openInTab from "../components/openInTab"
+import { textsGroups } from "../helpers/textsGroups"
+
 
 import {
   AVAILABLE_NETWORKS_INFO,
@@ -38,6 +40,7 @@ const storageAddress = '0xafb8f27df1f629432a47214b4e1674cbcbdb02df'
 
 const settingsTabs = {
   main: `Main settings`,
+  nftconfig: `NFT collection`,
   texts: `Edit texts`,
   design: `Design`,
   social: `Social links`
@@ -68,6 +71,7 @@ const Settings: NextPage = (props) => {
     openConfirmWindow,
     addNotify,
     setDoReloadStorage,
+    storageTexts,
   } = props
 
   const [activeChainId, setActiveChainId] = useState(false)
@@ -151,6 +155,7 @@ const Settings: NextPage = (props) => {
   const [storageContract, setStorageContract] = useState(false)
   const [isStorageSave, setIsStorageSave] = useState(false)
 
+
   const saveStorageConfig = async (options) => {
     const {
       onBegin,
@@ -163,16 +168,18 @@ const Settings: NextPage = (props) => {
       addNotify(`Storage already saving...`, `error`)
       return
     }
+    const _newStorageData = {
+      ...storageData,
+      ...newData,
+    }
+    console.log('>> save data', _newStorageData)
     const _doSave = async () => {
       if (address && storageContract) {
         addNotify(`Saving config to storage. Confirm transaction`)
         setIsStorageSave(true)
         if (onBegin) onBegin()
 
-        const saveData = {
-          ...storageData,
-          ...newData,
-        }
+        const saveData = _newStorageData
 
         try {
           const setupTxData = await calcSendArgWithFee(
@@ -627,6 +634,7 @@ const Settings: NextPage = (props) => {
   }
 
   const doSaveMainConfig = () => {
+    console.log('>>> texts', storageTexts, newStorageTexts)
     const newConfig = {
       chainId: newChainId,
       nftCollection: newNftCollection,
@@ -673,7 +681,7 @@ const Settings: NextPage = (props) => {
   const renderMainTab = () => {
     return (
       <div className={styles.adminForm}>
-        <button onClick={doTest}>Test</button>
+        {/*<button onClick={doTest}>Test</button>*/}
         {!isOpenedDeployFarm && (
           <>
             {adminFormRow({
@@ -861,6 +869,112 @@ const Settings: NextPage = (props) => {
       </div>
     )
   }
+
+  /* ---- EDIT TEXTS ---- */
+  const [ newStorageTexts, setNewStorageTexts ] = useState(storageTexts)
+  const [ isTextsChanged, setIsTextsChanged ] = useState(false)
+
+
+  const updateStorageText = (textCode, newText) => {
+    console.log('>>> updateStorageText', textCode, newText)
+
+    setNewStorageTexts({
+      ...newStorageTexts,
+      [`${textCode}`]: newText,
+    })
+    setIsTextsChanged(true)
+  }
+
+  const doSaveTexts = () => {
+    openConfirmWindow({
+      title: `Save changed texts`,
+      message: `Save changed texts?`,
+      okLabel: `Save`,
+      onConfirm: () => {
+        console.log('>>> texts', storageTexts, newStorageTexts)
+        const newConfig = {
+          texts: newStorageTexts
+        }
+        saveStorageConfig({
+          onBegin: () => {
+            setIsSettingUpOnDomain(true)
+            addNotify(`Confirm transaction for save changed texts`)
+          },
+          onReady: () => {
+            setIsSettingUpOnDomain(false)
+            setIsInstalledOnDomain(true)
+            addNotify(`Texts successfull saved`, `success`)
+          },
+          onError: (err) => {
+            setIsSettingUpOnDomain(false)
+            addNotify(`Fail save texts`, `error`)
+          },
+          newData: newConfig
+        })
+      },
+    })
+  }
+
+  const renderStorageTextArea = (options) => {
+    const {
+      code,
+      desc,
+      value,
+      defValue,
+      multiline,
+    } = options
+
+    return (
+      <div className={styles.adminStorageTextArea}>
+        <label>{desc} ({code})</label>
+        <input
+          type="text"
+          value={newStorageTexts[code] ? newStorageTexts[code] : defValue}
+          onChange={(e) => { updateStorageText(code, e.target.value) }}
+        />
+      </div>
+    )
+  }
+
+  const renderTextsTab = () => {
+    return (
+      <div className={styles.adminForm}>
+        {Object.keys(textsGroups).map((groupKey) => {
+          return (
+            <div className={styles.adminFormTextGroup} key={groupKey}>
+              <h3>{textsGroups[groupKey].title}</h3>
+              {textsGroups[groupKey].items.map((itemInfo, itemKey) => {
+                const {
+                  code,
+                  desc,
+                  value,
+                  multiline,
+                } = itemInfo
+                return (
+                  <div key={itemKey}>
+                    {renderStorageTextArea({
+                      code: code,
+                      desc: desc,
+                      defValue: value,
+                      multiline,
+                    })}
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })}
+        <div className={styles.adminFormBottom}>
+          <button disabled={isStorageSave || !isTextsChanged} className={styles.mainButton} onClick={doSaveTexts} >
+            Save changes
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+
+  /* ------------------------------------------- */
   const renderActiveChainInfo = () => {
     const chainInfo = CHAIN_INFO(activeChainId)
     const storageChainInfo = CHAIN_INFO(storageChainId)
@@ -924,9 +1038,8 @@ const Settings: NextPage = (props) => {
                       </ul>
                       <hr className={`${styles.divider} ${styles.spacerTop}`} />
                       {/* -------------------------------------------------*/ }
-                      {activeTab === `main` && (
-                        <>{renderMainTab()}</>
-                      )}
+                      {activeTab === `main` && renderMainTab()}
+                      {activeTab === `texts` && renderTextsTab()}
                       {/* -------------------------------------------------*/ }
                     </>
                   ) : (

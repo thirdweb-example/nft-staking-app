@@ -7,7 +7,6 @@ import { setupWeb3, switchOrAddChain, doConnectWithMetamask, isMetamaskConnected
 import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
 import navBlock from "../components/navBlock"
 import logoBlock from "../components/logoBlock"
-import { getText } from "../helpers"
 import useStorage from "../storage/"
 import nftToken from "../components/nftToken"
 
@@ -43,6 +42,7 @@ const Stake: NextPage = (props) => {
     isOwner,
     openConfirmWindow,
     addNotify,
+    getText,
   } = props
 
   const showDebugPanel = false
@@ -589,7 +589,7 @@ const Stake: NextPage = (props) => {
       {navBlock(`stake`, isOwner)}
       {logoBlock()}
       <h1 className={styles.h1}>
-        {getText(`Stake Your NFTs - Earn ERC20`, `StakePage_Title`)}
+        {getText(`StakePage_Title`, `Stake Your NFTs - Earn ERC20`)}
       </h1>
 
       <hr className={`${styles.divider} ${styles.spacerTop}`} />

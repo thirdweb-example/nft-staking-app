@@ -2,7 +2,7 @@ import type { AppProps } from "next/app"
 import Head from 'next/head'
 import "../styles/globals.css"
 import styles from "../styles/Home.module.css"
-import { getText, getLink } from "../helpers"
+import { getStorageText, getLink } from "../helpers"
 import useStorage from "../storage/"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
@@ -25,6 +25,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     storageIsLoading,
     isOwner,
     setDoReloadStorage,
+    storageTexts,
   } = useStorage()
   const router = useRouter()
 
@@ -85,12 +86,13 @@ function MyApp({ Component, pageProps }: AppProps) {
   
   }
   /* -------------- */
+  const getText = getStorageText(storageTexts)
   return (
     <div>
       <Head>
-        <title>{getText(`NFTStake - Stake NFT - earn ERC20`, `App_Title`)}</title>
-        <meta name="description" content={getText(`NFTStake - Stake NFT - earn ERC20`, `App_Description`)} />
-        <meta name="keywords" content={getText(`NFT, Stake, ERC20, Blockchain`, `App_Keywords`)} />
+        <title>{getText(`App_Title`, `NFTStake - Stake NFT - earn ERC20`)}</title>
+        <meta name="description" content={getText(`App_Description`, `NFTStake - Stake NFT - earn ERC20`)} />
+        <meta name="keywords" content={getText(`App_Keywords`, `NFT, Stake, ERC20, Blockchain`)} />
       </Head>
       {(storageIsLoading || (storageData === null)) ? (
         <div className={styles.loadingHolder}>
@@ -123,6 +125,8 @@ function MyApp({ Component, pageProps }: AppProps) {
               isOwner={isOwner}
               addNotify={addNotify}
               setDoReloadStorage={setDoReloadStorage}
+              storageTexts={storageTexts}
+              getText={getText}
             />
           )}
         </>

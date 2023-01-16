@@ -7,7 +7,7 @@ import { setupWeb3, switchOrAddChain, doConnectWithMetamask, isMetamaskConnected
 import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
 import navBlock from "../components/navBlock"
 import logoBlock from "../components/logoBlock"
-import { getText, getLink } from "../helpers"
+import { getLink } from "../helpers"
 import { useRouter } from "next/router"
 import useStorage from "../storage"
 
@@ -39,6 +39,7 @@ const Mint: NextPage = (props) => {
     storageData,
     isOwner,
     addNotify,
+    getText,
   } = props
 
   const mintUris = [
@@ -172,7 +173,7 @@ const Mint: NextPage = (props) => {
       {navBlock(`mint`, isOwner)}
       {logoBlock()}
       <h1 className={styles.h1}>
-        {getText(`Mint Demo NFTs for test`, `MintPage_Title`)}
+        {getText(`MintPage_Title`, `Mint Demo NFTs for test`)}
       </h1>
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
