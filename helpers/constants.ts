@@ -204,6 +204,11 @@ export const CHAIN_INFO = (chainId) => {
     ? exists[0]
     : {
       networkVersion: chainId,
-      chainName: `Unknown`
+      chainName: `Unknown`,
+      nativeCurrency: {
+        name: "Unknown",
+        symbol: 'Unknown',
+        decimals: 18
+      }
     }
 } 

@@ -1,6 +1,6 @@
 export const textsGroups = [
   {
-    title: `SEO options`,
+    title: `Main options`,
     items: [
       {
         code: `App_Title`,
@@ -16,6 +16,14 @@ export const textsGroups = [
         code: `App_Keywords`,
         desc: `Application keywords`,
         value: `NFT, Stake, ERC20, Blockchain`,
+      },
+      {
+        code: `App_Footer`,
+        desc: `Footer text`,
+        multiline: false,
+        multilineView: true,
+        markdown: true,
+        value: `Powered by OnOut - [no-code tool to create NFTStake](https://onout.org/nftstake/)`
       }
     ]
   },
@@ -58,6 +66,13 @@ export const textsGroups = [
         code: `MintPage_Title`,
         desc: `Mint page title`,
         value: `Mint Demo NFTs for test`,
+      },
+      {
+        code: `MintPage_Managed_PriceInfo`,
+        desc: `Info about mint price (%amount%, %currency%)`,
+        value: `Mint price is %amount% %currency%`,
+        multiline: true,
+        markdown: true,
       }
     ]
   },
@@ -70,5 +85,19 @@ export const textsGroups = [
         value: `Stake Your NFTs - Earn ERC20`,
       }
     ],
-  }
+  },
 ]
+
+const prepareTextsGroups = () => {
+  const _ret = {}
+  Object.keys(textsGroups).forEach((k) => {
+    Object.keys(textsGroups[k].items).forEach((kk) => {
+      const _item = textsGroups[k].items[kk]
+      _ret[_item.code] = _item
+    })
+  })
+  
+  return _ret;
+}
+
+export const TEXTS_GROUPS_ITEMS = prepareTextsGroups()

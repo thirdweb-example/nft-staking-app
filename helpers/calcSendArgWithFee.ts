@@ -1,9 +1,11 @@
 import { BigNumber } from 'bignumber.js'
-export const calcSendArgWithFee = async (account, contract, method, args) => {
+export const calcSendArgWithFee = async (account, contract, method, args, weiAmount) => {
   const txArguments = {
     from: account,
     gas: '0'
   }
+
+  if (weiAmount) txArguments.value = new BigNumber(weiAmount)
 
   const gasAmountCalculated = await contract.methods
     [method](...args)

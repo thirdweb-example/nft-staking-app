@@ -9,18 +9,33 @@
 				"inputs": [
 					{
 						"internalType": "string",
-						"name": "_symbol",
+						"name": "__symbol",
 						"type": "string"
 					},
 					{
 						"internalType": "string",
-						"name": "_name",
+						"name": "__name",
 						"type": "string"
 					},
 					{
 						"internalType": "uint256",
-						"name": "_max_supply",
+						"name": "__maxSupply",
 						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "__mintPrice",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "__allowTrade",
+						"type": "bool"
+					},
+					{
+						"internalType": "bool",
+						"name": "__allowMint",
+						"type": "bool"
 					}
 				],
 				"stateMutability": "nonpayable",
@@ -80,6 +95,68 @@
 				"anonymous": false,
 				"inputs": [
 					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "buyer",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "tokenUri",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					}
+				],
+				"name": "Buy",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "tokenUri",
+						"type": "string"
+					}
+				],
+				"name": "Mint",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
 						"indexed": true,
 						"internalType": "address",
 						"name": "previousOwner",
@@ -93,6 +170,37 @@
 					}
 				],
 				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "tokenUri",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					}
+				],
+				"name": "PutUpForSale",
 				"type": "event"
 			},
 			{
@@ -118,6 +226,31 @@
 					}
 				],
 				"name": "Transfer",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "tokenUri",
+						"type": "string"
+					}
+				],
+				"name": "WithdrawFromSale",
 				"type": "event"
 			},
 			{
@@ -191,22 +324,35 @@
 						"type": "uint256"
 					}
 				],
-				"name": "buyNFTbyERC20",
-				"outputs": [],
-				"stateMutability": "pure",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "_tokenId",
-						"type": "uint256"
-					}
-				],
 				"name": "deSellNFT",
 				"outputs": [],
 				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getAllowMint",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getAllowTrade",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -223,6 +369,32 @@
 						"internalType": "address",
 						"name": "",
 						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getMintPrice",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getMintUris",
+				"outputs": [
+					{
+						"internalType": "string[]",
+						"name": "",
+						"type": "string[]"
 					}
 				],
 				"stateMutability": "view",
@@ -294,7 +466,7 @@
 			},
 			{
 				"inputs": [],
-				"name": "isManaged",
+				"name": "isNFTStakeToken",
 				"outputs": [
 					{
 						"internalType": "bool",
@@ -369,6 +541,25 @@
 					}
 				],
 				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "_seed",
+						"type": "bytes32"
+					}
+				],
+				"name": "mintRandom",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "payable",
 				"type": "function"
 			},
 			{
@@ -501,29 +692,6 @@
 					},
 					{
 						"internalType": "address",
-						"name": "erc20",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "price",
-						"type": "uint256"
-					}
-				],
-				"name": "sellNFTbyERC20",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "_tokenId",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
 						"name": "_erc20",
 						"type": "address"
 					},
@@ -534,6 +702,32 @@
 					}
 				],
 				"name": "sellNFTforERC20",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bool",
+						"name": "_newAllowMint",
+						"type": "bool"
+					}
+				],
+				"name": "setAllowMint",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bool",
+						"name": "_newAllowTrade",
+						"type": "bool"
+					}
+				],
+				"name": "setAllowTrade",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -552,6 +746,45 @@
 					}
 				],
 				"name": "setApprovalForAll",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_newMaxSupply",
+						"type": "uint256"
+					}
+				],
+				"name": "setMaxSupply",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_newMintPrice",
+						"type": "uint256"
+					}
+				],
+				"name": "setMintPrice",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string[]",
+						"name": "newMintUris",
+						"type": "string[]"
+					}
+				],
+				"name": "setMintUris",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -740,8 +973,8 @@
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": true,
-			"runs": 99999
+			"enabled": false,
+			"runs": 200
 		},
 		"remappings": []
 	},
@@ -859,11 +1092,11 @@
 			]
 		},
 		"source/StakeNFT.sol": {
-			"keccak256": "0xb4bed1774fffa51f5e9e121770380bf7406dc9195d7c128830a963159659741a",
+			"keccak256": "0x7c3e91d2a8234612372a8d1b8b212f6f0168677b4445fc99199850534841d9f4",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://c299cb0ee752bddf5e7bd759fcd0248943045ff68b6b75cbc49893d855d1be23",
-				"dweb:/ipfs/QmRttYovmrvFQHg2JWAJ826MD8Uui8hBZNJPQAxcyftM2T"
+				"bzz-raw://6feab627dceeb444eebbba2cf5445b28f62e1b837e6b542bb4aba127ad1e6d2f",
+				"dweb:/ipfs/QmbYRSVD5Atc3vuKQcsrYKi8dwPn4bC4m12KFkJm9QaSWs"
 			]
 		}
 	},

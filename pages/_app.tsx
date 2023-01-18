@@ -93,6 +93,24 @@ function MyApp({ Component, pageProps }: AppProps) {
         <title>{getText(`App_Title`, `NFTStake - Stake NFT - earn ERC20`)}</title>
         <meta name="description" content={getText(`App_Description`, `NFTStake - Stake NFT - earn ERC20`)} />
         <meta name="keywords" content={getText(`App_Keywords`, `NFT, Stake, ERC20, Blockchain`)} />
+        <style global>
+          {`
+            .svg-inline--fa {
+              display: var(inline-block);
+              height: 1em;
+              overflow: visible;
+              vertical-align: -0.125em;
+            }
+            svg:not(:root).svg-inline--fa, svg:not(:host).svg-inline--fa {
+              overflow: visible;
+              box-sizing: content-box;
+            }
+
+            .someOwnClass {
+              background: red;
+            }
+          `}
+        </style>
       </Head>
       {(storageIsLoading || (storageData === null)) ? (
         <div className={styles.loadingHolder}>
@@ -166,7 +184,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         </div>
       )}
       <footer className={styles.mainFooter} >
-        Powered by OnOut - <a href="https://onout.org/nftstake/" target="_blank">no-code tool to create NFTStake</a>
+        {getText(`App_Footer`, `Powered by OnOut - [no-code tool to create NFTStake](https://onout.org/nftstake/)`)}
       </footer>
     </div>
   );

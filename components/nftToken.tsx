@@ -1,5 +1,6 @@
 import styles from "../styles/Home.module.css"
-import isImageUrl from "is-image-url"
+import isImageUrl from "../helpers/isImageUrl"
+import { getLink } from "../helpers/getLink"
 
 const nftToken = (options) => {
   const {
@@ -15,6 +16,7 @@ const nftToken = (options) => {
     isDeStaking,
     isApproveDo,
     isApproveId,
+    isMinted,
   } = options
   return (
     <div className={styles.nftBox} key={tokenId.toString()}>
@@ -31,41 +33,54 @@ const nftToken = (options) => {
           )}
         </>
       )}
-      {onDeStake !== null && (
-        <button
-          disabled={isDeStaking || isStaking || isApproveDo}
-          className={`${styles.mainButton} ${styles.spacerBottom}`}
-          onClick={onDeStake}
-        >
-          {(isDeStaking && (deStakeId === tokenId)) ? (
-            <>De-staking...</>
-          ) : (
-            <>De-stake</>
+      {isMinted ? (
+        <>
+          <a
+            className={`${styles.mainButton} ${styles.spacerBottom}`}
+            href={getLink(`stake`)}
+          >
+            Go to staking
+          </a>
+        </>
+      ) : (
+        <>
+          {onDeStake !== null && (
+            <button
+              disabled={isDeStaking || isStaking || isApproveDo}
+              className={`${styles.mainButton} ${styles.spacerBottom}`}
+              onClick={onDeStake}
+            >
+              {(isDeStaking && (deStakeId === tokenId)) ? (
+                <>De-staking...</>
+              ) : (
+                <>De-stake</>
+              )}
+            </button>
           )}
-        </button>
-      )}
-      {onStake !== null && (
-        <button
-          className={`${styles.mainButton} ${styles.spacerBottom}`}
-          onClick={onStake}
-          disabled={isDeStaking || isStaking || isApproveDo}
-        >
-          {(isStaking && (stakeId === tokenId)) ? (
-            <>
-              Staking...
-            </>
-          ) : (
-            <>
-              {(isApproveDo && (isApproveId === tokenId)) ? (
-                <>Approving...</>
+          {onStake !== null && (
+            <button
+              className={`${styles.mainButton} ${styles.spacerBottom}`}
+              onClick={onStake}
+              disabled={isDeStaking || isStaking || isApproveDo}
+            >
+              {(isStaking && (stakeId === tokenId)) ? (
+                <>
+                  Staking...
+                </>
               ) : (
                 <>
-                  {isApproved ? 'Stake' : 'Approve & Stake'}
+                  {(isApproveDo && (isApproveId === tokenId)) ? (
+                    <>Approving...</>
+                  ) : (
+                    <>
+                      {isApproved ? 'Stake' : 'Approve & Stake'}
+                    </>
+                  )}
                 </>
               )}
-            </>
+            </button>
           )}
-        </button>
+        </>
       )}
     </div>
   )

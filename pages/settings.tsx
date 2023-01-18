@@ -2,6 +2,8 @@ import type { NextPage } from "next"
 import styles from "../styles/Home.module.css"
 import navBlock from "../components/navBlock"
 import adminFormRow from "../components/adminFormRow"
+import TabNftCollection from "../components/settings/TabNftCollection"
+
 import useStorage from "../storage/"
 import { useEffect, useState } from "react"
 import {
@@ -237,6 +239,23 @@ const Settings: NextPage = (props) => {
     }
   }
 
+  const tabNftCollection = new TabNftCollection({
+    chainId: storageData?.chainId || 0,
+    openConfirmWindow,
+    addNotify,
+    saveStorageConfig,
+    onNftDeployed: (address) => {
+      setNewNftCollection(address)
+      setIsNFTInfoFetched(false)
+    },
+    getActiveChain: () => {
+      return {
+        activeChainId,
+        activeWeb3,
+      }
+    }
+  })
+  
   let showInstallBox = (storageData && !storageData.isInstalled)
 
   const [isInstalledOnDomain, setIsInstalledOnDomain] = useState(!showInstallBox)
@@ -469,7 +488,7 @@ const Settings: NextPage = (props) => {
         setIsFarmContractDeploying(true)
         if (newChainId && newRewardToken && newNftCollection) {
           addNotify(`Confirm deploy transaction`)
-            deployFarmContract({
+          deployFarmContract({
             activeWeb3,
             nftCollection: newNftCollection,
             rewardsToken: newRewardToken,
@@ -524,6 +543,11 @@ const Settings: NextPage = (props) => {
       setCanDeploy(false)
     }
   }, [ newChainId, newNftCollection, newRewardToken, rewardTokenFetched ])
+
+  useEffect(() => {
+    tabNftCollection.setNftCollection(newNftCollection)
+    tabNftCollection.setNftChainId(newChainId)
+  }, [ newNftCollection, newChainId ])
 
   const farmDeployOptions = () => {
     const farmChainInfo = CHAIN_INFO(newChainId)
@@ -634,7 +658,6 @@ const Settings: NextPage = (props) => {
   }
 
   const doSaveMainConfig = () => {
-    console.log('>>> texts', storageTexts, newStorageTexts)
     const newConfig = {
       chainId: newChainId,
       nftCollection: newNftCollection,
@@ -922,16 +945,26 @@ const Settings: NextPage = (props) => {
       value,
       defValue,
       multiline,
+      markdown,
     } = options
 
     return (
       <div className={styles.adminStorageTextArea}>
-        <label>{desc} ({code})</label>
-        <input
-          type="text"
-          value={newStorageTexts[code] ? newStorageTexts[code] : defValue}
-          onChange={(e) => { updateStorageText(code, e.target.value) }}
-        />
+        <label>
+          {desc} ({code}) {markdown && (<b>(MarkDown)</b>)} {multiline && (<b>(Multiline)</b>)}
+        </label>
+        {multiline ? (
+          <textarea
+            value={newStorageTexts[code] ? newStorageTexts[code] : defValue}
+            onChange={(e) => { updateStorageText(code, e.target.value) }}
+          ></textarea>
+        ) : (
+          <input
+            type="text"
+            value={newStorageTexts[code] ? newStorageTexts[code] : defValue}
+            onChange={(e) => { updateStorageText(code, e.target.value) }}
+          />
+        )}
       </div>
     )
   }
@@ -949,6 +982,7 @@ const Settings: NextPage = (props) => {
                   desc,
                   value,
                   multiline,
+                  markdown,
                 } = itemInfo
                 return (
                   <div key={itemKey}>
@@ -957,6 +991,7 @@ const Settings: NextPage = (props) => {
                       desc: desc,
                       defValue: value,
                       multiline,
+                      markdown,
                     })}
                   </div>
                 )
@@ -1039,6 +1074,7 @@ const Settings: NextPage = (props) => {
                       <hr className={`${styles.divider} ${styles.spacerTop}`} />
                       {/* -------------------------------------------------*/ }
                       {activeTab === `main` && renderMainTab()}
+                      {activeTab === `nftconfig` && tabNftCollection.render()}
                       {activeTab === `texts` && renderTextsTab()}
                       {/* -------------------------------------------------*/ }
                     </>

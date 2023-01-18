@@ -686,6 +686,11 @@
   padding-bottom: 0px;
 }
 
+.adminForm .subFormInfo .infoRow>SPAN {
+  display: block;
+  align-items: center;
+  width: 70%;
+}
 .adminForm .subFormInfo H3 {
   background: gray;
   margin: -10px;
@@ -715,6 +720,11 @@
 .adminForm .subFormInfo .infoRow LABEL {
   display: block;
   width: 30%;
+}
+
+.adminForm .subFormInfo .infoRow INPUT[type="text"] {
+  display: block;
+  width: 100%;
 }
 .adminForm .subFormInfo .infoRow BUTTON {
   padding-top: 0px;
@@ -819,4 +829,140 @@
   display: block;
   width: 100%;
   padding: 5px;
+}
+
+.adminFormTextGroup .adminStorageTextArea TEXTAREA {
+  min-height: 120px;
+}
+
+.iconButton {
+  display: inline-block;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+  line-height: 32px;
+  margin-left: 4px;
+  margin-right: 4px;
+  text-align: center;
+}
+
+.iconButton:hover {
+  background: #0089ff;
+}
+
+.adminInfoError {
+  display: block;
+  border: 2px solid #fff;
+  padding: 10px;
+  background: #af0505;
+}
+.adminInfoError SPAN {
+  display: block;
+}
+
+.adminImagesList>SPAN {
+  display: block;
+  text-align: center;
+  font-weight: bold;
+  padding: 10px;
+  border-bottom: 1px solid gray;
+}
+
+.adminImagesList UL {
+  display: block;
+  width: 100%;
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+.adminImagesList UL LI {
+  display: flex;
+  padding: 5px;
+  margin: 5px;
+  border-bottom: 1px solid gray;
+  cursor: pointer;
+}
+
+.adminImagesList UL LI INPUT {
+  display: block;
+  width: 100%;
+}
+
+.adminImagesList UL LI.hasError INPUT {
+  background: #e5b5b5;
+}
+
+.adminImagesList>DIV {
+  text-align: right;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.adminImagesList>DIV BUTTON {
+  margin-left: 5px;
+}
+
+.adminToggleGroup {
+  display: block;
+  text-align: left;
+  border: 1px solid gray;
+}
+
+.adminToggleGroup .adminToggleGroupHeader {
+  background: gray;
+  display: flex;
+  padding: 4px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.adminToggleGroup .adminToggleGroupHeader H3 {
+  display: block;
+  padding: 0px;
+  margin: 0px;
+  width: 100%;
+  text-align: left;
+}
+
+.adminToggleGroup .adminToggleGroupHeader:hover {
+  background: #175a7a;
+}
+
+.adminToggleGroup .adminToggleGroupHeader A {
+  display: block;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+}
+
+.adminToggleGroup.adminToggleGroupOpened .adminToggleGroupContent {
+  display: block;
+  padding: 5px;
+}
+
+.adminToggleGroup .adminToggleGroupContent {
+  display: none;
+}
+
+.adminForm .actionsRow {
+  text-align: right;
+}
+
+.adminForm .actionsRow BUTTON {
+  margin-left: 5px;
+}
+
+.mintPageMintedHolder {
+  padding-bottom: 20px;
+}
+
+.mintPageDesc {
+  padding-bottom: 20px;
+  font-size: 14pt;
+  
+}
+.mintPageDesc P {
+  margin: 0px;
 }

@@ -1,12 +1,29 @@
-import { textGroups } from "./textGroups"
+import { textGroups, TEXTS_GROUPS_ITEMS } from "./textsGroups"
+import  MarkdownIt from "markdown-it"
+import parse from "html-react-parser"
 
-export const getText = (textKey, storageTexts, sourceText) => {
-  if (storageTexts && storageTexts[textKey]) return storageTexts[textKey]
-  return sourceText
+const md = new MarkdownIt()
+
+export const getText = (textKey, storageTexts, sourceText, replaces = {}) => {
+  let _ret = sourceText
+  if (storageTexts && storageTexts[textKey]) _ret = storageTexts[textKey]
+
+  Object.keys(replaces).forEach((key) => {
+    _ret = _ret.replaceAll(`%${key}%`, replaces[key])
+  })
+  return _ret
 }
 
 export const getStorageText = (storageTexts) => {
-  return (textKey, sourceText) => {
-    return getText(textKey, storageTexts, sourceText)
+  
+  return (textKey, sourceText, replaces = {}) => {
+    const _item = (TEXTS_GROUPS_ITEMS && TEXTS_GROUPS_ITEMS[textKey]) ? TEXTS_GROUPS_ITEMS[textKey] : false
+
+    const _ret = getText(textKey, storageTexts, _item.value || sourceText, replaces)
+    if (_item.markdown) {
+      return parse((_item.multiline) ? md.render(_ret) : md.renderInline(_ret))
+    } else {
+      return _ret
+    }
   }
 }

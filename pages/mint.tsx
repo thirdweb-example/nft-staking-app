@@ -10,7 +10,10 @@ import logoBlock from "../components/logoBlock"
 import { getLink } from "../helpers"
 import { useRouter } from "next/router"
 import useStorage from "../storage"
-
+import fetchNftInfo from "../helpers/fetchNftInfo"
+import callNftMethod from "../helpers/callNftMethod"
+import crypto from "crypto"
+import nftToken from "../components/nftToken"
 // Eth-testnet
 /*
 const chainId = 5;
@@ -26,11 +29,11 @@ const tokenContractAddress = "0x703f112bda4cc6cb9c5fb4b2e6140f6d8374f10b"
 const stakingContractAddress = "0xAcf15259F8B99094b7051679a9e60B2F270558ce"
 */
 
+import NftAirdropContractData from "../contracts/source/artifacts/StakeNFT.json"
 import MyNFTAbi from '../contracts/MyNFTAbi.json'
+import { CHAIN_INFO } from "../helpers/constants"
+import { toWei, fromWei } from "../helpers/wei"
 
-import { Interface as AbiInterface } from '@ethersproject/abi'
-
-const MyNFT_INTERFACE = new AbiInterface(MyNFTAbi)
 
 const debugLog = (msg) => { console.log(msg) }
 
@@ -57,16 +60,20 @@ const Mint: NextPage = (props) => {
   const [ chainId, setChainId ] = useState(storageData?.chainId)
   const [ nftDropContractAddress, setNftDropContractAddress ] = useState(storageData?.nftCollection)
 
+  const [ nftInfo, setNftInfo ] = useState({})
+  const [ nftInfoFetched, setNftInfoFetched ] = useState(false)
+
   const [activeChainId, setActiveChainId] = useState(false)
   const [activeWeb3, setActiveWeb3] = useState(false)
   const [address, setAddress] = useState(false)
 
   const [nftContract, setNftContract] = useState(false)
+  const [airdropContract, setAirdropContract] = useState(false)
 
   const [isWalletConecting, setIsWalletConnecting] = useState(false)
   const [isMinting, setIsMinting] = useState(false)
   const [isMinted, setIsMinted] = useState(false)
-
+  const [mintedNFT, setMintedNft] = useState({})
 
   const processError = (error, error_namespace) => {
     let metamaskError = false
@@ -98,6 +105,15 @@ const Mint: NextPage = (props) => {
         setAddress(accounts[0])
         const _myNftContract = new activeWeb3.eth.Contract(MyNFTAbi, nftDropContractAddress)
         setNftContract(_myNftContract)
+        const _airdropContract = new activeWeb3.eth.Contract(NftAirdropContractData.abi, nftDropContractAddress)
+        setAirdropContract(_airdropContract)
+        fetchNftInfo(nftDropContractAddress, chainId).then((_nftInfo) => {
+          console.log('>>> nft info fetched', _nftInfo)
+          setNftInfo(_nftInfo)
+          setNftInfoFetched(true)
+        }).catch((err) => {
+          console.log('>>> fail fetch nft info', err)
+        })
       }).catch((err) => {
         console.log('>>> initOnWeb3Ready', err)
         processError(err)
@@ -145,6 +161,57 @@ const Mint: NextPage = (props) => {
     })
   }
 
+  const doMintPayable = async () => {
+    if (address && airdropContract) {
+      setIsMinting(true)
+      addNotify(`Confirm transaction for mint NFT`)
+      const seed = crypto.randomBytes(32).toString('hex')
+      console.log(nftInfo)
+      callNftMethod({
+        activeWeb3,
+        contractAddress: nftDropContractAddress,
+        method: 'mintRandom',
+        weiAmount: nftInfo.NFTStakeInfo.mintPrice,
+        args: [
+          `0x${seed}`
+        ],
+        onTrx: (txHash) => {
+          console.log('>> onTrx', txHash)
+          addNotify(`NFT mint TX ${txHash}`, `success`)
+        },
+        onSuccess: (receipt) => {
+          console.log('>> onSuccess', receipt)
+          addNotify(`NFT mint transaction broadcasted`, `success`)
+        },
+        onError: (err) => {
+          console.log('>> onError', err)
+          addNotify(`Fail mint NFT. ${err.message ? err.message : ''}`, `error`)
+        },
+        onFinally: (answer) => {
+          console.log('>> onFinally', answer)
+          if (
+            answer?.events?.Mint?.returnValues?.tokenUri
+            && answer?.events?.Mint?.returnValues?.tokenId
+          ) {
+            const {
+              tokenId,
+              tokenUri,
+            } = answer.events.Mint.returnValues
+
+            setMintedNft({
+              tokenId,
+              tokenUri,
+            })
+
+            addNotify(`NFT #${tokenId} minted!`, `success`)
+          }
+          setIsMinting(false)
+          setIsMinted(true)
+        }
+      })
+    }
+  }
+
   const doMintNFT = async () => {
     if (address && nftContract) {
       setIsMinting(true)
@@ -167,7 +234,7 @@ const Mint: NextPage = (props) => {
     }
   }
 
-
+  const mintChainInfo = CHAIN_INFO(chainId)
   return (
     <div className={styles.container}>
       {navBlock(`mint`, isOwner)}
@@ -183,17 +250,59 @@ const Mint: NextPage = (props) => {
         </button>
       ) : (
         <>
-          {!isMinted ? (
-            <button disabled={isMinting} className={styles.mainButton} onClick={doMintNFT}>
-              {isMinting ? `Minting NFT...` : `Mint NFT`}
-            </button>
-          ) : (
+          {nftInfoFetched ? (
             <>
-              <h2>Demo NFT minted</h2>
-              <a href={getLink('stake')} className={styles.mainButton}>
-                Go to Stake NFT
-              </a>
+              {nftInfo.isNFTStakeToken ? (
+                <>
+                  <h2>{getText(`MintPage_Managed_Title`, `Mint NFT`)}</h2>
+                  <div className={styles.mintPageDesc}>
+                    {getText(
+                      `MintPage_Managed_PriceInfo`,
+                      `Mint price is %amount% %currency%`,
+                      {
+                        amount: fromWei(nftInfo.NFTStakeInfo.mintPrice, mintChainInfo.nativeCurrency.decimals),
+                        currency: mintChainInfo.nativeCurrency.symbol,
+                      }
+                    )}
+                  </div>
+                  <div className={styles.mintPageMintedHolder}>
+                    <button disabled={isMinting} className={styles.mainButton} onClick={doMintPayable}>
+                      {isMinting
+                        ? `Minting NFT...`
+                        : (isMinted)
+                          ? `Mint some one`
+                          : `Mint NFT`
+                      }
+                    </button>
+                  </div>
+                  {mintedNFT && mintedNFT.tokenId && mintedNFT.tokenUri && (
+                    <>
+                      {nftToken({
+                        ...mintedNFT,
+                        isMinted: true,
+                      })}
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  {!isMinted ? (
+                    <button disabled={isMinting} className={styles.mainButton} onClick={doMintNFT}>
+                      {isMinting ? `Minting NFT...` : `Mint NFT`}
+                    </button>
+                  ) : (
+                    <>
+                      <h2>Demo NFT minted</h2>
+                      <a href={getLink('stake')} className={styles.mainButton}>
+                        Go to Stake NFT
+                      </a>
+                    </>
+                  )}
+                </>
+              )}
             </>
+          ) : (
+            <div>{getText(`MinPage_Loading`, `Loading...`)}</div>
           )}
         </>
       )}
