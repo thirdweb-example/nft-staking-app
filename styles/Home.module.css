@@ -315,8 +315,12 @@
   border-top: 2px solid gray;
   background: var(--black);
 }
+
 .mainFooter A {
   color: #FFF;
+}
+.mainFooter P {
+  margin: 2px;
 }
 
 .contractBox {
@@ -965,4 +969,10 @@
 }
 .mintPageDesc P {
   margin: 0px;
+}
+
+.adminToggleGroup .subFormInfo {
+  border: 0px;
+  margin: 0px;
+  padding: 0px;
 }

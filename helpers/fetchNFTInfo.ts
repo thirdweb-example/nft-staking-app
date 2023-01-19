@@ -47,7 +47,7 @@ const fetchNftInfo = (address, chainId) => {
                 const _calls = [
                   prepareCall('owner', 'owner'),
                   prepareCall('totalSupply', 'totalSupply', [], true),
-                  prepareCall('MAX_SUPPLY', 'MAX_SUPPLY', [], true),
+                  prepareCall('maxSupply', 'MAX_SUPPLY', [], true),
                   prepareCall('allowMint', 'getAllowMint'),
                   prepareCall('allowTrade', 'getAllowTrade'),
                   prepareCall('mintPrice', 'getMintPrice', [], true),

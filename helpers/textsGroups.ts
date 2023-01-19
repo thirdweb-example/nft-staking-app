@@ -20,8 +20,7 @@ export const textsGroups = [
       {
         code: `App_Footer`,
         desc: `Footer text`,
-        multiline: false,
-        multilineView: true,
+        multiline: true,
         markdown: true,
         value: `Powered by OnOut - [no-code tool to create NFTStake](https://onout.org/nftstake/)`
       }
@@ -44,6 +43,7 @@ export const textsGroups = [
         code: `MainPage_Mint_Desc`,
         desc: `Mint section desctiption`,
         value: `Use the NFT Drop Contract to claim an NFT from the collection.`,
+        markdown: true,
         multiline: true,
       },
       {
@@ -56,6 +56,7 @@ export const textsGroups = [
         desc: `Stake section desctiption`,
         value: `By locking up NFTs on a platform, you can receive rewards depending on the annual interest rate, the staking duration, and the number of NFTs staked`,
         multiline: true,
+        markdown: true,
       }
     ],
   },
@@ -82,7 +83,7 @@ export const textsGroups = [
       {
         code: `StakePage_Title`,
         desc: `Stake page title`,
-        value: `Stake Your NFTs - Earn ERC20`,
+        value: `Stake Your NFTs - Earn ERC20`
       }
     ],
   },

@@ -945,6 +945,7 @@ const Settings: NextPage = (props) => {
       value,
       defValue,
       multiline,
+      multilineView,
       markdown,
     } = options
 
@@ -953,7 +954,7 @@ const Settings: NextPage = (props) => {
         <label>
           {desc} ({code}) {markdown && (<b>(MarkDown)</b>)} {multiline && (<b>(Multiline)</b>)}
         </label>
-        {multiline ? (
+        {(multiline || multilineView) ? (
           <textarea
             value={newStorageTexts[code] ? newStorageTexts[code] : defValue}
             onChange={(e) => { updateStorageText(code, e.target.value) }}
@@ -983,6 +984,7 @@ const Settings: NextPage = (props) => {
                   value,
                   multiline,
                   markdown,
+                  multilineView,
                 } = itemInfo
                 return (
                   <div key={itemKey}>
@@ -991,6 +993,7 @@ const Settings: NextPage = (props) => {
                       desc: desc,
                       defValue: value,
                       multiline,
+                      multilineView,
                       markdown,
                     })}
                   </div>

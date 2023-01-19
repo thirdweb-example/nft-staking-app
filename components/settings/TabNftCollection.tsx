@@ -250,6 +250,8 @@ export default function TabNftCollection(options) {
     }
   }
 
+  const NFTStakeInfo = nftInfo?.NFTStakeInfo || {}
+  console.log('>>> NFTStakeInfo', NFTStakeInfo)
   return {
     setNftCollection,
     setNftChainId,
@@ -367,7 +369,71 @@ export default function TabNftCollection(options) {
               </div>
             )}
           </div>
-          <button onClick={testClaim} className="someOwnClass">Test claim</button>
+          {nftInfo && nftInfo && nftInfo.NFTStakeInfo && (
+            <div className={styles.adminForm}>
+              {toggleGroup({
+                title: `NFT Collection info`,
+                isOpened: true,
+                onToggle: () => {},
+                content: (
+                  <>
+                    <div className={styles.subFormInfo}>
+                      <div className={styles.infoRow}>
+                        <label>Contract version:</label>
+                        <span>
+                          <b>{NFTStakeInfo.version}</b>
+                        </span>
+                      </div>
+                      <div className={styles.infoRow}>
+                        <label>Owner</label>
+                        <span>
+                          <b>{NFTStakeInfo.owner}</b>
+                        </span>
+                      </div>
+                      <div className={styles.infoRow}>
+                        <label>Max supply</label>
+                        <span>
+                          <b>{NFTStakeInfo.maxSupply}</b>
+                        </span>
+                      </div>
+                      <div className={styles.infoRow}>
+                        <label>Total supply</label>
+                        <span>
+                          <b>{NFTStakeInfo.totalSupply}</b>
+                        </span>
+                      </div>
+                      <div className={styles.infoRow}>
+                        <label>Allow trade:</label>
+                        <span>
+                          <b>{NFTStakeInfo.allowTrade ? `Yes` : `No`}</b>
+                        </span>
+                      </div>
+                      <div className={styles.infoRow}>
+                        <label>Allow mint:</label>
+                        <span>
+                          <b>{NFTStakeInfo.allowMint ? `Yes` : `No`}</b>
+                        </span>
+                      </div>
+                      <div className={styles.infoRow}>
+                        <label>Mint price:</label>
+                        <span>
+                          <b>
+                            {fromWei(
+                              NFTStakeInfo.mintPrice,
+                              nftChainInfo.nativeCurrency.decimals
+                            )}
+                            {` `}
+                            {nftChainInfo.nativeCurrency.symbol}
+                          </b>
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )
+              })}
+            </div>
+          )}
+          {/*<button onClick={testClaim} className="someOwnClass">Test claim</button>*/}
           {nftInfoFetched && isManagedNFT && (
             <div className={styles.adminForm}>
               {toggleGroup({
