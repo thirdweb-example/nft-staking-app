@@ -976,3 +976,47 @@
   margin: 0px;
   padding: 0px;
 }
+
+.adminActionButton {
+  display: inline-block;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+  line-height: 32px;
+  margin-left: 4px;
+  margin-right: 4px;
+  text-align: center;
+  cursor: pointer;
+  outline: 1px solid #FFF;
+}
+.adminActionButton:hover {
+  background: #1762bf;
+}
+.adminActionButton>SVG {
+  width: 16px;
+  height: 16px;
+}
+
+.buttonWithIcon {
+  display: inline-block;
+  color: #fff;
+  height: 32px;
+  vertical-align: middle;
+  line-height: 32px;
+  margin-left: 4px;
+  margin-right: 4px;
+  text-align: center;
+  cursor: pointer;
+  padding-left: 4px;
+  padding-right: 4px;
+  outline: 1px solid #FFF;
+}
+.buttonWithIcon:hover {
+  background: #1762bf;
+}
+.buttonWithIcon>SVG {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+}

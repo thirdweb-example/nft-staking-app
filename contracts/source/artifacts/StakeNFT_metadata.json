@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.7+commit.e28d00a7"
+		"version": "0.8.17+commit.8df45f5f"
 	},
 	"language": "Solidity",
 	"output": {
@@ -226,6 +226,25 @@
 					}
 				],
 				"name": "Transfer",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "to",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "WithdrawBank",
 				"type": "event"
 			},
 			{
@@ -901,6 +920,13 @@
 				],
 				"stateMutability": "view",
 				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "withdrawBank",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
 			}
 		],
 		"devdoc": {
@@ -1092,11 +1118,11 @@
 			]
 		},
 		"source/StakeNFT.sol": {
-			"keccak256": "0x7c3e91d2a8234612372a8d1b8b212f6f0168677b4445fc99199850534841d9f4",
+			"keccak256": "0x95b133c6a51d5647fec392ea29c343717dfd127093d8e6b23fa3e547e4fcafdc",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://6feab627dceeb444eebbba2cf5445b28f62e1b837e6b542bb4aba127ad1e6d2f",
-				"dweb:/ipfs/QmbYRSVD5Atc3vuKQcsrYKi8dwPn4bC4m12KFkJm9QaSWs"
+				"bzz-raw://b5adde71f610e40087b7d762b10ebe7068e75a39a796e6db1546e410e9f6f7c0",
+				"dweb:/ipfs/QmYCbj4hH5M79oTsvBP4V29Uay7KqDFqcVoYpXpUVk7suR"
 			]
 		}
 	},

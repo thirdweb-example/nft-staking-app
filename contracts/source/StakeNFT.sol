@@ -12,6 +12,7 @@ contract StakeNFT is ERC721URIStorage, Ownable {
     event Buy(address owner, address buyer, uint256 tokenId, string tokenUri, uint256 price);
     event PutUpForSale(address owner, uint256 tokenId, string tokenUri, uint256 price);
     event WithdrawFromSale(address owner, uint256 tokenId, string tokenUri);
+    event WithdrawBank(address to, uint256 amount);
     
     using Counters for Counters.Counter;
     struct SelledNFT {
@@ -49,6 +50,12 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         _mintPrice = __mintPrice;
         _allowTrade = __allowTrade;
         _allowMint = __allowMint;
+    }
+
+    function withdrawBank() public onlyOwner {
+        uint256 amount = address(this).balance;
+        payable(msg.sender).transfer(amount);
+        emit WithdrawBank(msg.sender, amount);
     }
 
     function setAllowMint(bool _newAllowMint) public onlyOwner {
@@ -191,6 +198,7 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         _isTokensAtSale[_tokenId] = false;
         
 
+        payable(_tokensAtSale[_tokenId].seller).transfer(msg.value);
         emit Buy(_tokensAtSale[_tokenId].seller, msg.sender, _tokenId, _tokensAtSale[_tokenId].uri, _tokensAtSale[_tokenId].price);
 
         _clearSellToken(_tokenId);

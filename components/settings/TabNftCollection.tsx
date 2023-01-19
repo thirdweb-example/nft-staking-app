@@ -12,6 +12,7 @@ import deployNft from "../../helpers/deployNft"
 import { toWei, fromWei } from "../../helpers/wei"
 import isImageUrl from "../../helpers/isImageUrl"
 import callNftMethod from "../../helpers/callNftMethod"
+import FaIcon from "../FaIcon"
 
 import crypto from "crypto"
 import { BigNumber } from 'bignumber.js'
@@ -251,6 +252,32 @@ export default function TabNftCollection(options) {
   }
 
   const NFTStakeInfo = nftInfo?.NFTStakeInfo || {}
+  /* Change NFT base values */
+  const [nftInfoAllowTrade, setNftInfoAllowTrade] = useState(
+    (NFTStakeInfo?.allowTrade)
+      ? (NFTStakeInfo.allowTrade ? 1 : 0)
+      : 0
+  )
+  const [isNftInfoAllowTradeEdit, setIsNftInfoAllowTradeEdit] = useState(false)
+  const [isNftInfoAllowTradeSaving, setIsNftInfoAllowTradeSaving] = useState(false)
+
+  const beginEditNftInfoAllowTrade = () => {
+    setNftInfoAllowTrade(
+      (NFTStakeInfo?.allowTrade)
+      ? (NFTStakeInfo.allowTrade ? 1 : 0)
+      : 0
+    )
+    setIsNftInfoAllowTradeEdit(true)
+  }
+  
+  const [nftInfoAllowMint, setNftInfoAllowMint] = useState(NFTStakeInfo.allowMint || false)
+  const [isNftInfoAllowMintEdit, setIsNftInfoAllowMintEdit] = useState(false)
+  const [isNftInfoAllowMintSaving, setIsNftAllowMintSaving] = useState(false)
+  
+  const [nftInfoMintPrice, setNftInfoMintPrice] = useState(fromWei(`${NFTStakeInfo.mintPrice || 0}`), nftChainInfo.decimals)
+  const [isNftInfoMintPriceEdit, setIsNftInfoMintPriceEdit] = useState(false)
+  const [isNftInfoMintPriceSaving, setIsNftInfoMintPriceSaving] = useState(false)
+
   console.log('>>> NFTStakeInfo', NFTStakeInfo)
   return {
     setNftCollection,
@@ -405,13 +432,38 @@ export default function TabNftCollection(options) {
                       <div className={styles.infoRow}>
                         <label>Allow trade:</label>
                         <span>
-                          <b>{NFTStakeInfo.allowTrade ? `Yes` : `No`}</b>
+                          {isNftInfoAllowTradeEdit ? (
+                            <>
+                              <select value={nftInfoAllowTrade ? 1 : 0} onChange={(e) => { setNftInfoAllowTrade(e.target.value) }}>
+                                <option value={0}>No</option>
+                                <option value={1}>Yes</option>
+                              </select>
+                              <a className={styles.buttonWithIcon}>
+                                <FaIcon icon="cloud-arrow-up" />
+                                Save changes
+                              </a>
+                              <a className={styles.buttonWithIcon}>
+                                <FaIcon icon="xmark" />
+                                Cancel
+                              </a>
+                            </>
+                          ) : (
+                            <>
+                              <b>{NFTStakeInfo.allowTrade ? `Yes` : `No`}</b>
+                              <a className={styles.adminActionButton} title={`Edit value`} onClick={beginEditNftInfoAllowTrade}>
+                                <FaIcon icon="pen-to-square" />
+                              </a>
+                            </>
+                          )}
                         </span>
                       </div>
                       <div className={styles.infoRow}>
                         <label>Allow mint:</label>
                         <span>
                           <b>{NFTStakeInfo.allowMint ? `Yes` : `No`}</b>
+                          <a className={styles.adminActionButton} title={`Edit value`}>
+                            <FaIcon icon="pen-to-square" />
+                          </a>
                         </span>
                       </div>
                       <div className={styles.infoRow}>
@@ -424,6 +476,17 @@ export default function TabNftCollection(options) {
                             )}
                             {` `}
                             {nftChainInfo.nativeCurrency.symbol}
+                            <a className={styles.adminActionButton} title={`Edit value`}>
+                              <FaIcon icon="pen-to-square" />
+                            </a>
+                            <a className={styles.buttonWithIcon}>
+                              <FaIcon icon="cloud-arrow-up" />
+                              Save changes
+                            </a>
+                            <a className={styles.buttonWithIcon}>
+                              <FaIcon icon="xmark" />
+                              Cancel
+                            </a>
                           </b>
                         </span>
                       </div>
