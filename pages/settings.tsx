@@ -933,12 +933,7 @@ const Settings: NextPage = (props) => {
       }
     })
   }
-  
-  const applyChangeToPreview = () => {
-    localStorage.setItem(`-nft-stake-preview-texts`, JSON.stringify(newStorageTexts))
-    addNotify(`Changes applied to preview mode`, `success`)
-  }
-  
+
   const offPreviewDesign = () => {
     addNotify(`Preview mode turn off`, `success`)
     localStorage.removeItem(`-nft-stake-preview-text-mode`)
@@ -1060,9 +1055,6 @@ const Settings: NextPage = (props) => {
         <div className={styles.adminFormBottom}>
           {isPreviewMode ? (
             <>
-              <button onClick={applyChangeToPreview}>
-                Apply changes to preview mode
-              </button>
               <button onClick={offPreviewDesign}>
                 Turn off preview mode
               </button>
