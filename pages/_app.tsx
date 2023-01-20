@@ -6,8 +6,11 @@ import { getStorageText, getLink } from "../helpers"
 import useStorage from "../storage/"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
+import update from 'immutability-helper';
 
 import { getUnixTimestamp } from "../helpers/getUnixTimestamp"
+
+import NotifyHolder from "../components/NotifyHolder"
 
 
 let confirmWindowOnConfirm = () => {}
@@ -34,26 +37,6 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const isSettingsPage = (routerBaseName === settingsUrl)
 
-  /* ---- NOTIFY BLOCK ---- */
-  const [notifyBlocks, setNotifyBlocks] = useState([])
-  const notifyBlockTimeout = 5000
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const _b = [...notifyBlocks]
-      _b.shift()
-      setNotifyBlocks(_b)
-    }, notifyBlockTimeout)
-    return () => clearTimeout(timer)
-  }, [notifyBlocks])
-
-  
-  const addNotify = (msg, style = `info`) => {
-    const _t = [...notifyBlocks]
-    _t.push({ msg, style, time: getUnixTimestamp() })
-    setNotifyBlocks([..._t])
-  }
-  /* ----- \\\\ NOTIFY BLOCK ----- */
   /* Confirm window */
   const [ isConfirmWindowOpened, setIsConfirmWindowOpened ] = useState(false)
   const [ confirmWindowLabels, setConfirmWindowLabels ] = useState(defaultConfirmWindowLabels)
@@ -86,6 +69,16 @@ function MyApp({ Component, pageProps }: AppProps) {
   
   }
   /* -------------- */
+  const notifyHolder = new NotifyHolder({})
+  const addNotify = (msg, style = `info`) => {
+    notifyHolder.addItem({
+      msg,
+      style,
+      time: getUnixTimestamp(),
+      utx: getUnixTimestamp(),
+    })
+  }
+
   const getText = getStorageText(storageTexts)
   return (
     <div>
@@ -149,23 +142,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           )}
         </>
       )}
-      {/* ---- NOTIFY BLOCK ---- */}
-      {notifyBlocks.length > 0 && (
-        <div className={styles.notifyHolder}>
-          {notifyBlocks.map((block,blockIndex) => {
-            let addClass = ``
-            if (getUnixTimestamp() > block.time + 2000) addClass = `showed`
-            if (getUnixTimestamp() > block.time + notifyBlockTimeout) addClass = `hidden`
-            return (
-              <div className={`${(block.style) ? styles[block.style] : styles.info}`}
-                key={blockIndex}
-              >
-                {block.msg}
-              </div>
-            )
-          })}
-        </div>
-      )}
+      {notifyHolder.render()}
       {/* ---- Confirm block ---- */}
       { isConfirmWindowOpened && (
         <div className={styles.confirmWindow}>

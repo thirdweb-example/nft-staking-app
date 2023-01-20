@@ -685,7 +685,7 @@ const Stake: NextPage = (props) => {
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
           <h2>Your Unstaked NFTs</h2>
-          {stakeCustomNft}
+          {/*stakeCustomNft*/}
           <div className={styles.nftBoxGrid}>
             {ownedNftsLoading ? (
               <p className={styles.tokenValue}>

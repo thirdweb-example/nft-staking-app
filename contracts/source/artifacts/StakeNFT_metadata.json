@@ -1118,11 +1118,11 @@
 			]
 		},
 		"source/StakeNFT.sol": {
-			"keccak256": "0x95b133c6a51d5647fec392ea29c343717dfd127093d8e6b23fa3e547e4fcafdc",
+			"keccak256": "0x8f09775e74485791c2411606773f0970da6e62318168ffa2be6f7d006b54cb74",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://b5adde71f610e40087b7d762b10ebe7068e75a39a796e6db1546e410e9f6f7c0",
-				"dweb:/ipfs/QmYCbj4hH5M79oTsvBP4V29Uay7KqDFqcVoYpXpUVk7suR"
+				"bzz-raw://2e9efb41a149384d9d7af150c40f087fd0118f5027116b8f01933cc50d85d8f9",
+				"dweb:/ipfs/QmWvn2SJsQD4kYdyX7u4ZyCrbMo9NVkSPUwEv3p4RE5S1T"
 			]
 		}
 	},

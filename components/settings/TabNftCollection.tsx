@@ -13,6 +13,8 @@ import { toWei, fromWei } from "../../helpers/wei"
 import isImageUrl from "../../helpers/isImageUrl"
 import callNftMethod from "../../helpers/callNftMethod"
 import FaIcon from "../FaIcon"
+import MintNftForSale from "./MintNftForSale"
+
 
 import crypto from "crypto"
 import { BigNumber } from 'bignumber.js'
@@ -278,7 +280,16 @@ export default function TabNftCollection(options) {
   const [isNftInfoMintPriceEdit, setIsNftInfoMintPriceEdit] = useState(false)
   const [isNftInfoMintPriceSaving, setIsNftInfoMintPriceSaving] = useState(false)
 
-  console.log('>>> NFTStakeInfo', NFTStakeInfo)
+
+
+  const mintNftForSale = new MintNftForSale({
+    nftAddress: nftCollection,
+    chainId: nftChainId,
+    openConfirmWindow,
+    addNotify,
+    getActiveChain,
+  })
+
   return {
     setNftCollection,
     setNftChainId,
@@ -323,15 +334,16 @@ export default function TabNftCollection(options) {
                 </div>
                 <div className={styles.infoRow}>
                   <label>Symbol:</label>
-                  <span>
+                  <div>
                     <input type="text" value={nftSymbol} onChange={(e) => { setNftSymbol(e.target.value) }} />
                     {nftSymbol == `` && (
                       <div>
                         <b className={styles.hasError}>Specify collection symbol</b>
                       </div>
                     )}
-                  </span>
+                  </div>
                 </div>
+                
                 <div className={styles.infoRow}>
                   <label>Name:</label>
                   <span>
@@ -342,6 +354,7 @@ export default function TabNftCollection(options) {
                       </div>
                     )}
                   </span>
+                  
                 </div>
                 <div className={styles.infoRow}>
                   <label>Max supply:</label>
@@ -496,11 +509,16 @@ export default function TabNftCollection(options) {
               })}
             </div>
           )}
+          {nftInfo && nftInfo && nftInfo.NFTStakeInfo && (
+            <div className={styles.adminForm}>
+              {mintNftForSale.render()}
+            </div>
+          )}
           {/*<button onClick={testClaim} className="someOwnClass">Test claim</button>*/}
           {nftInfoFetched && isManagedNFT && (
             <div className={styles.adminForm}>
               {toggleGroup({
-                title: `Mint URIs list`,
+                title: `Random Mint URIs list`,
                 isOpened: isEditMintUrisOpened,
                 onToggle: SetIsEditMintUrisOpened,
                 content: mintUrisListComponent.render({

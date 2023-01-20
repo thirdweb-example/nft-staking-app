@@ -22,6 +22,7 @@
     "ethers": "^5.6.8",
     "fs-extra": "^11.1.0",
     "html-react-parser": "^3.0.8",
+    "immutability-helper": "^3.1.1",
     "is-image-url": "^1.1.8",
     "markdown-it": "^13.0.1",
     "next": "^12.1.6",

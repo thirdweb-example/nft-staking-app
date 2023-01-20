@@ -16,6 +16,7 @@ import {
 } from "../helpers/setupWeb3"
 import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
 
+import { getStorageInfo } from "../storage"
 import STORAGE_JSON from "../contracts/Storage.json"
 import { getCurrentDomain } from "../helpers/getCurrentDomain"
 import { getUnixTimestamp } from "../helpers/getUnixTimestamp"
@@ -37,9 +38,10 @@ import {
   CHAIN_EXPLORER_LINK
 } from "../helpers/constants"
 
+/*
 const storageChainId = 5
 const storageAddress = '0xafb8f27df1f629432a47214b4e1674cbcbdb02df'
-
+*/
 const settingsTabs = {
   main: `Main settings`,
   nftconfig: `NFT collection`,
@@ -65,6 +67,10 @@ const CHAINS_LIST = (() => {
 })()
 
 const Settings: NextPage = (props) => {
+  const {
+    storageChainId,
+    storageAddress
+  } = getStorageInfo()
 
   const {
     storageData,
@@ -408,13 +414,12 @@ const Settings: NextPage = (props) => {
     symbol: ``
   })
 
-  const _doFetchNFTInfo = (nftAddress, nftChainId) => {
+  const _doFetchNFTInfo = async (nftAddress, nftChainId) => {
     setIsNFTInfoFetching(true)
     setIsNFTInfoFetched(false)
     setNftCollectionInfo({})
     addNotify(`Fetching NFT collection info`)
-  
-    fetchNftInfo(nftAddress, nftChainId).then((answ) => {
+    fetchNftInfo(nftAddress, nftChainId).then(async (answ) => {
       addNotify(`NFT collection info fetched`, `success`)
       setNftCollectionInfo(answ)
       setIsNFTInfoFetched(true)

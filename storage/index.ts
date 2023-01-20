@@ -2,8 +2,36 @@ import { useStorageContract } from './useContract'
 import { useEffect, useState } from 'react'
 import { getCurrentDomain } from "../helpers/getCurrentDomain"
 import { getConnectedAddress } from "../helpers/setupWeb3"
+import isProd from "../helpers/isProd"
+import { CHAIN_INFO } from "../helpers/constants"
+
+const storageAddressByChainId = {
+  5: '0xafb8f27df1f629432a47214b4e1674cbcbdb02df',
+  56: '0xa7472f384339D37EfE505a1A71619212495A973A',
+}
+
+const storageChainIdMainnet = 56
+const storageChainIdTestnet = 5
+
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+
+
+export const getStorageInfo = () => {
+  const _isProd = isProd()
+  
+  const storageChainId = _isProd ? storageChainIdMainnet : storageChainIdTestnet
+  const storageChainInfo = CHAIN_INFO(storageChainId)
+  const storageRpc = storageChainInfo.rpcUrls[0]
+  const storageAddress = storageAddressByChainId[storageChainId]
+
+  return {
+    storageChainId,
+    storageAddress,
+    storageRpc,
+    storageChainInfo,
+  }
+}
 
 const parseInfo = (info) => {
   const parsed = {
@@ -21,6 +49,7 @@ const parseInfo = (info) => {
   return parsed
 }
 
+
 export default function useStorage() {
   const [storageData, setStorageData] = useState(null)
   const [storageIsLoading, setStorageIsLoading] = useState(true)
@@ -29,7 +58,7 @@ export default function useStorage() {
   const [isInstalled, setIsInstalled] = useState(false)
   const [error, setError] = useState(null)
 
-  const storage = useStorageContract(97)
+  const storage = useStorageContract()
   
   const [ doReloadStorage, setDoReloadStorage ] = useState(true)
 

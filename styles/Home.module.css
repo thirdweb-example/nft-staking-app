@@ -690,11 +690,21 @@
   padding-bottom: 0px;
 }
 
-.adminForm .subFormInfo .infoRow>SPAN {
+.adminForm .subFormInfo .infoRow>SPAN,
+.adminForm .subFormInfo .infoRow>DIV,
+.adminForm .subFormInfo .infoRow>DIV.contentHolder {
   display: block;
   align-items: center;
   width: 70%;
 }
+
+.adminForm .subFormInfo .infoRow>SPAN>DIV,
+.adminForm .subFormInfo .infoRow>DIV>DIV {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
 .adminForm .subFormInfo H3 {
   background: gray;
   margin: -10px;
@@ -912,6 +922,7 @@
   display: block;
   text-align: left;
   border: 1px solid gray;
+  border-bottom: 2px solid #FFF;
 }
 
 .adminToggleGroup .adminToggleGroupHeader {

@@ -5,5 +5,5 @@ export const fromWei = (amount, decimals) => {
 }
 
 export const toWei = (amount, decimals) => {
-  return ethers.utils.parseUnits(amount, decimals)
+  return ethers.utils.parseUnits(`${amount}`, decimals)
 }

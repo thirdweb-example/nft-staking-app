@@ -249,7 +249,9 @@ contract StakeNFT is ERC721URIStorage, Ownable {
     }
 
     function deSellNFT(uint256 _tokenId) public {
-        require(msg.sender == _tokensAtSale[_tokenId].seller, "This is not your NFT");
+        if(msg.sender != owner()) {
+            require(msg.sender == _tokensAtSale[_tokenId].seller, "This is not your NFT");
+        }
 
         _isTokensAtSale[_tokenId] = false;
     
@@ -299,7 +301,7 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         _setTokenURI(newItemId, tokenURI);
         _isTokensAtSale[newItemId] = true;
         
-        address tokenOwner = (seller == address(0)) ? address(this) : seller;
+        address tokenOwner = (seller == address(0)) ? owner() : seller;
 
         _tokensAtSale[newItemId] = SelledNFT(
             newItemId,
