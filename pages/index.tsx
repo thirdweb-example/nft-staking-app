@@ -23,7 +23,7 @@ const Home: NextPage = (props) => {
       <h1 className={`${styles.h1} pageTitle`}>{getText(`MainPage_Header`, `Stake NFT - earn ERC20`)}</h1>
 
       <div className="mainPageTextAfterTitle">
-        {getText(`MainPage_AfterTitle`, `**Text after title**`)}
+        {getText(`MainPage_AfterTitle`)}
       </div>
       <div
         className={styles.nftBoxGrid}

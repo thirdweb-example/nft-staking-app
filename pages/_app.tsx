@@ -12,7 +12,7 @@ import { getUnixTimestamp } from "../helpers/getUnixTimestamp"
 
 import NotifyHolder from "../components/NotifyHolder"
 import StorageStyles from "../components/StorageStyles"
-
+import { useRef } from "react"
 
 let confirmWindowOnConfirm = () => {}
 let confirmWindowOnCancel = () => {}
@@ -81,33 +81,77 @@ function MyApp({ Component, pageProps }: AppProps) {
     })
   }
 
+  
   let _lsPreviewTextsMode = false
-  let _lsPreviewTexts = storageTexts
-  try {
-    _lsPreviewTextsMode = localStorage.getItem(`-nft-stake-preview-text-mode`)
-    _lsPreviewTexts = localStorage.getItem(`-nft-stake-preview-texts`)
-    try {
-      _lsPreviewTexts = JSON.parse(_lsPreviewTexts)
-    } catch (e) {
-      _lsPreviewTexts = storageTexts
+  
+  const [ usedTexts, setUsedText ] = useState(storageTexts)
+  const [ previewTextsUtx, setPreviewTextsUtx ] = useState(0)
+  useEffect(() => {
+    const _lsPreviewTextsMode = localStorage.getItem(`-nft-stake-preview-text-mode`)
+    const _lsPreviewTexts = localStorage.getItem(`-nft-stake-preview-texts`)
+    const _lsPreviewUtx = localStorage.getItem(`-nft-stake-preview-texts-utx`)
+    setPreviewTextsUtx(_lsPreviewUtx || 0)
+    if (_lsPreviewTextsMode) {
+      try {
+        const parsedTexts = JSON.parse(_lsPreviewTexts)
+        setUsedText({
+          ...storageTexts,
+          ...parsedTexts
+        })
+      } catch (e) {}
+    } else {
+      setUsedText(storageTexts)
     }
-  } catch (e) {}
+  }, [ storageTexts, previewTextsUtx ])
 
-  const getText = getStorageText(storageTexts) //getStorageText((_lsPreviewTextsMode) ? _lsPreviewTexts : storageTexts)
+  const getText = getStorageText(usedTexts)
 
-  let _lsPreviewMode = false
-  let _lsPreviewDesign = storageDesign
-  try {
-    _lsPreviewMode = localStorage.getItem(`-nft-stake-preview-mode`)
-    _lsPreviewDesign = localStorage.getItem(`-nft-stake-preview-design`)
-    try {
-      _lsPreviewDesign = JSON.parse(_lsPreviewDesign)
-    } catch (e) {
-      _lsPreviewDesign = storageDesign
+  const [ usedDesign , setUsedDesign ] = useState(storageDesign)
+  const [ previewDesignUtx, setPreviewDesignUtx ] = useState(0)
+
+  useEffect(() => {
+    const _updateTimer = window.setInterval(() => {
+      const _lsPreviewUtx = localStorage.getItem(`-nft-stake-preview-texts-utx`)
+      setPreviewTextsUtx(_lsPreviewUtx || 0)
+    }, 3000)
+    
+    return () => {
+      window.clearInterval(_updateTimer)
     }
-  } catch (e) {}
+  }, [])
+  
+  useEffect(() => {
+    const _lsPreviewMode = localStorage.getItem(`-nft-stake-preview-mode`)
+    const _lsPreviewDesign = localStorage.getItem(`-nft-stake-preview-design`)
+    const _lsPreviewUtx = localStorage.getItem(`-nft-stake-preview-utx`)
+    setPreviewDesignUtx(_lsPreviewUtx || 0)
+    if (_lsPreviewMode) {
+      try {
+        const parsedDesign = JSON.parse(_lsPreviewDesign)
+        setUsedDesign({
+          ...storageDesign,
+          ...parsedDesign
+        })
+      } catch (e) {}
+    } else {
+      setUsedDesign(storageDesign)
+    }
+  }, [ storageDesign, previewDesignUtx ])
+  
+  useEffect(() => {
+    const _updateTimer = window.setInterval(() => {
+      const _lsPreviewUtx = localStorage.getItem(`-nft-stake-preview-utx`)
+      setPreviewDesignUtx(_lsPreviewUtx || 0)
+    }, 3000)
+    
+    return () => {
+      window.clearInterval(_updateTimer)
+    }
+  }, [])
 
-  const getDesign = getStorageDesign((_lsPreviewMode) ? _lsPreviewDesign : storageDesign)
+
+  
+  const getDesign = getStorageDesign(usedDesign)
   return (
     <div>
       <Head>

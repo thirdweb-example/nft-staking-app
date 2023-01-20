@@ -946,12 +946,18 @@ const Settings: NextPage = (props) => {
     setIsPreviewMode(false)
   }
 
+  useEffect(() => {
+    if (isPreviewMode) {
+      localStorage.setItem(`-nft-stake-preview-texts`, JSON.stringify(newStorageTexts))
+      localStorage.setItem(`-nft-stake-preview-texts-utx`, getUnixTimestamp())
+    }
+  }, [newStorageTexts])
   const updateStorageText = (textCode, newText) => {
-    console.log('>>> updateStorageText', textCode, newText)
-
-    setNewStorageTexts({
-      ...newStorageTexts,
-      [`${textCode}`]: newText,
+    setNewStorageTexts((prev) => {
+      return {
+        ...prev,
+        [`${textCode}`]: newText,
+      }
     })
     setIsTextsChanged(true)
   }
@@ -1004,13 +1010,13 @@ const Settings: NextPage = (props) => {
         </label>
         {(multiline || multilineView) ? (
           <textarea
-            value={newStorageTexts[code] ? newStorageTexts[code] : defValue}
+            value={newStorageTexts[code] !== undefined ? newStorageTexts[code] : defValue}
             onChange={(e) => { updateStorageText(code, e.target.value) }}
           ></textarea>
         ) : (
           <input
             type="text"
-            value={newStorageTexts[code] ? newStorageTexts[code] : defValue}
+            value={newStorageTexts[code] !== undefined ? newStorageTexts[code] : defValue}
             onChange={(e) => { updateStorageText(code, e.target.value) }}
           />
         )}

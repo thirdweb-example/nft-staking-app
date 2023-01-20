@@ -37,14 +37,14 @@ export const textsGroups = [
       {
         code: `MainPage_AfterTitle`,
         desc: `Text block after title`,
-        value: `**hello**`,
+        value: ``,
         markdown: true,
         multiline: true,
       },
       {
         code: `MainPage_AfterSections`,
         desc: `Text block after sections`,
-        value: `**hello**`,
+        value: ``,
         markdown: true,
         multiline: true,
       },
@@ -85,21 +85,21 @@ export const textsGroups = [
       {
         code: 'StakePage_BeforeConnect_Text',
         desc: 'Text before connect wallet button',
-        value: '**hello**',
+        value: '',
         multiline: true,
         markdown: true,
       },
       {
         code: 'StakePage_AfterConnect_Text',
         desc: 'Text after connect wallet button',
-        value: '**hello**',
+        value: '',
         multiline: true,
         markdown: true,
       },
       {
         code: `MintPage_TextBeforePrice`,
         desc: 'Text before Price block',
-        value: '**hello**',
+        value: '',
         multiline: true,
         markdown: true,
       },
@@ -113,7 +113,7 @@ export const textsGroups = [
       {
         code: 'MintPage_TextAfterPrice',
         desc: 'Text after Price block',
-        value: '**hello**',
+        value: '',
         multiline: true,
         markdown: true,
       }
@@ -125,14 +125,14 @@ export const textsGroups = [
       {
         code: 'StakePage_BeforeConnect_Text',
         desc: 'Text before connect wallet button',
-        value: '**hello**',
+        value: '',
         multiline: true,
         markdown: true,
       },
       {
         code: 'StakePage_AfterConnect_Text',
         desc: 'Text after connect wallet button',
-        value: '**hello**',
+        value: '',
         multiline: true,
         markdown: true,
       },
@@ -144,7 +144,7 @@ export const textsGroups = [
       {
         code: 'StakePage_BeforeYourReward_Text',
         desc: 'Text before label "Your reward"',
-        value: '**hello**',
+        value: '',
         multiline: true,
         markdown: true,
       },
@@ -156,7 +156,7 @@ export const textsGroups = [
       {
         code: 'StakePage_AfterYourReward_Text',
         desc: 'Text after label "Your reward"',
-        value: '**hello**',
+        value: '',
         multiline: true,
         markdown: true,
       },
@@ -168,7 +168,7 @@ export const textsGroups = [
       {
         code: 'StakePage_YourStakedNfts_Desc',
         desc: 'Text after "Your Staked NFTs"',
-        value: '**hello**',
+        value: '',
         multiline: true,
         markdown: true
       },
@@ -180,7 +180,7 @@ export const textsGroups = [
       {
         code: 'StakePage_YourUnStakedNfts_Desc',
         desc: 'Text after "Your Unstaked NFTs"',
-        value: '**hello**',
+        value: '',
         multiline: true,
         markdown: true
       }

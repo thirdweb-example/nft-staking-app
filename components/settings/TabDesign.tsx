@@ -2,6 +2,8 @@ import styles from "../../styles/Home.module.css"
 import { useEffect, useState } from "react"
 import { useStateUri, useStateUint } from "../../helpers/useState"
 import { defaultDesign } from "../../helpers/defaultDesign"
+import { getUnixTimestamp } from "../../helpers/getUnixTimestamp"
+
 import toggleGroup from "../toggleGroup"
 import iconButton from "../iconButton"
 import InputColor from 'react-input-color'
@@ -40,6 +42,7 @@ export default function TabDesign(options) {
 
   const [ designValues, setDesignValues ] = useState(_lsPreviewMode ? _lsPreviewDesign : initialDesign)
   const [ isSaveDesign, setIsSaveDesign ] = useState(false)
+
 
   const renderColor = (options) => {
     const {
@@ -151,18 +154,19 @@ export default function TabDesign(options) {
       }
     })
   }
-  
-  const applyChangeToPreview = () => {
-    localStorage.setItem(`-nft-stake-preview-design`, JSON.stringify(designValues))
-    addNotify(`Changes applied to preview mode`, `success`)
-  }
-  
+
   const offPreviewDesign = () => {
     addNotify(`Preview mode turn off`, `success`)
     localStorage.removeItem(`-nft-stake-preview-mode`)
     localStorage.removeItem(`-nft-stake-preview-design`)
     setIsPreviewMode(false)
   }
+  useEffect(() => {
+    if (isPreviewMode) {
+      localStorage.setItem(`-nft-stake-preview-design`, JSON.stringify(designValues))
+      localStorage.setItem(`-nft-stake-preview-utx`, getUnixTimestamp())
+    }
+  }, [designValues])
 
   const doSaveDesign = () => {
     const newDesign = designValues
@@ -336,9 +340,6 @@ export default function TabDesign(options) {
             <div className={styles.actionsRow}>
               {isPreviewMode ? (
                 <>
-                  <button onClick={applyChangeToPreview}>
-                    Apply changes to preview mode
-                  </button>
                   <button onClick={offPreviewDesign}>
                     Turn off preview mode
                   </button>

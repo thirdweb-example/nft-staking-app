@@ -28,7 +28,7 @@ export const getStorageText = (storageTexts) => {
 
     const _ret = getText(textKey, storageTexts, _item.value || sourceText, replaces)
 
-    if (_item.markdown) {
+    if (_item.markdown && _ret) {
       return parse((_item.multiline) ? md.renderInline(_ret) : mdInline.renderInline(_ret))
     } else {
       return _ret
