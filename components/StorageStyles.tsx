@@ -201,9 +201,41 @@ export default function StorageStyles(options) {
           padding-bottom: 20px;
           color: ${getDesign('stakeAfterConnectColor', 'color')};
         }
-        
-        .stakeBeforeYourReward {
+        @media only screen and (max-width: 1300px) {
+          .stakeBeforeYourReward,
+          .stakeAfterYourReward,
+          .mainPageTextAfterTitle,
+          .mainPageTextAfterSections,
+          .mintPagePrice,
+          .mintPageTextBeforePrice,
+          .mintPageTextAfterPrice,
+          .mintBeforeConnectWallet,
+          .mintAfterConnectWallet,
+          .stakeYourStakedNftsDesc,
+          .stakeYourUnstakedNftsDesc,
+          .stakeBeforeConnectWallet,
+          .stakeAfterConnectWallet {
+            width: 80%;
+          }
         }
+        @media only screen and (max-width: 1100px) {
+          .stakeBeforeYourReward,
+          .stakeAfterYourReward,
+          .mainPageTextAfterTitle,
+          .mainPageTextAfterSections,
+          .mintPagePrice,
+          .mintPageTextBeforePrice,
+          .mintPageTextAfterPrice,
+          .mintBeforeConnectWallet,
+          .mintAfterConnectWallet,
+          .stakeYourStakedNftsDesc,
+          .stakeYourUnstakedNftsDesc,
+          .stakeBeforeConnectWallet,
+          .stakeAfterConnectWallet {
+            width: 100%;
+          }
+        }
+        
       `}
     </style>
   )
