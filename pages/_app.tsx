@@ -3,14 +3,15 @@ import Head from 'next/head'
 import "../styles/globals.css"
 import styles from "../styles/Home.module.css"
 import { getStorageText, getLink } from "../helpers"
+import { getStorageDesign } from "../helpers/getDesign"
 import useStorage from "../storage/"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
-import update from 'immutability-helper';
 
 import { getUnixTimestamp } from "../helpers/getUnixTimestamp"
 
 import NotifyHolder from "../components/NotifyHolder"
+import StorageStyles from "../components/StorageStyles"
 
 
 let confirmWindowOnConfirm = () => {}
@@ -29,6 +30,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     isOwner,
     setDoReloadStorage,
     storageTexts,
+    storageDesign,
   } = useStorage()
   const router = useRouter()
 
@@ -79,7 +81,33 @@ function MyApp({ Component, pageProps }: AppProps) {
     })
   }
 
-  const getText = getStorageText(storageTexts)
+  let _lsPreviewTextsMode = false
+  let _lsPreviewTexts = storageTexts
+  try {
+    _lsPreviewTextsMode = localStorage.getItem(`-nft-stake-preview-text-mode`)
+    _lsPreviewTexts = localStorage.getItem(`-nft-stake-preview-texts`)
+    try {
+      _lsPreviewTexts = JSON.parse(_lsPreviewTexts)
+    } catch (e) {
+      _lsPreviewTexts = storageTexts
+    }
+  } catch (e) {}
+
+  const getText = getStorageText(storageTexts) //getStorageText((_lsPreviewTextsMode) ? _lsPreviewTexts : storageTexts)
+
+  let _lsPreviewMode = false
+  let _lsPreviewDesign = storageDesign
+  try {
+    _lsPreviewMode = localStorage.getItem(`-nft-stake-preview-mode`)
+    _lsPreviewDesign = localStorage.getItem(`-nft-stake-preview-design`)
+    try {
+      _lsPreviewDesign = JSON.parse(_lsPreviewDesign)
+    } catch (e) {
+      _lsPreviewDesign = storageDesign
+    }
+  } catch (e) {}
+
+  const getDesign = getStorageDesign((_lsPreviewMode) ? _lsPreviewDesign : storageDesign)
   return (
     <div>
       <Head>
@@ -114,7 +142,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           {!storageIsLoading && storageData && !storageData.isInstalled && !isSettingsPage && (
             <div className={styles.container}>
               <h2>NFTStake need install on this domain</h2>
-              <a href={getLink(`settings`)} className={`${styles.mainButton} ${styles.autoWidth}`}>
+              <a href={getLink(`settings`)} className={`${styles.mainButton} ${styles.autoWidth} primaryButton`}>
                 Go to Install
               </a>
             </div>
@@ -122,23 +150,30 @@ function MyApp({ Component, pageProps }: AppProps) {
           {storageData && !storageData.isBaseConfigReady && storageData.isInstalled && !isSettingsPage && (
             <div className={styles.container}>
               <h2>NFTStake need base setup</h2>
-              <a href={getLink(`settings`)} className={`${styles.mainButton} ${styles.autoWidth}`}>
+              <a href={getLink(`settings`)} className={`${styles.mainButton} ${styles.autoWidth} primaryButton`}>
                 Go to setup
               </a>
             </div>
           )}
           {((!storageIsLoading && storageData && storageData.isInstalled && storageData.isBaseConfigReady) || isSettingsPage) && (
-            <Component
-              {...pageProps }
-              storageData={storageData}
-              storageIsLoading={storageIsLoading}
-              openConfirmWindow={openConfirmWindow}
-              isOwner={isOwner}
-              addNotify={addNotify}
-              setDoReloadStorage={setDoReloadStorage}
-              storageTexts={storageTexts}
-              getText={getText}
-            />
+            <>
+              {!isSettingsPage && (
+                <StorageStyles getDesign={getDesign} />
+              )}
+              <Component
+                {...pageProps }
+                storageData={storageData}
+                storageIsLoading={storageIsLoading}
+                openConfirmWindow={openConfirmWindow}
+                isOwner={isOwner}
+                addNotify={addNotify}
+                setDoReloadStorage={setDoReloadStorage}
+                storageTexts={storageTexts}
+                storageDesign={storageDesign}
+                getText={getText}
+                getDesign={getDesign}
+              />
+            </>
           )}
         </>
       )}
@@ -150,17 +185,17 @@ function MyApp({ Component, pageProps }: AppProps) {
             <h3>{confirmWindowLabels.title}</h3>
             <span>{confirmWindowLabels.message}</span>
             <div>
-              <button className={styles.mainButton} onClick={onConfirmWindowConfirm}>
+              <button className={`${styles.mainButton} primaryButton`} onClick={onConfirmWindowConfirm}>
                 {confirmWindowLabels.ok}
               </button>
-              <button className={styles.mainButton} onClick={onConfirmWindowCancel}>
+              <button className={`${styles.mainButton} primaryButton`} onClick={onConfirmWindowCancel}>
                 {confirmWindowLabels.cancel}
               </button>
             </div>
           </div>
         </div>
       )}
-      <footer className={styles.mainFooter} >
+      <footer className={`${styles.mainFooter} mainFooter`} >
         {getText(`App_Footer`, `Powered by OnOut - [no-code tool to create NFTStake](https://onout.org/nftstake/)`)}
       </footer>
     </div>

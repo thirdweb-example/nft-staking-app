@@ -43,12 +43,12 @@ const Stake: NextPage = (props) => {
     openConfirmWindow,
     addNotify,
     getText,
+    getDesign,
   } = props
 
   const showDebugPanel = false
 
   const [ chainId, setChainId ] = useState(storageData?.chainId)
-  console.log('>>> storageData', storageData, chainId)
   const [ nftDropContractAddress, setNftDropContractAddress ] = useState(storageData?.nftCollection)
   const [ tokenContractAddress, setTokenContractAddress ] = useState(storageData?.rewardToken)
   const [ stakingContractAddress, setStakingContractAddress ] = useState(storageData?.farmContract)
@@ -564,7 +564,7 @@ const Stake: NextPage = (props) => {
       <b>Stake NFT by TokenId</b>
       <input type="number" onChange={(v) => setCustomTokenId(v.target.value)} />
       <button
-        className={`${styles.mainButton} ${styles.spacerBottom}`}
+        className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
         onClick={doStakeCustomNft}
         disabled={isApproveDo || isStakingDo || isDeStakingDo}
       >
@@ -587,23 +587,42 @@ const Stake: NextPage = (props) => {
   return (
     <div className={styles.container}>
       {navBlock(`stake`, isOwner)}
-      {logoBlock()}
-      <h1 className={styles.h1}>
+      {logoBlock({
+        getText,
+        getDesign
+      })}
+      <h1 className={`${styles.h1} pageTitle`}>
         {getText(`StakePage_Title`, `Stake Your NFTs - Earn ERC20`)}
       </h1>
 
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
       {!address ? (
-        <button disabled={isWalletConecting} className={styles.mainButton} onClick={connectWithMetamask}>
-          {isWalletConecting ? `Connecting` : `Connect Wallet`}
-        </button>
+        <>
+          <div className="stakeBeforeConnectWallet">
+            {getText('StakePage_BeforeConnect_Text')}
+          </div>
+          <button disabled={isWalletConecting} className={`${styles.mainButton} primaryButton`} onClick={connectWithMetamask}>
+            {isWalletConecting ? `Connecting` : `Connect Wallet`}
+          </button>
+          <div className="stakeAfterConnectWallet">
+            {getText('StakePage_AfterConnect_Text')}
+          </div>
+        </>
       ) : (
         <>
-          <h2>Your reward</h2>
+          <div className="stakeBeforeYourReward">
+            {getText('StakePage_BeforeYourReward_Text')}
+          </div>
+          <h2 className="stakeYourRewardLabel">
+            {getText('StakePage_YourRewardLabel', 'Your reward')}
+          </h2>
+          <div className="stakeAfterYourReward">
+            {getText('StakePage_AfterYourReward_Text')}
+          </div>
 
           <div className={styles.tokenGrid}>
-            <div className={styles.tokenItem}>
+            <div className={`${styles.tokenItem} stakeRewardAndBank`}>
               <h3 className={styles.tokenLabel}>Claimable Rewards</h3>
               <p className={styles.tokenValue}>
                 {claimableRewardsError ? (
@@ -618,7 +637,7 @@ const Stake: NextPage = (props) => {
                 )}
               </p>
             </div>
-            <div className={styles.tokenItem}>
+            <div className={`${styles.tokenItem} stakeRewardAndBank`}>
               <h3 className={styles.tokenLabel}>Stake Farm balance</h3>
               <p className={styles.tokenValue}>
                 {rewardTokenBalanceLoadError ? (
@@ -636,10 +655,10 @@ const Stake: NextPage = (props) => {
           </div>
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
-          <b>Connected wallet {address}</b>
+          <b className="stakePageConnectedWallet">Connected wallet {address}</b>
           <button
             disabled={isClaimbleRewards}
-            className={`${styles.mainButton} ${styles.spacerTop}`}
+            className={`${styles.mainButton} ${styles.spacerTop} primaryButton`}
             onClick={() => claimRewards()}
           >
             {isClaimbleRewards ? `Receiving an award...` : `Claim Rewards`}
@@ -647,7 +666,12 @@ const Stake: NextPage = (props) => {
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
-          <h2>Your Staked NFTs</h2>
+          <h2 className="stakeYourStakedNfts">
+            {getText('StakePage_YourStakedNfts', 'Your Staked NFTs')}
+          </h2>
+          <div className="stakeYourStakedNftsDesc">
+            {getText('StakePage_YourStakedNfts_Desc')}
+          </div>
           <div className={styles.nftBoxGrid}>
             {stakedNftsLoading ? (
               <p className={styles.tokenValue}>
@@ -684,7 +708,12 @@ const Stake: NextPage = (props) => {
           </div>
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
-          <h2>Your Unstaked NFTs</h2>
+          <h2 className="stakeYourUnstakedNfts">
+            {getText('StakePage_YourUnStakedNfts', 'Your Unstaked NFTs')}
+          </h2>
+          <div className="stakeYourUnstakedNftsDesc">
+            {getText('StakePage_YourUnStakedNfts_Desc')}
+          </div>
           {/*stakeCustomNft*/}
           <div className={styles.nftBoxGrid}>
             {ownedNftsLoading ? (

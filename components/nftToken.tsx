@@ -19,7 +19,7 @@ const nftToken = (options) => {
     isMinted,
   } = options
   return (
-    <div className={styles.nftBox} key={tokenId.toString()}>
+    <div className={`${styles.nftBox} nftTokenBox`} key={tokenId.toString()}>
       {tokenUri !== false && isImageUrl(tokenUri) ? (
         <>
           <h3>#{tokenId}</h3>
@@ -36,7 +36,7 @@ const nftToken = (options) => {
       {isMinted ? (
         <>
           <a
-            className={`${styles.mainButton} ${styles.spacerBottom}`}
+            className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
             href={getLink(`stake`)}
           >
             Go to staking
@@ -47,7 +47,7 @@ const nftToken = (options) => {
           {onDeStake !== null && (
             <button
               disabled={isDeStaking || isStaking || isApproveDo}
-              className={`${styles.mainButton} ${styles.spacerBottom}`}
+              className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
               onClick={onDeStake}
             >
               {(isDeStaking && (deStakeId === tokenId)) ? (
@@ -59,7 +59,7 @@ const nftToken = (options) => {
           )}
           {onStake !== null && (
             <button
-              className={`${styles.mainButton} ${styles.spacerBottom}`}
+              className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
               onClick={onStake}
               disabled={isDeStaking || isStaking || isApproveDo}
             >

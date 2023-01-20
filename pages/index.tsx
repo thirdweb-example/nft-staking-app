@@ -10,21 +10,27 @@ import { useEffect, useState } from "react"
 
 const Home: NextPage = (props) => {
   const router = useRouter();
-  const { isOwner, getText } = props
+  const { isOwner, getText, getDesign } = props
 
   return (
     <div className={styles.container}>
       {navBlock(`index`, isOwner)}
       {/* Top Section */}
-      {logoBlock()}
-      <h1 className={styles.h1}>{getText(`MainPage_Header`, `Stake NFT - earn ERC20`)}</h1>
+      {logoBlock({
+        getText,
+        getDesign
+      })}
+      <h1 className={`${styles.h1} pageTitle`}>{getText(`MainPage_Header`, `Stake NFT - earn ERC20`)}</h1>
 
+      <div className="mainPageTextAfterTitle">
+        {getText(`MainPage_AfterTitle`, `**Text after title**`)}
+      </div>
       <div
         className={styles.nftBoxGrid}
       >
         {/* Mint a new NFT */}
         { getBoolOption( `EnabledDemoMind` , true ) && (
-          <div className={styles.optionSelectBox}>
+          <div className={`${styles.optionSelectBox} mainPageSection`}>
             <a href={getLink(`mint`)}>
               <h2 className={styles.selectBoxTitle}>
                 {getText(`MainPage_Mint_Title`, `Mint demo NFT`)}
@@ -36,7 +42,7 @@ const Home: NextPage = (props) => {
           </div>
         )}
         <div
-          className={styles.optionSelectBox}
+          className={`${styles.optionSelectBox} mainPageSection`}
           
         >
           <a href={getLink(`stake`)}>
@@ -51,6 +57,9 @@ const Home: NextPage = (props) => {
             </p>
           </a>
         </div>
+      </div>
+      <div className="mainPageTextAfterSections">
+        {getText(`MainPage_AfterSections`)}
       </div>
     </div>
   );

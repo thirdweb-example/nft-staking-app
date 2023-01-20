@@ -36,15 +36,15 @@ const navBlock = (curPage, isAdmin = false) => {
   const router = useRouter()
   return (
     <>
-      <nav className={`${styles.mainNav}`}>
+      <nav className={`${styles.mainNav} headerNavMenu`}>
         {menus.map((menuItem) => {
           if (menuItem.adminOnly && !isAdmin) return null
           return (
-            <a key={menuItem.id} className={(curPage === menuItem.id) ? styles.active : ``} href={getLink(menuItem.link)}>{menuItem.title}</a>
+            <a key={menuItem.id} className={(curPage === menuItem.id) ? `${styles.active} headerNavActive` : ``} href={getLink(menuItem.link)}>{menuItem.title}</a>
           )
         })}
       </nav>
-      <hr className={`${styles.divider} ${styles.spacerTop}`} />
+      <div className={styles.mainNavSeperator}></div>
     </>
   )
 }

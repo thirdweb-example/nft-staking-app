@@ -20,7 +20,9 @@ export default function toggleGroup(options) {
           <FaIcon icon={(!isOpened) ? 'arrow-down' : 'arrow-up'} />
         </a>
       </div>
-      <div className={styles.adminToggleGroupContent}>{content}</div>
+      {isOpened && (
+        <div className={styles.adminToggleGroupContent}>{content}</div>
+      )}
     </div>
   )
 }

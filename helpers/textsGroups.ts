@@ -35,6 +35,20 @@ export const textsGroups = [
         value: `Stake NFT - earn ERC20`,
       },
       {
+        code: `MainPage_AfterTitle`,
+        desc: `Text block after title`,
+        value: `**hello**`,
+        markdown: true,
+        multiline: true,
+      },
+      {
+        code: `MainPage_AfterSections`,
+        desc: `Text block after sections`,
+        value: `**hello**`,
+        markdown: true,
+        multiline: true,
+      },
+      {
         code: `MainPage_Mint_Title`,
         desc: `Mint section title`,
         value: `Mint demo NFT`,
@@ -69,9 +83,37 @@ export const textsGroups = [
         value: `Mint Demo NFTs for test`,
       },
       {
+        code: 'StakePage_BeforeConnect_Text',
+        desc: 'Text before connect wallet button',
+        value: '**hello**',
+        multiline: true,
+        markdown: true,
+      },
+      {
+        code: 'StakePage_AfterConnect_Text',
+        desc: 'Text after connect wallet button',
+        value: '**hello**',
+        multiline: true,
+        markdown: true,
+      },
+      {
+        code: `MintPage_TextBeforePrice`,
+        desc: 'Text before Price block',
+        value: '**hello**',
+        multiline: true,
+        markdown: true,
+      },
+      {
         code: `MintPage_Managed_PriceInfo`,
         desc: `Info about mint price (%amount%, %currency%)`,
         value: `Mint price is %amount% %currency%`,
+        multiline: true,
+        markdown: true,
+      },
+      {
+        code: 'MintPage_TextAfterPrice',
+        desc: 'Text after Price block',
+        value: '**hello**',
         multiline: true,
         markdown: true,
       }
@@ -81,9 +123,66 @@ export const textsGroups = [
     title: `Stake page`,
     items: [
       {
+        code: 'StakePage_BeforeConnect_Text',
+        desc: 'Text before connect wallet button',
+        value: '**hello**',
+        multiline: true,
+        markdown: true,
+      },
+      {
+        code: 'StakePage_AfterConnect_Text',
+        desc: 'Text after connect wallet button',
+        value: '**hello**',
+        multiline: true,
+        markdown: true,
+      },
+      {
         code: `StakePage_Title`,
         desc: `Stake page title`,
         value: `Stake Your NFTs - Earn ERC20`
+      },
+      {
+        code: 'StakePage_BeforeYourReward_Text',
+        desc: 'Text before label "Your reward"',
+        value: '**hello**',
+        multiline: true,
+        markdown: true,
+      },
+      {
+        code: 'StakePage_YourRewardLabel',
+        desc: 'Label "Your reward"',
+        value: 'Your reward',
+      },
+      {
+        code: 'StakePage_AfterYourReward_Text',
+        desc: 'Text after label "Your reward"',
+        value: '**hello**',
+        multiline: true,
+        markdown: true,
+      },
+      {
+        code: 'StakePage_YourStakedNfts',
+        desc: 'Label "Your Staked NFTs"',
+        value: 'Your Staked NFTs',
+      },
+      {
+        code: 'StakePage_YourStakedNfts_Desc',
+        desc: 'Text after "Your Staked NFTs"',
+        value: '**hello**',
+        multiline: true,
+        markdown: true
+      },
+      {
+        code: 'StakePage_YourUnStakedNfts',
+        desc: 'Label "Your Unstaked NFTs"',
+        value: 'Your Unstaked NFTs',
+      },
+      {
+        code: 'StakePage_YourUnStakedNfts_Desc',
+        desc: 'Text after "Your Unstaked NFTs"',
+        value: '**hello**',
+        multiline: true,
+        markdown: true
       }
     ],
   },

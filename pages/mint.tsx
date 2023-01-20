@@ -43,6 +43,7 @@ const Mint: NextPage = (props) => {
     isOwner,
     addNotify,
     getText,
+    getDesign,
   } = props
 
   const mintUris = [
@@ -238,24 +239,38 @@ const Mint: NextPage = (props) => {
   return (
     <div className={styles.container}>
       {navBlock(`mint`, isOwner)}
-      {logoBlock()}
-      <h1 className={styles.h1}>
+      {logoBlock({
+        getText,
+        getDesign
+      })}
+      <h1 className={`${styles.h1} pageTitle`}>
         {getText(`MintPage_Title`, `Mint Demo NFTs for test`)}
       </h1>
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
       {!address ? (
-        <button disabled={isWalletConecting} className={styles.mainButton} onClick={connectWithMetamask}>
-          {isWalletConecting ? `Connecting` : `Connect Wallet`}
-        </button>
+        <>
+          <div className="mintBeforeConnectWallet">
+            {getText('StakePage_BeforeConnect_Text')}
+          </div>
+          <button disabled={isWalletConecting} className={`${styles.mainButton} primaryButton`} onClick={connectWithMetamask}>
+            {isWalletConecting ? `Connecting` : `Connect Wallet`}
+          </button>
+          <div className="mintAfterConnectWallet">
+            {getText('StakePage_AfterConnect_Text')}
+          </div>
+        </>
       ) : (
         <>
           {nftInfoFetched ? (
             <>
               {nftInfo.isNFTStakeToken ? (
                 <>
-                  <h2>{getText(`MintPage_Managed_Title`, `Mint NFT`)}</h2>
-                  <div className={styles.mintPageDesc}>
+                  <h2 className="mintPageSubTitle">{getText(`MintPage_Managed_Title`, `Mint NFT`)}</h2>
+                  <div className="mintPageTextBeforePrice">
+                    {getText('MintPage_TextBeforePrice')}
+                  </div>
+                  <div className={`${styles.mintPageDesc} mintPagePrice`}>
                     {getText(
                       `MintPage_Managed_PriceInfo`,
                       `Mint price is %amount% %currency%`,
@@ -265,8 +280,11 @@ const Mint: NextPage = (props) => {
                       }
                     )}
                   </div>
+                  <div className="mintPageTextAfterPrice">
+                    {getText('MintPage_TextAfterPrice')}
+                  </div>
                   <div className={styles.mintPageMintedHolder}>
-                    <button disabled={isMinting} className={styles.mainButton} onClick={doMintPayable}>
+                    <button disabled={isMinting} className={`${styles.mainButton} primaryButton`} onClick={doMintPayable}>
                       {isMinting
                         ? `Minting NFT...`
                         : (isMinted)
@@ -287,13 +305,13 @@ const Mint: NextPage = (props) => {
               ) : (
                 <>
                   {!isMinted ? (
-                    <button disabled={isMinting} className={styles.mainButton} onClick={doMintNFT}>
+                    <button disabled={isMinting} className={`${styles.mainButton} primaryButton`} onClick={doMintNFT}>
                       {isMinting ? `Minting NFT...` : `Mint NFT`}
                     </button>
                   ) : (
                     <>
                       <h2>Demo NFT minted</h2>
-                      <a href={getLink('stake')} className={styles.mainButton}>
+                      <a href={getLink('stake')} className={`${styles.mainButton} primaryButton`}>
                         Go to Stake NFT
                       </a>
                     </>

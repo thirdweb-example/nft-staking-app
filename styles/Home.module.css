@@ -616,8 +616,19 @@
   margin-bottom: 0px;
 }
 
+.mainNavSeperator {
+  margin-top: 30px;
+}
 .mainNav {
   display: block;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  padding: 10px;
+  background: #000000;
+  border-bottom: 1px solid gray;
+  z-index: 20000;
 }
 
 .mainNav A {
@@ -684,8 +695,6 @@
   border: 2px solid gray;
   text-align: left;
   padding: 10px;
-  padding-left: 20px;
-  margin-left: 20px;
   border-top: 0px;
   padding-bottom: 0px;
 }
@@ -698,6 +707,15 @@
   width: 70%;
 }
 
+.adminForm .subFormInfo .infoRow INPUT,
+.adminForm .subFormInfo .infoRow SELECT {
+  padding: 5px;
+}
+
+.adminForm .subFormInfo .infoRow>SPAN>DIV>STRONG,
+.adminForm .subFormInfo .infoRow>DIV>DIV>STRONG {
+  padding-left: 5px;
+}
 .adminForm .subFormInfo .infoRow>SPAN>DIV,
 .adminForm .subFormInfo .infoRow>DIV>DIV {
   display: flex;
@@ -708,7 +726,6 @@
 .adminForm .subFormInfo H3 {
   background: gray;
   margin: -10px;
-  margin-left: -20px;
   margin-bottom: 0px;
   padding: 5px;
   font-size: 10pt;
@@ -939,6 +956,7 @@
   margin: 0px;
   width: 100%;
   text-align: left;
+  background: none;
 }
 
 .adminToggleGroup .adminToggleGroupHeader:hover {
@@ -958,13 +976,18 @@
 }
 
 .adminToggleGroup .adminToggleGroupContent {
-  display: none;
+  disabled: none;
 }
 
 .adminForm .actionsRow {
   text-align: right;
 }
 
+.adminForm H5 {
+  padding: 0px;
+  margin: 0px;
+  border-bottom: 2px solid #FFF;
+}
 .adminForm .actionsRow BUTTON {
   margin-left: 5px;
 }
@@ -1030,4 +1053,48 @@
   width: 16px;
   height: 16px;
   margin-right: 4px;
+}
+
+.formTabs {
+  padding: 10px;
+}
+
+.formTabs>NAV {
+  display: flex;
+}
+
+.formTabs>NAV>A {
+  display: block;
+  padding: 10px;
+  background: gray;
+  border: 1px solid #FFF;
+  border-bottom: 2px solid #FFF;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.formTabs>NAV>A:hover {
+  background: #6591c7;
+}
+.formTabs>NAV>A.formTabsActive,
+.formTabs>NAV>A.formTabsActive:hover {
+  background: none;
+  border-bottom: 0px;
+}
+.formTabs>NAV::after {
+  content: '';
+  display: block;
+  width: auto;
+  border-bottom: 2px solid #FFF;
+  flex-basis: 100%;
+}
+
+.formTabs>DIV {
+  display: none;
+  border: 1px solid #FFF;
+  border-top: 0px;
+  padding: 10px;
+}
+
+.formTabs>DIV.formTabsActive {
+  display: block;
 }

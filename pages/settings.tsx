@@ -3,6 +3,7 @@ import styles from "../styles/Home.module.css"
 import navBlock from "../components/navBlock"
 import adminFormRow from "../components/adminFormRow"
 import TabNftCollection from "../components/settings/TabNftCollection"
+import TabDesign from "../components/settings/TabDesign"
 
 import useStorage from "../storage/"
 import { useEffect, useState } from "react"
@@ -80,6 +81,7 @@ const Settings: NextPage = (props) => {
     addNotify,
     setDoReloadStorage,
     storageTexts,
+    storageDesign,
   } = props
 
   const [activeChainId, setActiveChainId] = useState(false)
@@ -245,6 +247,13 @@ const Settings: NextPage = (props) => {
     }
   }
 
+  const getActiveChain = () => {
+    return {
+      activeChainId,
+      activeWeb3,
+    }
+  }
+
   const tabNftCollection = new TabNftCollection({
     chainId: storageData?.chainId || 0,
     openConfirmWindow,
@@ -254,12 +263,7 @@ const Settings: NextPage = (props) => {
       setNewNftCollection(address)
       setIsNFTInfoFetched(false)
     },
-    getActiveChain: () => {
-      return {
-        activeChainId,
-        activeWeb3,
-      }
-    }
+    getActiveChain,
   })
   
   let showInstallBox = (storageData && !storageData.isInstalled)
@@ -890,7 +894,7 @@ const Settings: NextPage = (props) => {
           </div>
         )}
         <div className={styles.adminFormBottom}>
-          <button disabled={isStorageSave} className={styles.mainButton} onClick={doSaveMainConfig} >
+          <button disabled={isStorageSave} className={`${styles.mainButton} primaryButton`} onClick={doSaveMainConfig} >
             Save changes
           </button>
         </div>
@@ -899,9 +903,48 @@ const Settings: NextPage = (props) => {
   }
 
   /* ---- EDIT TEXTS ---- */
-  const [ newStorageTexts, setNewStorageTexts ] = useState(storageTexts)
+  const _lsPreviewMode = localStorage.getItem(`-nft-stake-preview-text-mode`)
+  let _lsPreviewTexts = localStorage.getItem(`-nft-stake-preview-texts`)
+  try {
+    _lsPreviewTexts = JSON.parse(_lsPreviewTexts)
+    _lsPreviewTexts = {
+      ...storageTexts,
+      ..._lsPreviewTexts,
+    }
+  } catch (e) {
+    _lsPreviewTexts = storageTexts
+  }
+
+  const [ isPreviewMode, setIsPreviewMode ] = useState(_lsPreviewMode !== null)
+
+
+  const [ newStorageTexts, setNewStorageTexts ] = useState((isPreviewMode) ? _lsPreviewTexts : storageTexts)
   const [ isTextsChanged, setIsTextsChanged ] = useState(false)
 
+  const onPreviewDesign = () => {
+    openConfirmWindow({
+      title: `Switch to preview mode`,
+      message: `Switch to preview mode? You can look changes before save`,
+      onConfirm: () => {
+        addNotify(`Preview mode on. Go to site for check it`, `success`)
+        localStorage.setItem(`-nft-stake-preview-text-mode`, true)
+        localStorage.setItem(`-nft-stake-preview-texts`, JSON.stringify(newStorageTexts))
+        setIsPreviewMode(true)
+      }
+    })
+  }
+  
+  const applyChangeToPreview = () => {
+    localStorage.setItem(`-nft-stake-preview-texts`, JSON.stringify(newStorageTexts))
+    addNotify(`Changes applied to preview mode`, `success`)
+  }
+  
+  const offPreviewDesign = () => {
+    addNotify(`Preview mode turn off`, `success`)
+    localStorage.removeItem(`-nft-stake-preview-text-mode`)
+    localStorage.removeItem(`-nft-stake-preview-texts`)
+    setIsPreviewMode(false)
+  }
 
   const updateStorageText = (textCode, newText) => {
     console.log('>>> updateStorageText', textCode, newText)
@@ -1007,8 +1050,26 @@ const Settings: NextPage = (props) => {
             </div>
           )
         })}
+        
         <div className={styles.adminFormBottom}>
-          <button disabled={isStorageSave || !isTextsChanged} className={styles.mainButton} onClick={doSaveTexts} >
+          {isPreviewMode ? (
+            <>
+              <button onClick={applyChangeToPreview}>
+                Apply changes to preview mode
+              </button>
+              <button onClick={offPreviewDesign}>
+                Turn off preview mode
+              </button>
+            </>
+          ) : (
+            <button onClick={onPreviewDesign}>
+              Turn on preview mode
+            </button>
+          )}
+        </div>
+        
+        <div className={styles.adminFormBottom}>
+          <button disabled={isStorageSave || !isTextsChanged} className={`${styles.mainButton} primaryButton`} onClick={doSaveTexts} >
             Save changes
           </button>
         </div>
@@ -1016,6 +1077,14 @@ const Settings: NextPage = (props) => {
     )
   }
 
+  const tabDesign = new TabDesign({
+    setDoReloadStorage,
+    saveStorageConfig,
+    openConfirmWindow,
+    addNotify,
+    getActiveChain,
+    storageDesign,
+  })
 
   /* ------------------------------------------- */
   const renderActiveChainInfo = () => {
@@ -1047,13 +1116,13 @@ const Settings: NextPage = (props) => {
             <>
               <h2>NFTStake need setup on this domain</h2>
               {!address ? (
-                <button disabled={isWalletConecting} className={styles.mainButton} onClick={connectWithMetamask}>
+                <button disabled={isWalletConecting} className={`${styles.mainButton} primaryButton`} onClick={connectWithMetamask}>
                   {isWalletConecting ? `Connecting` : `Connect Wallet`}
                 </button>
               ) : (
                 <>
                   {renderActiveChainInfo()}
-                  <button disabled={isSettingUpOnDomain} className={`${styles.mainButton} ${styles.autoWidth}`} onClick={doSetupOnDomain}>
+                  <button disabled={isSettingUpOnDomain} className={`${styles.mainButton} ${styles.autoWidth} primaryButton`} onClick={doSetupOnDomain}>
                     {isSettingUpOnDomain ? `Setup on domain...` : `Setup NFTStake on this domain`}
                   </button>
                 </>
@@ -1062,7 +1131,7 @@ const Settings: NextPage = (props) => {
           ) : (
             <>
               {!address ? (
-                <button disabled={isWalletConecting} className={styles.mainButton} onClick={connectWithMetamask}>
+                <button disabled={isWalletConecting} className={`${styles.mainButton} primaryButton`} onClick={connectWithMetamask}>
                   {isWalletConecting ? `Connecting` : `Connect Wallet`}
                 </button>
               ) : (
@@ -1084,6 +1153,7 @@ const Settings: NextPage = (props) => {
                       {activeTab === `main` && renderMainTab()}
                       {activeTab === `nftconfig` && tabNftCollection.render()}
                       {activeTab === `texts` && renderTextsTab()}
+                      {activeTab === `design` && tabDesign.render()}
                       {/* -------------------------------------------------*/ }
                     </>
                   ) : (
