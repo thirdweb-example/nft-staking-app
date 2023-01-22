@@ -484,6 +484,8 @@ const Settings: NextPage = (props) => {
     })
   }
   /* --- Deploy farm contract --- */
+  const [ newLockTime, setNewLockTime ] = useState(0)
+  const [ newIsLockEnabled, setNewIsLockEnabled ] = useState(false)
   const [ isOpenedDeployFarm, setIsOpenedDeployFarm ] = useState(false)
   const [ deployRewardPerHour, setDeployRewardPerHour ] = useState( 0.1 )
   const [ isFarmContractDeploying, setIsFarmContractDeploying ] = useState(false)
@@ -504,6 +506,8 @@ const Settings: NextPage = (props) => {
             nftCollection: newNftCollection,
             rewardsToken: newRewardToken,
             rewardsPerHour: toWei(deployRewardPerHour.toString(), rewardTokenInfo.decimals),
+            lockEnabled: newIsLockEnabled,
+            lockTime: newLockTime,
             onTrx: (hash) => {
               addNotify(`Farm contract deploy TX ${hash}...`, `success`)
             },
@@ -555,6 +559,8 @@ const Settings: NextPage = (props) => {
     }
   }, [ newChainId, newNftCollection, newRewardToken, rewardTokenFetched ])
 
+
+  
   useEffect(() => {
     tabNftCollection.setNftCollection(newNftCollection)
     tabNftCollection.setNftChainId(newChainId)
@@ -635,13 +641,26 @@ const Settings: NextPage = (props) => {
           )}
         </div>
         <div className={styles.infoRow}>
-          <label>NFT lock time:</label>
+          <label>NFT Lock enabled:</label>
           <div>
             <div>
-              <DurationPicker />
+              <select value={newIsLockEnabled ? 1 : 0} onChange={(e) => { setNewIsLockEnabled( (e.target.value == `1`) ? true : false) }}>
+                <option value={0}>No</option>
+                <option value={1}>Yes</option>
+              </select>
             </div>
           </div>
         </div>
+        {newIsLockEnabled && (
+          <div className={styles.infoRow}>
+            <label>NFT Lock time:</label>
+            <div>
+              <div>
+                <DurationPicker value={newLockTime} onChange={(v) => { setNewLockTime(v) }} />
+              </div>
+            </div>
+          </div>
+        )}
         <div className={styles.actionsRow}>
           <button disabled={!canDeploy || farmInfoFetching || isFarmContractDeploying} className={styles.secondaryButton} onClick={doDeployFarmContract}>
             {isFarmContractDeploying ? `Deploying Farm contract...` : `Deploy new farm contract`}
@@ -943,10 +962,7 @@ const Settings: NextPage = (props) => {
   /* -------------------------------------------- */
   //console.log('>>> storageData', storageData, showInstallBox, (storageData && !storageData.isInstalled), !isInstalledOnDomain)
 
-  const [ newDuration, setNewDuration ] = useState(536643)
-  useEffect(() => {
-    console.log('>>> newDuration', newDuration)
-  }, [ newDuration ])
+
   
   if (isInstalledOnDomain) showInstallBox = false
   return (
@@ -992,9 +1008,6 @@ const Settings: NextPage = (props) => {
                         })}
                       </ul>
                       <hr className={`${styles.divider} ${styles.spacerTop}`} />
-                      <div>
-                        <DurationPicker value={newDuration} onChange={setNewDuration} />
-                      </div>
                       {/* -------------------------------------------------*/ }
                       {activeTab === `main` && renderMainTab()}
                       {activeTab === `nftconfig` && tabNftCollection.render()}

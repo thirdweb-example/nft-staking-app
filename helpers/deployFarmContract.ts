@@ -1,5 +1,4 @@
 import FarmContractData from "../contracts/source/artifacts/Farm.json"
-import FarmAbi from '../contracts/FarmAbi.json'
 import { calcSendArgWithFee } from "./calcSendArgWithFee"
 import { BigNumber } from 'bignumber.js'
 
@@ -10,6 +9,8 @@ const deployFarmContract = (options) => {
       nftCollection,
       rewardsToken,
       rewardsPerHour,
+      lockEnabled,
+      lockTime,
     } = options
     const onTrx = options.onTrx || (() => {})
     const onSuccess = options.onSuccess || (() => {})
@@ -19,15 +20,22 @@ const deployFarmContract = (options) => {
     activeWeb3.eth.getAccounts().then(async (accounts) => {
       if (accounts.length>0) {
         const activeWallet = accounts[0]
-        const farmContract = new activeWeb3.eth.Contract(FarmAbi)
+        const farmContract = new activeWeb3.eth.Contract(FarmContractData.abi)
 
         const txArguments = {
           from: activeWallet,
           gas: '0'
         }
 
+        const args = [
+          nftCollection,
+          rewardsToken,
+          rewardsPerHour,
+          lockEnabled,
+          lockTime,
+        ]
         const gasAmountCalculated = await farmContract.deploy({
-          arguments: [ nftCollection, rewardsToken, rewardsPerHour ],
+          arguments: args,
           data: FarmContractData.data.bytecode.object
         }).estimateGas(txArguments)
 
@@ -41,7 +49,7 @@ const deployFarmContract = (options) => {
 
         farmContract.deploy({
           data: '0x' + FarmContractData.data.bytecode.object,
-          arguments: [ nftCollection, rewardsToken, rewardsPerHour ],
+          arguments: args,
         })
           .send(txArguments)
           .on('transactionHash', (hash) => {
