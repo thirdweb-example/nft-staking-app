@@ -1107,3 +1107,12 @@
 .formTabs>DIV.formTabsActive {
   display: block;
 }
+
+.actionsRowMain {
+  padding-top: 10px;
+  text-align: center;
+}
+
+.actionsRowMain BUTTON {
+  margin: 10px;
+}

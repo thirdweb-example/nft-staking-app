@@ -6,14 +6,15 @@ export default function toggleGroup(options) {
     title,
     isOpened,
     content,
-    onToggle
+    onToggle,
+    key
   } = {
     onToggle: () => {},
     ...options
   }
 
   return (
-    <div className={`${styles.adminToggleGroup} ${isOpened ? styles.adminToggleGroupOpened : ''}`}>
+    <div key={key} className={`${styles.adminToggleGroup} ${isOpened ? styles.adminToggleGroupOpened : ''}`}>
       <div className={styles.adminToggleGroupHeader} onClick={() => { onToggle(!isOpened) }}>
         <h3>{title}</h3>
         <a>

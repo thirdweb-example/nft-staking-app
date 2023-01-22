@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   distDir: 'build',
-  basePath: '/NFTFARMBUILDURL',
+  basePath: '/_MYAPP',
   reactStrictMode: false,
   eslint: {
     ignoreDuringBuilds: true,

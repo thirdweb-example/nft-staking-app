@@ -4,6 +4,7 @@ import navBlock from "../components/navBlock"
 import adminFormRow from "../components/adminFormRow"
 import TabNftCollection from "../components/settings/TabNftCollection"
 import TabDesign from "../components/settings/TabDesign"
+import TabTexts from "../components/settings/TabTexts"
 
 import useStorage from "../storage/"
 import { useEffect, useState } from "react"
@@ -902,187 +903,17 @@ const Settings: NextPage = (props) => {
     )
   }
 
-  /* ---- EDIT TEXTS ---- */
-  const _lsPreviewMode = localStorage.getItem(`-nft-stake-preview-text-mode`)
-  let _lsPreviewTexts = localStorage.getItem(`-nft-stake-preview-texts`)
-  try {
-    _lsPreviewTexts = JSON.parse(_lsPreviewTexts)
-    _lsPreviewTexts = {
-      ...storageTexts,
-      ..._lsPreviewTexts,
-    }
-  } catch (e) {
-    _lsPreviewTexts = storageTexts
-  }
-
-  const [ isPreviewMode, setIsPreviewMode ] = useState(_lsPreviewMode !== null)
-
-
-  const [ newStorageTexts, setNewStorageTexts ] = useState((isPreviewMode) ? _lsPreviewTexts : storageTexts)
-  const [ isTextsChanged, setIsTextsChanged ] = useState(false)
-
-  const onPreviewDesign = () => {
-    openConfirmWindow({
-      title: `Switch to preview mode`,
-      message: `Switch to preview mode? You can look changes before save`,
-      onConfirm: () => {
-        addNotify(`Preview mode on. Go to site for check it`, `success`)
-        localStorage.setItem(`-nft-stake-preview-text-mode`, true)
-        localStorage.setItem(`-nft-stake-preview-texts`, JSON.stringify(newStorageTexts))
-        setIsPreviewMode(true)
-      }
-    })
-  }
-
-  const offPreviewDesign = () => {
-    addNotify(`Preview mode turn off`, `success`)
-    localStorage.removeItem(`-nft-stake-preview-text-mode`)
-    localStorage.removeItem(`-nft-stake-preview-texts`)
-    setIsPreviewMode(false)
-  }
-
-  useEffect(() => {
-    if (isPreviewMode) {
-      localStorage.setItem(`-nft-stake-preview-texts`, JSON.stringify(newStorageTexts))
-      localStorage.setItem(`-nft-stake-preview-texts-utx`, getUnixTimestamp())
-    }
-  }, [newStorageTexts])
-  const updateStorageText = (textCode, newText) => {
-    setNewStorageTexts((prev) => {
-      return {
-        ...prev,
-        [`${textCode}`]: newText,
-      }
-    })
-    setIsTextsChanged(true)
-  }
-
-  const doSaveTexts = () => {
-    openConfirmWindow({
-      title: `Save changed texts`,
-      message: `Save changed texts?`,
-      okLabel: `Save`,
-      onConfirm: () => {
-        console.log('>>> texts', storageTexts, newStorageTexts)
-        const newConfig = {
-          texts: newStorageTexts
-        }
-        saveStorageConfig({
-          onBegin: () => {
-            setIsSettingUpOnDomain(true)
-            addNotify(`Confirm transaction for save changed texts`)
-          },
-          onReady: () => {
-            setIsSettingUpOnDomain(false)
-            setIsInstalledOnDomain(true)
-            addNotify(`Texts successfull saved`, `success`)
-          },
-          onError: (err) => {
-            setIsSettingUpOnDomain(false)
-            addNotify(`Fail save texts`, `error`)
-          },
-          newData: newConfig
-        })
-      },
-    })
-  }
-
-  const renderStorageTextArea = (options) => {
-    const {
-      code,
-      desc,
-      value,
-      defValue,
-      multiline,
-      multilineView,
-      markdown,
-    } = options
-
-    return (
-      <div className={styles.adminStorageTextArea}>
-        <label>
-          {desc} ({code}) {markdown && (<b>(MarkDown)</b>)} {multiline && (<b>(Multiline)</b>)}
-        </label>
-        {(multiline || multilineView) ? (
-          <textarea
-            value={newStorageTexts[code] !== undefined ? newStorageTexts[code] : defValue}
-            onChange={(e) => { updateStorageText(code, e.target.value) }}
-          ></textarea>
-        ) : (
-          <input
-            type="text"
-            value={newStorageTexts[code] !== undefined ? newStorageTexts[code] : defValue}
-            onChange={(e) => { updateStorageText(code, e.target.value) }}
-          />
-        )}
-      </div>
-    )
-  }
-
-  const renderTextsTab = () => {
-    return (
-      <div className={styles.adminForm}>
-        {Object.keys(textsGroups).map((groupKey) => {
-          return (
-            <div className={styles.adminFormTextGroup} key={groupKey}>
-              <h3>{textsGroups[groupKey].title}</h3>
-              {textsGroups[groupKey].items.map((itemInfo, itemKey) => {
-                const {
-                  code,
-                  desc,
-                  value,
-                  multiline,
-                  markdown,
-                  multilineView,
-                } = itemInfo
-                return (
-                  <div key={itemKey}>
-                    {renderStorageTextArea({
-                      code: code,
-                      desc: desc,
-                      defValue: value,
-                      multiline,
-                      multilineView,
-                      markdown,
-                    })}
-                  </div>
-                )
-              })}
-            </div>
-          )
-        })}
-        
-        <div className={styles.adminFormBottom}>
-          {isPreviewMode ? (
-            <>
-              <button onClick={offPreviewDesign}>
-                Turn off preview mode
-              </button>
-            </>
-          ) : (
-            <button onClick={onPreviewDesign}>
-              Turn on preview mode
-            </button>
-          )}
-        </div>
-        
-        <div className={styles.adminFormBottom}>
-          <button disabled={isStorageSave || !isTextsChanged} className={`${styles.mainButton} primaryButton`} onClick={doSaveTexts} >
-            Save changes
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  const tabDesign = new TabDesign({
+  const _tabOptions = {
     setDoReloadStorage,
     saveStorageConfig,
     openConfirmWindow,
     addNotify,
     getActiveChain,
     storageDesign,
-  })
+    storageData,
+  }
+  const tabDesign = new TabDesign(_tabOptions)
+  const tabTexts = new TabTexts(_tabOptions)
 
   /* ------------------------------------------- */
   const renderActiveChainInfo = () => {
@@ -1150,7 +981,7 @@ const Settings: NextPage = (props) => {
                       {/* -------------------------------------------------*/ }
                       {activeTab === `main` && renderMainTab()}
                       {activeTab === `nftconfig` && tabNftCollection.render()}
-                      {activeTab === `texts` && renderTextsTab()}
+                      {activeTab === `texts` && tabTexts.render()}
                       {activeTab === `design` && tabDesign.render()}
                       {/* -------------------------------------------------*/ }
                     </>

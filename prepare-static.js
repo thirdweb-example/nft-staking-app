@@ -19,7 +19,7 @@ fsExtra.move(root_folder + '/_next/', root_folder + '/engine/', err => {
         files.forEach((file) => {
           const content = readFileSync(file, 'utf8');
 
-          let newContent = content.replaceAll('/NFTFARMBUILDURL', '.');
+          let newContent = content.replaceAll('/_MYAPP', '.');
           newContent = newContent.replaceAll('/_next/','/engine/');
 
           console.log(file);
