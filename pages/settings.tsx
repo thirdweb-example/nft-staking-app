@@ -20,6 +20,7 @@ import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
 
 import { getStorageInfo } from "../storage"
 import STORAGE_JSON from "../contracts/Storage.json"
+import DurationPicker from "../components/DurationPicker"
 import { getCurrentDomain } from "../helpers/getCurrentDomain"
 import { getUnixTimestamp } from "../helpers/getUnixTimestamp"
 import fetchTokenInfo from "../helpers/fetchTokenInfo"
@@ -633,6 +634,14 @@ const Settings: NextPage = (props) => {
             </span>
           )}
         </div>
+        <div className={styles.infoRow}>
+          <label>NFT lock time:</label>
+          <div>
+            <div>
+              <DurationPicker />
+            </div>
+          </div>
+        </div>
         <div className={styles.actionsRow}>
           <button disabled={!canDeploy || farmInfoFetching || isFarmContractDeploying} className={styles.secondaryButton} onClick={doDeployFarmContract}>
             {isFarmContractDeploying ? `Deploying Farm contract...` : `Deploy new farm contract`}
@@ -934,6 +943,11 @@ const Settings: NextPage = (props) => {
   /* -------------------------------------------- */
   //console.log('>>> storageData', storageData, showInstallBox, (storageData && !storageData.isInstalled), !isInstalledOnDomain)
 
+  const [ newDuration, setNewDuration ] = useState(536643)
+  useEffect(() => {
+    console.log('>>> newDuration', newDuration)
+  }, [ newDuration ])
+  
   if (isInstalledOnDomain) showInstallBox = false
   return (
     <div className={styles.container}>
@@ -978,6 +992,9 @@ const Settings: NextPage = (props) => {
                         })}
                       </ul>
                       <hr className={`${styles.divider} ${styles.spacerTop}`} />
+                      <div>
+                        <DurationPicker value={newDuration} onChange={setNewDuration} />
+                      </div>
                       {/* -------------------------------------------------*/ }
                       {activeTab === `main` && renderMainTab()}
                       {activeTab === `nftconfig` && tabNftCollection.render()}
