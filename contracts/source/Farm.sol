@@ -896,12 +896,11 @@ contract Farm is ReentrancyGuard, Pausable, Ownable {
             "You have no tokens staked"
         );
         require(stakerAddress[_tokenId] == msg.sender, "You don't own this token!");
-        if (lockEnabled) {
-            require(
-                (tokenStartStakeTime[_tokenId] + lockTime) > block.timestamp,
-                "Token lock time has not yet expired"
-            );
-        }
+
+        require(
+            (lockEnabled && ((tokenStartStakeTime[_tokenId] + lockTime) < block.timestamp)) || !lockEnabled,
+            "Token lock time has not yet expired"
+        );
 
         // Update the rewards for this user, as the amount of rewards decreases with less tokens.
         uint256 rewards = calculateRewards(msg.sender);
