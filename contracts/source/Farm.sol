@@ -802,6 +802,7 @@ contract Farm is ReentrancyGuard, Pausable, Ownable {
     struct StakedToken {
         address staker;
         uint256 tokenId;
+        uint256 stackeUtx;          // Время когда застейкали
     }
     // Staker info
     struct Staker {
@@ -817,19 +818,40 @@ contract Farm is ReentrancyGuard, Pausable, Ownable {
     // Rewards per hour per token deposited in wei
     uint256 public rewardsPerHour = 100000;
 
-    uint256 public version = 2;
+    uint256 public version = 3;
+
+    bool public lockEnabled = false;      // v3
+    uint256 public lockTime = 0;          // v3
     
     mapping(address => Staker) public stakers;
     // Mapping of tokenId to staker. For remember who to send back ther token
     mapping(uint256 => address) public stakerAddress;
+    // Mapping of tokenId to start stake time
+    mapping(uint256 => uint256) public tokenStartStakeTime;     // v3
 
-    constructor(address _nftCollection, IERC20 _rewardsToken, uint256 _rewardsPerHour) {
+    constructor(
+        address _nftCollection,
+        IERC20 _rewardsToken,
+        uint256 _rewardsPerHour,
+        bool _lockEnabled,         // v3
+        uint _lockTime             // v3
+    ) {
         nftCollection = IERC721(_nftCollection);
         nftCollectionAddress = _nftCollection;
         rewardsToken = _rewardsToken;
         rewardsPerHour = _rewardsPerHour;
+        lockTime = _lockTime;           // v3
+        lockEnabled = _lockEnabled;     // v3
     }
 
+    // v3
+    function setLockEnabled(bool _lockEnabled) external onlyOwner {
+        lockEnabled = _lockEnabled;
+    }
+    // v3
+    function setLockTime(uint256 _lockTime) external onlyOwner {
+        lockTime = _lockTime;
+    }
     function setRewardsPerHour(uint256 _rewardsPerHour) external onlyOwner {
         rewardsPerHour = _rewardsPerHour;
     }
@@ -847,10 +869,15 @@ contract Farm is ReentrancyGuard, Pausable, Ownable {
 
         nftCollection.transferFrom(_staker, address(this), _tokenId);
 
-        StakedToken memory stakedToken = StakedToken(_staker, _tokenId);
+        StakedToken memory stakedToken = StakedToken(
+            /* staker */        _staker,
+            /* tokenId */       _tokenId,
+            /* stackeUtx */     block.timestamp  // v3
+        );
         stakers[_staker].stakedTokens.push(stakedToken);
         stakers[_staker].amountStaked++;
         stakerAddress[_tokenId] = _staker;
+        tokenStartStakeTime[_tokenId] = block.timestamp;        // v3
         stakers[_staker].timeOfLastUpdate = block.timestamp;
     }
 
@@ -869,6 +896,12 @@ contract Farm is ReentrancyGuard, Pausable, Ownable {
             "You have no tokens staked"
         );
         require(stakerAddress[_tokenId] == msg.sender, "You don't own this token!");
+        if (lockEnabled) {
+            require(
+                (tokenStartStakeTime[_tokenId] + lockTime) > block.timestamp,
+                "Token lock time has not yet expired"
+            );
+        }
 
         // Update the rewards for this user, as the amount of rewards decreases with less tokens.
         uint256 rewards = calculateRewards(msg.sender);
@@ -891,6 +924,7 @@ contract Farm is ReentrancyGuard, Pausable, Ownable {
         stakers[msg.sender].stakedTokens[index].staker = address(0);
         stakers[msg.sender].amountStaked--;
         stakerAddress[_tokenId] = address(0);
+        tokenStartStakeTime[_tokenId] = 0;
 
         nftCollection.transferFrom(address(this), msg.sender, _tokenId);
         stakers[msg.sender].timeOfLastUpdate = block.timestamp;

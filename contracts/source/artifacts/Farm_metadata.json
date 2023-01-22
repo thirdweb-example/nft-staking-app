@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.7+commit.e28d00a7"
+		"version": "0.8.12+commit.f00d7308"
 	},
 	"language": "Solidity",
 	"output": {
@@ -20,6 +20,16 @@
 					{
 						"internalType": "uint256",
 						"name": "_rewardsPerHour",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "_lockEnabled",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_lockTime",
 						"type": "uint256"
 					}
 				],
@@ -125,11 +135,42 @@
 								"internalType": "uint256",
 								"name": "tokenId",
 								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "stackeUtx",
+								"type": "uint256"
 							}
 						],
 						"internalType": "struct Farm.StakedToken[]",
 						"name": "",
 						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "lockEnabled",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "lockTime",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
@@ -210,6 +251,32 @@
 			{
 				"inputs": [
 					{
+						"internalType": "bool",
+						"name": "_lockEnabled",
+						"type": "bool"
+					}
+				],
+				"name": "setLockEnabled",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_lockTime",
+						"type": "uint256"
+					}
+				],
+				"name": "setLockTime",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "uint256",
 						"name": "_rewardsPerHour",
 						"type": "uint256"
@@ -275,6 +342,25 @@
 					{
 						"internalType": "uint256",
 						"name": "unclaimedRewards",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "tokenStartStakeTime",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
 						"type": "uint256"
 					}
 				],
@@ -355,18 +441,18 @@
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": false,
-			"runs": 200
+			"enabled": true,
+			"runs": 99999
 		},
 		"remappings": []
 	},
 	"sources": {
 		"source/Farm.sol": {
-			"keccak256": "0x4f4fdb96cb622a711a0cd632d21a6f0b36adf3007c7bf2c94168d209ca497e2c",
+			"keccak256": "0xe4af0562c14f405ebc447c80378d2bdb06b283a8a01668e11051de82ff78f45d",
 			"license": "Unlicense",
 			"urls": [
-				"bzz-raw://7316f31c2e84564dccdde758005a4cc98832aaf50f5cddb96c9e4363a52a7c7d",
-				"dweb:/ipfs/QmYfHP44dm9Dfbsy13uMVpZrdXkHpYSrTASg7rPZFpfWvx"
+				"bzz-raw://9ef5fb6924997c18e0fd81a7bb08990c0ce273f61d348158d2242c6585aa968c",
+				"dweb:/ipfs/QmeNJWAtY1748DMb4dkS3dG6PJqvnWiB1ESwQgWJ4aez8q"
 			]
 		}
 	},

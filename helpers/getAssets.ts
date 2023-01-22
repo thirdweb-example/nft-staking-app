@@ -1,3 +1,3 @@
 export const getAssets = (url, assetKey) => {
-  return `/NFTFARMBUILDURL/assets/${url}`
+  return `/_MYAPP/assets/${url}`
 }
