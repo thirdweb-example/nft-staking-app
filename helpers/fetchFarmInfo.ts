@@ -15,16 +15,36 @@ const fetchFarmInfo = (address, chainId) => {
             contract.methods.owner().call().then((owner) => {
               contract.methods.version().call().then((version) => {
                 if (version >= 2) {
-                  contract.methods.rewardsPerHour().call().then((rewardsPerHour) => {
-                    resolve({
-                      address,
-                      chainId,
-                      nftCollection,
-                      rewardsToken,
-                      owner,
-                      version,
-                      rewardsPerHour,
-                    })
+                  contract.methods.rewardsPerHour().call().then( async (rewardsPerHour) => {
+                    if (version >=3) {
+                      try {
+                        const lockEnabled = await contract.methods.lockEnabled().call()
+                        const lockTime = await contract.methods.lockTime().call()
+                        resolve({
+                          address,
+                          chainId,
+                          nftCollection,
+                          rewardsToken,
+                          owner,
+                          version,
+                          rewardsPerHour,
+                          lockEnabled,
+                          lockTime,
+                        })
+                      } catch (err) {
+                        reject(err)
+                      }
+                    } else {
+                      resolve({
+                        address,
+                        chainId,
+                        nftCollection,
+                        rewardsToken,
+                        owner,
+                        version,
+                        rewardsPerHour,
+                      })
+                    }
                   }).catch((err) => {
                     reject(err)
                   })

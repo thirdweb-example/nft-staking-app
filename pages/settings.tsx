@@ -29,6 +29,7 @@ import fetchFarmInfo from "../helpers/fetchFarmInfo"
 import fetchTokenBalance from "../helpers/fetchTokenBalance"
 import deployFarmContract from "../helpers/deployFarmContract"
 import deployDemoNft from "../helpers/deployDemoNft"
+import { TimeToText } from "../helpers/TimeToText"
 import delay from "../helpers/delay"
 import { toWei, fromWei } from "../helpers/wei"
 import openInTab from "../components/openInTab"
@@ -918,6 +919,22 @@ const Settings: NextPage = (props) => {
                   <label>&nbsp;</label>
                   <span>Reward per hour in wei <b>{farmInfo.rewardsPerHour}</b> {rewardTokenInfo.symbol}</span> 
                 </div>
+              </>
+            )}
+            {(farmInfo.version >=3) && (
+              <>
+                <div className={styles.infoRow}>
+                  <label>NFT Lock enabled:</label>
+                  <span><b>{farmInfo.lockEnabled ? 'Yes' : 'No'}</b></span>
+                </div>
+                {farmInfo.lockEnabled && (
+                  <>
+                    <div className={styles.infoRow}>
+                      <label>NFT Lock time:</label>
+                      <span><b>{TimeToText(farmInfo.lockTime)} (In seconds is {farmInfo.lockTime})</b></span>
+                    </div>
+                  </>
+                )}
               </>
             )}
           </div>
