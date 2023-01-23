@@ -799,6 +799,11 @@ contract Farm is ReentrancyGuard, Pausable, Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
+    struct StakedToken_V1 {
+        address staker;
+        uint256 tokenId;
+    }
+
     struct StakedToken {
         address staker;
         uint256 tokenId;
@@ -948,7 +953,18 @@ contract Farm is ReentrancyGuard, Pausable, Ownable {
         rewardsToken.safeTransfer(msg.sender, rewards);
     }
 
-    function getStakedTokens(address _user) public view returns (StakedToken[] memory) {
+    function getStakedTokens(address _user) public view returns (StakedToken_V1[] memory) {
+        StakedToken[] memory _stakedTokens = getStakedTokens_V3(_user);
+        StakedToken_V1[] memory _stakedTokesV1_V2 = new StakedToken_V1[](_stakedTokens.length);
+        for(uint256 k = 0; k > _stakedTokens.length; k++) {
+            _stakedTokesV1_V2[k] = StakedToken_V1(
+                _stakedTokens[k].staker,
+                _stakedTokens[k].tokenId
+            );
+        }
+        return _stakedTokesV1_V2;
+    }
+    function getStakedTokens_V3(address _user) public view returns (StakedToken[] memory) {
         if (stakers[_user].amountStaked > 0) {
             StakedToken[] memory _stakedTokens = new StakedToken[](stakers[_user].amountStaked);
             uint256 _index = 0;

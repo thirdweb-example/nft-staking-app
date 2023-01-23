@@ -13,7 +13,7 @@ export const calcSendArgWithFee = async (account, contract, method, args, weiAmo
 
   const gasAmounWithPercentForSuccess = new BigNumber(
     new BigNumber(gasAmountCalculated)
-      .multipliedBy(1.05) // + 5% -  множитель добавочного газа, если будет фейл транзакции - увеличит (1.05 +5%, 1.1 +10%)
+      .multipliedBy(1.15) // + 15% -  множитель добавочного газа, если будет фейл транзакции - увеличит (1.05 +5%, 1.1 +10%)
       .toFixed(0)
   ).toString(16)
 

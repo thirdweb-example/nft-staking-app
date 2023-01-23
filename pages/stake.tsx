@@ -183,11 +183,12 @@ const Stake: NextPage = (props) => {
 
   const fetchStakedNfts = () => {
     debugLog('do fetchStakedNfts')
-    if (address && farmContract) {
+    if (address && farmContract && farmStatus) {
       setStakedNftsLoadError(false)
       setStakedNftsUrisLoadError(false)
       setStakedNftsLoading(true)
-      farmContract.methods.getStakedTokens(address).call().then((userStackedTokens) => {
+
+      farmContract.methods[(farmStatus.version >=3) ? 'getStakedTokens_V3' : 'getStakedTokens'](address).call().then((userStackedTokens) => {
         const userStackedTokensUtx = {}
 
         const userStackedTokensIds = userStackedTokens.map((stackInfo) => {
@@ -341,18 +342,26 @@ const Stake: NextPage = (props) => {
             func: `version`,
             args: []
           },
-          rewardsPerHour: {
-            func: `rewardsPerHour`,
-            args: []
-          },
-          lockEnabled: {
-            func: `lockEnabled`,
-            args: []
-          },
-          lockTime: {
-            func: `lockTime`,
-            args: []
-          },
+          ...((farmVersion >=2) ? 
+            {
+              rewardsPerHour: {
+                func: `rewardsPerHour`,
+                args: []
+              },
+            } : {}
+          ),
+          ...((farmVersion >=3) ?
+            {
+              lockEnabled: {
+                func: `lockEnabled`,
+                args: []
+              },
+              lockTime: {
+                func: `lockTime`,
+                args: []
+              },
+            } : {}
+          )
         }
         callMulticall({
           multicall: mcContract,
