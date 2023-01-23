@@ -139,6 +139,49 @@
 					},
 					{
 						"indexed": false,
+						"internalType": "address",
+						"name": "buyer",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "tokenUri",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "erc20",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					}
+				],
+				"name": "BuyWithERC20",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
 						"internalType": "uint256",
 						"name": "tokenId",
 						"type": "uint256"
@@ -201,6 +244,43 @@
 					}
 				],
 				"name": "PutUpForSale",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "tokenUri",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "erc20",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					}
+				],
+				"name": "PutUpForSaleWithERC20",
 				"type": "event"
 			},
 			{
@@ -289,6 +369,25 @@
 				"inputs": [
 					{
 						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "allowedERC20forSale",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
 						"name": "to",
 						"type": "address"
 					},
@@ -323,6 +422,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "bankAmount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
@@ -343,7 +455,27 @@
 						"type": "uint256"
 					}
 				],
+				"name": "buyNFTbyERC20",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
 				"name": "deSellNFT",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "flushRandom",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -541,6 +673,11 @@
 						"type": "string"
 					},
 					{
+						"internalType": "address",
+						"name": "erc20",
+						"type": "address"
+					},
+					{
 						"internalType": "uint256",
 						"name": "price",
 						"type": "uint256"
@@ -557,6 +694,40 @@
 						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string[]",
+						"name": "tokenURIs",
+						"type": "string[]"
+					},
+					{
+						"internalType": "address[]",
+						"name": "erc20",
+						"type": "address[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "prices",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "address",
+						"name": "seller",
+						"type": "address"
+					}
+				],
+				"name": "mintNFTForSellMany",
+				"outputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "",
+						"type": "uint256[]"
 					}
 				],
 				"stateMutability": "nonpayable",
@@ -765,6 +936,42 @@
 					}
 				],
 				"name": "setApprovalForAll",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "erc20",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "isAllowTrade",
+						"type": "bool"
+					}
+				],
+				"name": "setERC20forTrade",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address[]",
+						"name": "erc20",
+						"type": "address[]"
+					},
+					{
+						"internalType": "bool[]",
+						"name": "isAllowTrade",
+						"type": "bool[]"
+					}
+				],
+				"name": "setERC20forTradeMany",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -1013,6 +1220,30 @@
 				"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y"
 			]
 		},
+		"https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol": {
+			"keccak256": "0x00c839ff53d07d19db2e7cfa1e5133f9ee90a8d64b0e2e57f50446a2d1a3a0e0",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://3dac621d015a68a5251b1e5d41dda0faf252699bf6e8bcf46a958b29964d9dd1",
+				"dweb:/ipfs/QmP9axjgZv4cezAhALoTemM62sdLtMDJ9MGTxECnNwHgSJ"
+			]
+		},
+		"https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol": {
+			"keccak256": "0x35e258421ae206f3db37281cea70871b4c3553914734aa76139a41af60ac1abb",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://2ef94b6bc4ee356db612a1849c615f7dd4b15542d6c8584c86bb9243a7913cf0",
+				"dweb:/ipfs/QmaxFj5NFpAjjitZtHPNS9PPtCuBATaRz9ktDDRCQCQ83y"
+			]
+		},
+		"https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol": {
+			"keccak256": "0x41506aed9d344097236aaff05216674af38e177288787519d49b71f6396c4af8",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://47a4a1d11e3e7c610b12da694f3d406527027e7963cfb7bf302af0b902615d7e",
+				"dweb:/ipfs/QmeDwStpqytetvjaq7KA7cQRVPDwxmZySYdEXkvw2DDxsr"
+			]
+		},
 		"https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol": {
 			"keccak256": "0x5b58c0def48629fb952407199c42b974af2c49cf554a5027312df3fbf05eec28",
 			"license": "MIT",
@@ -1118,11 +1349,11 @@
 			]
 		},
 		"source/StakeNFT.sol": {
-			"keccak256": "0x8f09775e74485791c2411606773f0970da6e62318168ffa2be6f7d006b54cb74",
+			"keccak256": "0xe6011622246bb0ddbd9972ed97268f79bb2731b112925dfeef139e6f51121f91",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://2e9efb41a149384d9d7af150c40f087fd0118f5027116b8f01933cc50d85d8f9",
-				"dweb:/ipfs/QmWvn2SJsQD4kYdyX7u4ZyCrbMo9NVkSPUwEv3p4RE5S1T"
+				"bzz-raw://40c3be64a63704b8727ac33fa312415ca358a21bdec0e7631e861f3d927ef828",
+				"dweb:/ipfs/QmY14BGrY76WmVDj56yaLszLf1TfZ9mVTKicBUmhMY7eRH"
 			]
 		}
 	},

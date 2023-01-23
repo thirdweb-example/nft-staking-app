@@ -4,13 +4,19 @@ pragma solidity ^0.8.1;
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/utils/Counters.sol";
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/access/Ownable.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/utils/Strings.sol";
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
 
 contract StakeNFT is ERC721URIStorage, Ownable {
+    using SafeERC20 for IERC20;
     event Mint(address owner, uint256 tokenId, string tokenUri);
     event Buy(address owner, address buyer, uint256 tokenId, string tokenUri, uint256 price);
+    event BuyWithERC20(address owner, address buyer, uint256 tokenId, string tokenUri, address erc20, uint256 price);
     event PutUpForSale(address owner, uint256 tokenId, string tokenUri, uint256 price);
+    event PutUpForSaleWithERC20(address owner, uint256 tokenId, string tokenUri, address erc20, uint256 price);
     event WithdrawFromSale(address owner, uint256 tokenId, string tokenUri);
     event WithdrawBank(address to, uint256 amount);
     
@@ -34,7 +40,11 @@ contract StakeNFT is ERC721URIStorage, Ownable {
     mapping(uint256 => bool) private _isTokensAtSale;
     mapping(uint256 => SelledNFT) private _tokensAtSale;
 
-    bytes32 _prevSeed = 0x0000000000000000000000000000000000000000000000000000000000000000;
+    mapping(address => bool) public allowedERC20forSale;
+
+    bytes32 private _prevSeed = 0x0000000000000000000000000000000000000000000000000000000000000000;
+    bytes32 private _prevRS   = 0x0000000000000000000000000000000000000000000000000000000000000000;
+
     string[] private _mintUris;
     uint256 private _mintPrice = 0;
 
@@ -50,6 +60,25 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         _mintPrice = __mintPrice;
         _allowTrade = __allowTrade;
         _allowMint = __allowMint;
+    }
+
+    function setERC20forTrade(address erc20, bool isAllowTrade) public onlyOwner {
+        allowedERC20forSale[erc20] = isAllowTrade;
+    }
+    
+    function setERC20forTradeMany(
+        address[] memory erc20,
+        bool[] memory isAllowTrade
+    ) public onlyOwner {
+        require(erc20.length > 0, "Empty list");
+        require(erc20.length == isAllowTrade.length, "Length of ERC20 must be equal of isAllowTrade length");
+        for (uint256 i = 0; i < erc20.length ; i++) {
+            allowedERC20forSale[erc20[i]] = isAllowTrade[i];
+        }
+    }
+
+    function bankAmount() public view returns(uint256) {
+        return address(this).balance;
     }
 
     function withdrawBank() public onlyOwner {
@@ -86,21 +115,49 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         MAX_SUPPLY = _newMaxSupply;
     }
 
-    function getRandom(bytes32 _seed, uint256 maxValue) private returns (uint256){
-        uint256 randomness = uint(keccak256(abi.encodePacked(
+    function getAllowance(address erc20) view private returns(uint256) {
+        IERC20 token = IERC20(erc20);
+        uint256 allowance = token.allowance(msg.sender,address(this));
+        return allowance;
+    }
+
+    function flushRandom() public {
+        uint256 randomness = uint256(keccak256(abi.encodePacked(
             block.timestamp,
-            _seed,
             _prevSeed,
+            _prevRS,
             blockhash(block.number),
             block.coinbase,
             block.difficulty,
             block.gaslimit,
             tx.gasprice,
             _tokenIds.current(),
-            _mintUris.length
+            msg.sender,
+            _mintUris.length,
+            gasleft()
         )));
+        _prevRS = bytes32(randomness);
+    }
+    function getRandom(bytes32 _seed, uint256 maxValue) private returns (uint256){
+        uint256 randomnessL1 = uint256(keccak256(abi.encodePacked(
+            block.timestamp,
+            _seed,
+            _prevSeed,
+            _prevRS,
+            blockhash(block.number),
+            block.coinbase,
+            block.difficulty,
+            block.gaslimit,
+            tx.gasprice,
+            _tokenIds.current(),
+            msg.sender,
+            _mintUris.length,
+            gasleft()
+        )));
+
         _prevSeed = _seed;
-        uint256 rand = randomness % maxValue;
+        _prevRS = bytes32(randomnessL1);
+        uint256 rand = randomnessL1 % maxValue;
         return rand;
     }
     
@@ -169,14 +226,34 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         return _ret;
     }
 
-    /*
     function buyNFTbyERC20(uint _tokenId)
         public
-        pure
     {
-        require(1 == 2, "Not implemented");
+        require(_allowTrade == true, "Trade not allowed");
+        require(address(this) == ownerOf(_tokenId), "This NFT not at sale board");
+        require(_isTokensAtSale[_tokenId] == true, "This NFT is not for sale");
+        require(_tokensAtSale[_tokenId].erc20 != address(0), "This token selled by Native coin");
+
+        IERC20 payToken = IERC20(_tokensAtSale[_tokenId].erc20);
+        uint256 buyerBalance = payToken.balanceOf(msg.sender);
+        require(buyerBalance >= _tokensAtSale[_tokenId].price, "You do not have enough tokens on your balance to pay");
+        uint256 buyerAllowance = payToken.allowance(msg.sender, address(this));
+        require(buyerAllowance >= _tokensAtSale[_tokenId].price, "You did not allow the contract to send the purchase amount");
+        
+
+        payToken.safeTransferFrom(
+            address(msg.sender),
+            address(_tokensAtSale[_tokenId].seller),
+            _tokensAtSale[_tokenId].price
+        );
+        _transfer(address(this), msg.sender, _tokenId);
+        _isTokensAtSale[_tokenId] = false;
+        
+        emit BuyWithERC20(_tokensAtSale[_tokenId].seller, msg.sender, _tokenId, _tokensAtSale[_tokenId].uri, _tokensAtSale[_tokenId].erc20, _tokensAtSale[_tokenId].price);
+
+        _clearSellToken(_tokenId);
     }
-    */
+
 
     function buyNFT(uint256 _tokenId)
         public
@@ -193,12 +270,11 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         // check this is not sell by ERC20
         require(_tokensAtSale[_tokenId].erc20 == address(0), "This token selled by ERC20");
         
-        
-        _transfer(address(this), msg.sender, _tokenId);
-        _isTokensAtSale[_tokenId] = false;
-        
 
         payable(_tokensAtSale[_tokenId].seller).transfer(msg.value);
+        _transfer(address(this), msg.sender, _tokenId);
+        _isTokensAtSale[_tokenId] = false;
+
         emit Buy(_tokensAtSale[_tokenId].seller, msg.sender, _tokenId, _tokensAtSale[_tokenId].uri, _tokensAtSale[_tokenId].price);
 
         _clearSellToken(_tokenId);
@@ -213,6 +289,8 @@ contract StakeNFT is ERC721URIStorage, Ownable {
     {
         require(_allowTrade == true, "Trade not allowed");
         require(msg.sender == ownerOf(_tokenId), "This is not your NFT");
+        require(price > 0, "Price must be greater than zero");
+        require(allowedERC20forSale[_erc20] == true, "This ERC20 not allowed as a trading currency");
 
         _isTokensAtSale[_tokenId] = true;
         _tokensAtSale[_tokenId] = SelledNFT(
@@ -223,6 +301,8 @@ contract StakeNFT is ERC721URIStorage, Ownable {
             _erc20
         );
         _transfer(msg.sender, address(this), _tokenId);
+
+        emit PutUpForSaleWithERC20(msg.sender, _tokenId, _tokensAtSale[_tokenId].uri, _erc20, price);
     }
 
     function sellNFT(
@@ -284,8 +364,54 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         return newItemId;
     }
 
+    function mintNFTForSellMany(
+        string[] memory tokenURIs,
+        address[] memory erc20,
+        uint256[] memory prices,
+        address seller
+    )
+        public onlyOwner
+        returns (uint256[] memory)
+    {
+        require((tokenURIs.length == erc20.length) && (erc20.length == prices.length), "URIs length, ERC20 length and Prices length not equal");
+
+        for (uint256 i = 0; i < prices.length; i++) {
+            require( prices[i] > 0, string.concat("Price must be great than zero. Price index #", Strings.toString(i)) );
+        }
+        uint256[] memory ret = new uint256[](tokenURIs.length);
+        address tokenOwner = (seller == address(0)) ? owner() : seller;
+
+        for (uint256 i = 0; i < prices.length; i++) {
+            _tokenIds.increment();
+
+            uint256 newItemId = _tokenIds.current();
+            _mint(address(this), newItemId);
+            _setTokenURI(newItemId, tokenURIs[i]);
+            _isTokensAtSale[newItemId] = true;
+
+            _tokensAtSale[newItemId] = SelledNFT(
+                newItemId,
+                tokenURIs[i],
+                tokenOwner,
+                prices[i],
+                erc20[i]
+            );
+
+            emit Mint(tokenOwner, newItemId, tokenURIs[i]);
+            if (erc20[i] == address(0)) {
+                emit PutUpForSale(tokenOwner, newItemId, tokenURIs[i], prices[i]);
+            } else {
+                emit PutUpForSaleWithERC20(tokenOwner, newItemId, tokenURIs[i], erc20[i], prices[i]);
+            }
+            ret[i] = newItemId;
+        }
+        fixTotalSupploy();
+        return ret;
+    }
+
     function mintNFTForSell(
         string memory tokenURI,
+        address erc20,
         uint256 price,
         address seller
     ) 
@@ -293,6 +419,7 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         returns (uint256)
     {
         require(price > 0, "Price must be great than zero");
+        require(allowedERC20forSale[erc20] == true, "This ERC20 not allow for trade");
 
         _tokenIds.increment();
 
@@ -308,12 +435,16 @@ contract StakeNFT is ERC721URIStorage, Ownable {
             tokenURI,
             tokenOwner,
             price,
-            address(0)
+            erc20
         );
 
         fixTotalSupploy();
         emit Mint(tokenOwner, newItemId, tokenURI);
-        emit PutUpForSale(tokenOwner, newItemId, tokenURI, price);
+        if (erc20 == address(0)) {
+            emit PutUpForSale(tokenOwner, newItemId, tokenURI, price);
+        } else {
+            emit PutUpForSaleWithERC20(tokenOwner, newItemId, tokenURI, erc20, price);
+        }
         return newItemId;
     }
 
