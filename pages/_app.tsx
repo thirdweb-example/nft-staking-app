@@ -42,6 +42,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   /* Confirm window */
   const [ isConfirmWindowOpened, setIsConfirmWindowOpened ] = useState(false)
   const [ confirmWindowLabels, setConfirmWindowLabels ] = useState(defaultConfirmWindowLabels)
+  const [ isConfirmWindowOk, setIsConfirmWindowOk ] = useState(false)
 
 
   const onConfirmWindowConfirm = () => {
@@ -61,6 +62,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     console.log(options)
     confirmWindowOnConfirm = (onConfirm) ? onConfirm : () => {}
     confirmWindowOnCancel = (onCancel) ? onCancel : () => {}
+    setIsConfirmWindowOk(options.isOk)
     setConfirmWindowLabels({
       title: options.title || defaultConfirmWindowLabels.title,
       message: options.message || defaultConfirmWindowLabels.message,
@@ -232,9 +234,11 @@ function MyApp({ Component, pageProps }: AppProps) {
               <button className={`${styles.mainButton} primaryButton`} onClick={onConfirmWindowConfirm}>
                 {confirmWindowLabels.ok}
               </button>
-              <button className={`${styles.mainButton} primaryButton`} onClick={onConfirmWindowCancel}>
-                {confirmWindowLabels.cancel}
-              </button>
+              {!isConfirmWindowOk && (
+                <button className={`${styles.mainButton} primaryButton`} onClick={onConfirmWindowCancel}>
+                  {confirmWindowLabels.cancel}
+                </button>
+              )}
             </div>
           </div>
         </div>

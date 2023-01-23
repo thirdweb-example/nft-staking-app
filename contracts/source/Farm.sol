@@ -843,7 +843,6 @@ contract Farm is ReentrancyGuard, Pausable, Ownable {
         lockTime = _lockTime;           // v3
         lockEnabled = _lockEnabled;     // v3
     }
-
     // v3
     function setLockEnabled(bool _lockEnabled) external onlyOwner {
         lockEnabled = _lockEnabled;

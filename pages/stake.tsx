@@ -10,19 +10,8 @@ import logoBlock from "../components/logoBlock"
 import useStorage from "../storage/"
 import nftToken from "../components/nftToken"
 
-
-// Eth-testnet
-//const chainId = 0;//5;
-//const nftDropContractAddress = "" //"0xefeffe4d50392998efe4cf46b6fbaa19a58a041a"
-//const tokenContractAddress = "" //"0xaFF4481D10270F50f203E0763e2597776068CBc5"
-//const stakingContractAddress = "" //"0x8b740b4ad15e2201f291cbfc487977b0ecb5fc84"
-// Bnb-testnet
-/*
-const chainId = 97;
-const nftDropContractAddress = "0x7682598A861336359740C08b3D1C5981F9473979"
-const tokenContractAddress = "0x703f112bda4cc6cb9c5fb4b2e6140f6d8374f10b"
-const stakingContractAddress = "0xAcf15259F8B99094b7051679a9e60B2F270558ce"
-*/
+import { getUnixTimestamp } from "../helpers/getUnixTimestamp"
+import { callMulticall } from "../helpers/callMulticall"
 
 import TokenAbi from 'human-standard-token-abi'
 import ERC721Abi from '../contracts/ERC721Abi.json'
@@ -33,6 +22,8 @@ import { MULTICALL_CONTRACTS } from '../helpers/constants'
 import { Interface as AbiInterface } from '@ethersproject/abi'
 
 const ERC721_INTERFACE = new AbiInterface(ERC721Abi)
+
+const FARM_INTERFACE = new AbiInterface(FarmContractData.abi)
 
 const debugLog = (msg) => { console.log(msg) }
 
@@ -60,6 +51,10 @@ const Stake: NextPage = (props) => {
   const [nftContract, setNftContract] = useState(false)
   const [mcContract, setMcContract] = useState(false)
 
+  const [farmStatus, setFarmStatus] = useState(false)
+  const [farmStatusFetching, setFarmStatusFetching] = useState(false)
+  const [farmStatusFetched, setFarmStatusFetched] = useState(false)
+  
   const [claimableRewards, setClaimableRewards] = useState(false)
   const [claimableRewardsLoading, setClaimableRewardsLoading] = useState(true)
   const [claimableRewardsError, setClaimableRewardsError] = useState(false)
@@ -80,6 +75,7 @@ const Stake: NextPage = (props) => {
   const [stakedNftsLoading, setStakedNftsLoading] = useState(true)
   const [stakedNftsLoadError, setStakedNftsLoadError] = useState(false)
   const [stakedNfts, setStakedNfts] = useState([])
+  const [stakedNftsUtx, setStakedNftsUtx] = useState([])
 
   const [stakedNftsUris, setStakedNftsUris] = useState({})
   const [stakedNftsUrisFetching, setStakedNftsUrisFetching] = useState(false)
@@ -192,13 +188,18 @@ const Stake: NextPage = (props) => {
       setStakedNftsUrisLoadError(false)
       setStakedNftsLoading(true)
       farmContract.methods.getStakedTokens(address).call().then((userStackedTokens) => {
-        userStackedTokens = userStackedTokens.map((stackInfo) => { return stackInfo.tokenId })
+        const userStackedTokensUtx = {}
 
-        setStakedNfts(userStackedTokens)
+        const userStackedTokensIds = userStackedTokens.map((stackInfo) => {
+          userStackedTokensUtx[stackInfo.tokenId] = stackInfo.stackeUtx
+          return stackInfo.tokenId
+        })
+        setStakedNftsUtx(userStackedTokensUtx)
+        setStakedNfts(userStackedTokensIds)
         setStakedNftsLoading(false)
         setStakedNftsUrisFetching(true)
 
-        fetchTokenUris(userStackedTokens).then((tokenUris) => {
+        fetchTokenUris(userStackedTokensIds).then((tokenUris) => {
           setStakedNftsUris(tokenUris)
           setStakedNftsUrisFetching(false)
         }).catch((e) => {
@@ -229,7 +230,7 @@ const Stake: NextPage = (props) => {
   }
 
   const fetchTokenUris = (tokenIds) => {
-    debugLog('do fetchTokenUris')
+    debugLog('do fetchTokenUris', tokenIds)
     return new Promise((resolve, reject) => {
       if (address && nftContract && mcContract) {
         const urisCalls = tokenIds.map((tokenId) => {
@@ -319,7 +320,60 @@ const Stake: NextPage = (props) => {
 
   useEffect(() => {
     fetchUserNfts()
+    if (!farmStatus && !farmStatusFetched && !farmStatusFetching) {
+      fetchFarmStatus()
+    }
   }, [address, nftContract, mcContract, farmContract, stakedNftsLoading])
+
+
+  
+
+  const fetchFarmStatus = () => {
+    if (farmContract && mcContract) {
+      setFarmStatusFetched(false)
+      setFarmStatusFetching(true)
+      farmContract.methods.version().call().then((farmVersion) => {
+        console.log('>>> farmVersion', farmVersion)
+        const farmAddress = storageData.farmContract
+
+        const mcCalls = {
+          version: {
+            func: `version`,
+            args: []
+          },
+          rewardsPerHour: {
+            func: `rewardsPerHour`,
+            args: []
+          },
+          lockEnabled: {
+            func: `lockEnabled`,
+            args: []
+          },
+          lockTime: {
+            func: `lockTime`,
+            args: []
+          },
+        }
+        callMulticall({
+          multicall: mcContract,
+          target: storageData.farmContract,
+          encoder: FARM_INTERFACE,
+          calls: mcCalls
+        }).then((answer) => {
+          setFarmStatus(answer)
+          setFarmStatusFetched(true)
+          setFarmStatusFetching(false)
+          console.log(answer)
+        }).catch((err) => {
+          setFarmStatusFetching(false)
+          console.log('>>> err', err)
+        })
+      }).catch((e) => {
+        setFarmStatusFetching(false)
+        console.log('>>> fail fetchFarmStatus', e)
+      })
+    }
+  }
 
   const fetchRewardTokenInfoAndBalance = () => {
     if(rewardTokenContract) {
@@ -353,10 +407,14 @@ const Stake: NextPage = (props) => {
   }, [rewardTokenContract])
 
   useEffect(() => {
+    if (farmStatusFetched && farmStatus) fetchStakedNfts()
+  }, [ farmStatusFetched ])
+
+  useEffect(() => {
     if (farmContract && address) {
       debugLog('on useEffect farmContract && address')
       fetchAvailableReward()
-      fetchStakedNfts()
+      // fetchFarmStatus()
     }
   }, [address, farmContract])
 
@@ -432,6 +490,12 @@ const Stake: NextPage = (props) => {
             const _stakedNfts = stakedNfts
             _stakedNfts.push(id)
             setStakedNfts(_stakedNfts)
+            setStakedNftsUtx((prev) => {
+              return {
+                ...prev,
+                [`${id}`]: getUnixTimestamp()
+              }
+            })
             setStakedNftsUris({
               ...stakedNftsUris,
               [`${id}`]: ownedNftsUris[id],
@@ -502,6 +566,12 @@ const Stake: NextPage = (props) => {
           const _ownedNtfs = ownedNfts
           _ownedNtfs.push(id)
           setOwnedNfts(_ownedNtfs)
+          setStakedNftsUtx((prev) => {
+            return {
+              ...prev,
+              [`${id}`]: 0
+            }
+          })
           setStakedNfts(stakedNfts.filter((tokenId) => { return tokenId !== id }))
           setOwnedNftsUris({
             ...ownedNftsUris,
@@ -695,6 +765,9 @@ const Stake: NextPage = (props) => {
                         isDeStaking: isDeStakingDo,
                         isApproveDo,
                         isApproveId,
+                        farmStatus,
+                        tokenUtx: stakedNftsUtx[tokenId] ? stakedNftsUtx[tokenId] : false,
+                        openConfirmWindow,
                       })
                     })}
                   </>

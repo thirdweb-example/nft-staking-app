@@ -1,6 +1,8 @@
 import styles from "../styles/Home.module.css"
 import isImageUrl from "../helpers/isImageUrl"
 import { getLink } from "../helpers/getLink"
+import { getUnixTimestamp } from "../helpers/getUnixTimestamp"
+import { TimeToText } from "../helpers/TimeToText"
 
 const nftToken = (options) => {
   const {
@@ -17,7 +19,28 @@ const nftToken = (options) => {
     isApproveDo,
     isApproveId,
     isMinted,
+    farmStatus,
+    tokenUtx,
+    openConfirmWindow,
   } = options
+
+  let isLocked = false
+  if (farmStatus && farmStatus.version >= 3) {
+    if (farmStatus.lockEnabled) {
+      if (getUnixTimestamp() < (Number(tokenUtx) + Number(farmStatus.lockTime))) {
+        isLocked = true
+      }
+    }
+  }
+  const onLocked = () => {
+    const lockTimeUtx = (Number(tokenUtx) + Number(farmStatus.lockTime)) - getUnixTimestamp()
+    openConfirmWindow({
+      title: `NFT token is locked`,
+      message: `This token is currently locked. You can withdraw him out of the farm in ${TimeToText(lockTimeUtx)}`,
+      isOk: true
+    })
+  }
+
   return (
     <div className={`${styles.nftBox} nftTokenBox`} key={tokenId.toString()}>
       {tokenUri !== false && isImageUrl(tokenUri) ? (
@@ -45,17 +68,25 @@ const nftToken = (options) => {
       ) : (
         <>
           {onDeStake !== null && (
-            <button
-              disabled={isDeStaking || isStaking || isApproveDo}
-              className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
-              onClick={onDeStake}
-            >
-              {(isDeStaking && (deStakeId === tokenId)) ? (
-                <>De-staking...</>
+            <>
+              {isLocked ? (
+                <button onClick={onLocked} className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}>
+                  Locked
+                </button>
               ) : (
-                <>De-stake</>
+                <button
+                  disabled={isDeStaking || isStaking || isApproveDo}
+                  className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
+                  onClick={onDeStake}
+                >
+                  {(isDeStaking && (deStakeId === tokenId)) ? (
+                    <>De-staking...</>
+                  ) : (
+                    <>De-stake</>
+                  )}
+                </button>
               )}
-            </button>
+            </>
           )}
           {onStake !== null && (
             <button
