@@ -36,6 +36,11 @@
 						"internalType": "bool",
 						"name": "__allowMint",
 						"type": "bool"
+					},
+					{
+						"internalType": "address[]",
+						"name": "_erc20fortrade",
+						"type": "address[]"
 					}
 				],
 				"stateMutability": "nonpayable",
@@ -474,7 +479,13 @@
 				"type": "function"
 			},
 			{
-				"inputs": [],
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "_flushSeed",
+						"type": "bytes32"
+					}
+				],
 				"name": "flushRandom",
 				"outputs": [],
 				"stateMutability": "nonpayable",
@@ -553,7 +564,93 @@
 			},
 			{
 				"inputs": [],
-				"name": "getTokensAtSell",
+				"name": "getMyTokensAtSale",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "tokenId",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "uri",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "seller",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "price",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "erc20",
+								"type": "address"
+							}
+						],
+						"internalType": "struct StakeNFT.SelledNFT[]",
+						"name": "ret",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getTokensAtSale",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "tokenId",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "uri",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "seller",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "price",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "erc20",
+								"type": "address"
+							}
+						],
+						"internalType": "struct StakeNFT.SelledNFT[]",
+						"name": "ret",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "seller",
+						"type": "address"
+					}
+				],
+				"name": "getUserTokensAtSale",
 				"outputs": [
 					{
 						"components": [
@@ -1349,11 +1446,11 @@
 			]
 		},
 		"source/StakeNFT.sol": {
-			"keccak256": "0xe6011622246bb0ddbd9972ed97268f79bb2731b112925dfeef139e6f51121f91",
+			"keccak256": "0x635f3b1f405131a81e1302aab5e3b95c7b49cd2e567fac403b4d8aadd9122c1b",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://40c3be64a63704b8727ac33fa312415ca358a21bdec0e7631e861f3d927ef828",
-				"dweb:/ipfs/QmY14BGrY76WmVDj56yaLszLf1TfZ9mVTKicBUmhMY7eRH"
+				"bzz-raw://135115a9b2eea124727ae813f37df88ef1c3d2278dde9902c43a11b583b4e07b",
+				"dweb:/ipfs/QmPVA2gcde4sBBqbdKUwU8J8mKdxX2k23VR7aMXkvKsUa8"
 			]
 		}
 	},

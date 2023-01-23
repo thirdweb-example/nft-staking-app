@@ -43,6 +43,7 @@ contract StakeNFT is ERC721URIStorage, Ownable {
     mapping(address => bool) public allowedERC20forSale;
 
     bytes32 private _prevSeed = 0x0000000000000000000000000000000000000000000000000000000000000000;
+    bytes32 private _curRS    = 0x0000000000000000000000000000000000000000000000000000000000000000;
     bytes32 private _prevRS   = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
     string[] private _mintUris;
@@ -54,12 +55,16 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         uint256 __maxSupply,
         uint256 __mintPrice,
         bool __allowTrade,
-        bool __allowMint
+        bool __allowMint,
+        address[] memory _erc20fortrade
     ) ERC721(__name, __symbol) {
         MAX_SUPPLY = __maxSupply;
         _mintPrice = __mintPrice;
         _allowTrade = __allowTrade;
         _allowMint = __allowMint;
+        for (uint i = 0; i < _erc20fortrade.length; i++) {
+            allowedERC20forSale[_erc20fortrade[i]] = true;
+        }
     }
 
     function setERC20forTrade(address erc20, bool isAllowTrade) public onlyOwner {
@@ -121,11 +126,24 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         return allowance;
     }
 
-    function flushRandom() public {
+    /*
+        Нужно вызвать один раз и переодически вызывать для генерации внутренего сида
+        _prevRS, _curRS приватный, не доступен из вне
+        Обычный человек, не имеющий под контролем подавляющее число валидаторов (майнеров) не может угадать
+        сколько в момент этой транзакции было в?:
+            _prevSeed
+            _prevRS
+            _curRS
+            _tokenIds.current()
+            _mintUris.length
+    */
+    function flushRandom(bytes32 _flushSeed) public onlyOwner {
         uint256 randomness = uint256(keccak256(abi.encodePacked(
             block.timestamp,
             _prevSeed,
             _prevRS,
+            _curRS,
+            _flushSeed,
             blockhash(block.number),
             block.coinbase,
             block.difficulty,
@@ -136,13 +154,16 @@ contract StakeNFT is ERC721URIStorage, Ownable {
             _mintUris.length,
             gasleft()
         )));
-        _prevRS = bytes32(randomness);
+        _prevRS = _curRS;
+        _curRS = bytes32(randomness);
     }
+
     function getRandom(bytes32 _seed, uint256 maxValue) private returns (uint256){
         uint256 randomnessL1 = uint256(keccak256(abi.encodePacked(
             block.timestamp,
             _seed,
             _prevSeed,
+            _curRS,
             _prevRS,
             blockhash(block.number),
             block.coinbase,
@@ -156,7 +177,6 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         )));
 
         _prevSeed = _seed;
-        _prevRS = bytes32(randomnessL1);
         uint256 rand = randomnessL1 % maxValue;
         return rand;
     }
@@ -189,13 +209,48 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         return _tokenIds.current();
     }
 
-    function fixTotalSupploy()
+    function fixTotalSupply()
         private
     {
         if (_tokenIds.current() >= MAX_SUPPLY) MAX_SUPPLY = _tokenIds.current() + 1;
     }
 
-    function getTokensAtSell()
+    function getMyTokensAtSale() external view returns (SelledNFT[] memory ret) {
+        return getUserTokensAtSale(msg.sender);
+    }
+
+    function getUserTokensAtSale(address seller)
+        public view
+        returns (SelledNFT[] memory ret)
+    {
+        uint256 _counter = 0;
+        for (uint256 _tokenId = 0; _tokenId < MAX_SUPPLY; _tokenId++) {
+            if (_isTokensAtSale[_tokenId] && _tokensAtSale[_tokenId].seller == seller) {
+                _counter++;
+            }
+        }
+        
+        SelledNFT[] memory _ret = new SelledNFT[](_counter);
+        _counter = 0;
+
+        for (uint256 _tokenId = 0; _tokenId < MAX_SUPPLY; _tokenId++) {
+            if (_isTokensAtSale[_tokenId] && _tokensAtSale[_tokenId].seller == seller) {
+                SelledNFT memory _pushItem = SelledNFT(
+                    _tokenId,
+                    _tokensAtSale[_tokenId].uri,
+                    _tokensAtSale[_tokenId].seller,
+                    _tokensAtSale[_tokenId].price,
+                    _tokensAtSale[_tokenId].erc20
+                );
+                _ret[_counter] = _pushItem;
+                _counter++;
+            }
+        }
+
+        return _ret;
+    }
+
+    function getTokensAtSale()
         external view
         returns (SelledNFT[] memory ret)
     {
@@ -359,7 +414,7 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         _mint(msg.sender, newItemId);
         _setTokenURI(newItemId, _mintUris[_randUri]);
 
-        fixTotalSupploy();
+        fixTotalSupply();
         emit Mint(msg.sender, newItemId, tokenURI(newItemId));
         return newItemId;
     }
@@ -405,7 +460,7 @@ contract StakeNFT is ERC721URIStorage, Ownable {
             }
             ret[i] = newItemId;
         }
-        fixTotalSupploy();
+        fixTotalSupply();
         return ret;
     }
 
@@ -438,7 +493,7 @@ contract StakeNFT is ERC721URIStorage, Ownable {
             erc20
         );
 
-        fixTotalSupploy();
+        fixTotalSupply();
         emit Mint(tokenOwner, newItemId, tokenURI);
         if (erc20 == address(0)) {
             emit PutUpForSale(tokenOwner, newItemId, tokenURI, price);
@@ -458,7 +513,7 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         _mint(recipient, newItemId);
         _setTokenURI(newItemId, tokenURI);
 
-        fixTotalSupploy();
+        fixTotalSupply();
         emit Mint(recipient, newItemId, tokenURI);
         return newItemId;
     }
