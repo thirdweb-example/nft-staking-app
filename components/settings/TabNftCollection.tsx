@@ -13,6 +13,7 @@ import deployNft from "../../helpers/deployNft"
 import { toWei, fromWei } from "../../helpers/wei"
 import isImageUrl from "../../helpers/isImageUrl"
 import callNftMethod from "../../helpers/callNftMethod"
+import fetchTokensListInfo from "../../helpers/fetchTokensListInfo"
 import FaIcon from "../FaIcon"
 import MintNftForSale from "./MintNftForSale"
 import List from "../List"
@@ -120,6 +121,10 @@ export default function TabNftCollection(options) {
       setNftInfoFetched(true)
       setNftInfoFetching(false)
       if (answ.isNFTStakeToken && answ.NFTStakeInfo) {
+        fetchTokensListInfo({
+          erc20list: answ.NFTStakeInfo.allowedERC20,
+          chainId: nftChainId
+        })
         processNftInfo(answ)
       }
     }).catch((err) => {
@@ -292,6 +297,7 @@ export default function TabNftCollection(options) {
 
   const mintNftForSale = new MintNftForSale({
     nftAddress: nftCollection,
+    nftInfo: nftInfo.NFTStakeInfo,
     chainId: nftChainId,
     openConfirmWindow,
     addNotify,

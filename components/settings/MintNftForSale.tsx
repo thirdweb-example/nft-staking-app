@@ -6,18 +6,24 @@ import { CHAIN_INFO, ZERO_ADDRESS } from "../../helpers/constants"
 import { useStateString, useStateCurrency } from "../../helpers/useState"
 import callNftMethod from "../../helpers/callNftMethod"
 import { toWei, fromWei } from "../../helpers/wei"
+import fetchTokensListInfo from "../../helpers/fetchTokensListInfo"
 import FormTabs from "../FormTabs"
+import MintManyNftForSale from "./MintManyNftForSale"
+import ImageInput from "../ImageInput"
 
 
 export default function MintNftForSale(options) {
   const {
     nftAddress,
+    nftInfo,
     chainId,
     openConfirmWindow,
     addNotify,
     getActiveChain
   } = options
 
+  const { allowedERC20 } = nftInfo || {}
+  
   const [ isOpened, setIsOpened ] = useState(false)
   const onToggleOpen = () => {
     setIsOpened(!isOpened)
@@ -25,10 +31,33 @@ export default function MintNftForSale(options) {
 
   const [ tokenUri, setTokenUri, hasTokenUriError ] = useStateString(``, { notEmpty: true })
   const [ tokenPrice, setTokenPrice, hasTokenPriceError ] = useStateCurrency(0, { notZero: true } )
+  const [ tokenCurrency, setTokenCurrency ] = useState(ZERO_ADDRESS)
   const [ isNftMinting, setIsNftMinting] = useState(false)
+  const [ isAllowedERC20Fetched, setIsAllowedERC20Fetched ] = useState(false)
+  const [ isAllowedERC20Fetching, setIsAllowedERC20Fetching ] = useState(false)
+  const [ allowedERC20Info, setAllowedERC20Info ] = useState({}) 
 
   useEffect(() => {
-  }, [])
+    if (nftInfo && nftInfo.allowedERC20 && !isAllowedERC20Fetching) {
+      if (nftInfo.allowedERC20.length > 0) {
+        fetchTokensListInfo({
+          erc20list: nftInfo.allowedERC20,
+          chainId,
+        }).then((answ) => {
+          setAllowedERC20Info(answ)
+          console.log('>>> allowedERC20Info', answ)
+          setIsAllowedERC20Fetching(false)
+          setIsAllowedERC20Fetched(true)
+        }).catch((err) => {
+          console.log('Fail fetch allowed erc20 info', err)
+          setIsAllowedERC20Fetched(true)
+          setIsAllowedERC20Fetching(false)
+        })
+      } else {
+        setIsAllowedERC20Fetched(true)
+      }
+    }
+  }, [nftInfo])
 
   const { nativeCurrency } = CHAIN_INFO(chainId)
 
@@ -43,10 +72,16 @@ export default function MintNftForSale(options) {
         callNftMethod({
           activeWeb3,
           contractAddress: nftAddress,
-          method: `mintNFTForSell`,
+          method: `mintNFTForSellMany`,
           args: [
-            tokenUri,
-            toWei(tokenPrice, nativeCurrency.decimals),
+            [tokenUri],
+            [tokenCurrency],
+            [toWei(
+              tokenPrice,
+              (tokenCurrency == ZERO_ADDRESS)
+                ? nativeCurrency.decimals
+                : allowedERC20Info[tokenCurrency].decimals
+            )],
             ZERO_ADDRESS
           ],
           onTrx: (txHash) => {
@@ -82,48 +117,81 @@ export default function MintNftForSale(options) {
         title: `Mint one NFT`,
         content: (
           <>
-            <div className={styles.subFormInfo}>
-              <div className={styles.infoRow}>
-                <label>Token URI:</label>
-                <span>
-                  <div>
-                    <input type="text" value={tokenUri} onChange={(e) => { setTokenUri(e) }} />
-                    {iconButton({
-                      title: `Open in new tab`,
-                      href: tokenUri,
-                      target: `_blank`,
-                    })}
-                  </div>
-                  {hasTokenUriError && (
+            {isAllowedERC20Fetched ? (
+              <div className={styles.subFormInfo}>
+                <div className={styles.infoRow}>
+                  <label>URI:</label>
+                  <span>
                     <div>
-                      <b className={styles.hasError}>Specify corrent token uri</b>
+                      <ImageInput value={tokenUri} onChange={(v) => { setTokenUri(v) }} />
                     </div>
-                  )}
-                </span>
-              </div>
-              <div className={styles.infoRow}>
-                <label>Token Price:</label>
-                <span>
-                  <div>
-                    <input type="number" step="0.1" value={tokenPrice} onChange={(e) => { setTokenPrice(e) }} />
-                    <span>{` `}</span><span>{nativeCurrency.symbol}</span>
-                  </div>
-                  {hasTokenPriceError && (
+                    {hasTokenUriError && (
+                      <div>
+                        <b className={styles.hasError}>Specify corrent token uri</b>
+                      </div>
+                    )}
+                  </span>
+                </div>
+                {allowedERC20 && allowedERC20.length > 0 && (
+                  <div className={styles.infoRow}>
+                    <label>Sell currency:</label>
                     <div>
-                      <b className={styles.hasError}>Price must be greater than zero</b>
+                      <div>
+                        <select value={tokenCurrency} onChange={(e) => { setTokenCurrency(e.target.value) }}>
+                          <option value={ZERO_ADDRESS}>Native currency ({nativeCurrency.symbol})</option>
+                          {allowedERC20.map((erc20, key) => {
+                            return (
+                              <option key={key} value={erc20}>
+                                {allowedERC20Info[erc20] ? (
+                                  <>
+                                    {`(${allowedERC20Info[erc20].symbol}) - `}
+                                  </>
+                                ) : ( <>``</> )}
+                                {erc20}
+                              </option>
+                            )
+                          })}
+                        </select>
+                      </div>
                     </div>
-                  )}
-                </span>
+                  </div>
+                )}
+                <div className={styles.infoRow}>
+                  <label>Price:</label>
+                  <span>
+                    <div>
+                      <input type="number" step="0.1" value={tokenPrice} onChange={(e) => { setTokenPrice(e) }} />
+                      <strong>
+                        {tokenCurrency == ZERO_ADDRESS ? (
+                          <>
+                            {nativeCurrency.symbol}
+                          </>
+                        ) : (
+                          <>
+                            {allowedERC20Info[tokenCurrency].symbol}
+                          </>
+                        )}
+                      </strong>
+                    </div>
+                    {hasTokenPriceError && (
+                      <div>
+                        <b className={styles.hasError}>Price must be greater than zero</b>
+                      </div>
+                    )}
+                  </span>
+                </div>
+                <div className={styles.actionsRow}>
+                  <button
+                    disabled={hasTokenUriError || hasTokenPriceError}
+                    onClick={doMintNtf}
+                  >
+                    {isNftMinting ? `Minting NFT for sale...` : `Mint NFT for sale`}
+                  </button>
+                </div>
               </div>
-              <div className={styles.actionsRow}>
-                <button
-                  disabled={hasTokenUriError || hasTokenPriceError}
-                  onClick={doMintNtf}
-                >
-                  {isNftMinting ? `Minting NFT for sale...` : `Mint NFT for sale`}
-                </button>
-              </div>
-            </div>
+            ) : (
+              <div>Fetching info about allowed ERC20 for sale...</div>
+            )}
           </>
         )
       },
@@ -131,7 +199,20 @@ export default function MintNftForSale(options) {
         key: `mintmore`,
         title: `Mint many NFT`,
         content: (
-          <div>Mint many NFT</div>
+          <>
+            {isAllowedERC20Fetched ? (
+              <MintManyNftForSale
+                chainId={chainId}
+                getActiveChain={getActiveChain}
+                nftAddress={nftAddress}
+                openConfirmWindow={openConfirmWindow}
+                addNotify={addNotify}
+                allowedERC20Info={allowedERC20Info}
+              />
+            ) : (
+              <div>Fetching info about allowed ERC20 for sale...</div>
+            )}
+          </>
         )
       }
     ]

@@ -2,6 +2,7 @@ import styles from "../../styles/Home.module.css"
 import { useEffect, useState } from "react"
 import iconButton from "../iconButton"
 import isImageUrl from "../../helpers/isImageUrl"
+import ImageInput from "../ImageInput"
 
 export default function ImagesList(options = {}) {
   const bottomButtons = options?.bottomButtons || null
@@ -49,16 +50,7 @@ export default function ImagesList(options = {}) {
               {itemsList.map((imageUri, imageKey) => {
                 return (
                   <li key={imageKey} className={!isImageUrl(imageUri) ? styles.hasError : ''}>
-                    <input
-                      type="text"
-                      value={itemsList[imageKey]}
-                      onChange={(e) => { updateItem(imageKey, e.target.value) }}
-                    />
-                    {iconButton({
-                      title: `Open in new tab`,
-                      href: imageUri,
-                      target: `_black`,
-                    })}
+                    <ImageInput value={itemsList[imageKey]} onChange={(v) => { updateItem(imageKey, v) }} />
                     {iconButton({
                       title: `Remove`,
                       onClick: () => { removeItem(imageKey) },
