@@ -35,12 +35,14 @@ contract StakeNFT is ERC721URIStorage, Ownable {
     uint public version = 1;
     bool constant public isNFTStakeToken = true;
     bool private _allowTrade = true;
+    bool private _allowUserSale = true;
+    uint private _tradeFee = 0;
     bool private _allowMint = true;
 
     mapping(uint256 => bool) private _isTokensAtSale;
     mapping(uint256 => SelledNFT) private _tokensAtSale;
 
-    mapping(address => bool) public allowedERC20forSale;
+    address[] private _allowedERC20;
 
     bytes32 private _prevSeed = 0x0000000000000000000000000000000000000000000000000000000000000000;
     bytes32 private _curRS    = 0x0000000000000000000000000000000000000000000000000000000000000000;
@@ -55,31 +57,47 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         uint256 __maxSupply,
         uint256 __mintPrice,
         bool __allowTrade,
+        bool __allowUserSale,
+        uint __tradeFee,
         bool __allowMint,
-        address[] memory _erc20fortrade
+        address[] memory __allowedERC20
     ) ERC721(__name, __symbol) {
         MAX_SUPPLY = __maxSupply;
         _mintPrice = __mintPrice;
         _allowTrade = __allowTrade;
+        _allowUserSale = __allowUserSale;
+        _tradeFee = __tradeFee;
         _allowMint = __allowMint;
-        for (uint i = 0; i < _erc20fortrade.length; i++) {
-            allowedERC20forSale[_erc20fortrade[i]] = true;
-        }
+        _allowedERC20 = __allowedERC20;
     }
 
-    function setERC20forTrade(address erc20, bool isAllowTrade) public onlyOwner {
-        allowedERC20forSale[erc20] = isAllowTrade;
+    function setNewOptions(
+        uint256 __mintPrice,
+        bool __allowTrade,
+        bool __allowUserSale,
+        uint __tradeFee,
+        bool __allowMint,
+        address[] memory __allowedERC20
+    ) public onlyOwner {
+        _mintPrice = __mintPrice;
+        _allowTrade = __allowTrade;
+        _allowUserSale = __allowUserSale;
+        _tradeFee = __tradeFee;
+        _allowMint = __allowMint;
+        _allowedERC20 = __allowedERC20;
     }
     
-    function setERC20forTradeMany(
-        address[] memory erc20,
-        bool[] memory isAllowTrade
-    ) public onlyOwner {
-        require(erc20.length > 0, "Empty list");
-        require(erc20.length == isAllowTrade.length, "Length of ERC20 must be equal of isAllowTrade length");
-        for (uint256 i = 0; i < erc20.length ; i++) {
-            allowedERC20forSale[erc20[i]] = isAllowTrade[i];
+    function setAllowedERC20(address[] memory newAllowedERC20) public onlyOwner {
+        _allowedERC20 = newAllowedERC20;
+    }
+    function getAllowedERC20() public view returns(address[] memory) {
+        return _allowedERC20;
+    }
+    function isAllowedERC20(address erc20) public view returns (bool) {
+        for(uint i=0; i<_allowedERC20.length;i++) {
+            if (erc20 == _allowedERC20[i]) return true;
         }
+        return false;
     }
 
     function bankAmount() public view returns(uint256) {
@@ -92,12 +110,34 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         emit WithdrawBank(msg.sender, amount);
     }
 
+    function bankAmountERC20(address erc20) public view returns(uint256) {
+        return 0;
+    }
+    function withdrawBankERC20(address erc20) public onlyOwner {
+
+    }
     function setAllowMint(bool _newAllowMint) public onlyOwner {
         _allowMint = _newAllowMint;
     }
 
     function getAllowMint() public view returns (bool) {
         return _allowMint;
+    }
+
+    function setAllowUserSale(bool _newAllowUserSale) public onlyOwner {
+        _allowUserSale = _newAllowUserSale;
+    }
+
+    function getAllowUserSale() public view returns (bool) {
+        return _allowUserSale;
+    }
+
+    function getTradeFee() public view returns (uint) {
+        return _tradeFee;
+    }
+    
+    function setTradeFee(uint _newTradeFee) public onlyOwner {
+        _tradeFee = _newTradeFee;
     }
 
     function setAllowTrade(bool _newAllowTrade) public onlyOwner {
@@ -144,15 +184,8 @@ contract StakeNFT is ERC721URIStorage, Ownable {
             _prevRS,
             _curRS,
             _flushSeed,
-            blockhash(block.number),
-            block.coinbase,
-            block.difficulty,
-            block.gaslimit,
-            tx.gasprice,
             _tokenIds.current(),
-            msg.sender,
-            _mintUris.length,
-            gasleft()
+            _mintUris.length
         )));
         _prevRS = _curRS;
         _curRS = bytes32(randomness);
@@ -343,9 +376,10 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         public
     {
         require(_allowTrade == true, "Trade not allowed");
+        require(_allowUserSale || (msg.sender == owner()), "Trading is not allowed for users");
         require(msg.sender == ownerOf(_tokenId), "This is not your NFT");
         require(price > 0, "Price must be greater than zero");
-        require(allowedERC20forSale[_erc20] == true, "This ERC20 not allowed as a trading currency");
+        require(isAllowedERC20(_erc20) == true, "This ERC20 not allowed as a trading currency");
 
         _isTokensAtSale[_tokenId] = true;
         _tokensAtSale[_tokenId] = SelledNFT(
@@ -367,6 +401,7 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         public
     {
         require(_allowTrade == true, "Trade not allowed");
+        require(_allowUserSale || (msg.sender == owner()), "Trading is not allowed for users");
         require(msg.sender == ownerOf(_tokenId), "This is not your NFT");
         require(price > 0, "Price must be great than zero");
 
@@ -432,6 +467,9 @@ contract StakeNFT is ERC721URIStorage, Ownable {
 
         for (uint256 i = 0; i < prices.length; i++) {
             require( prices[i] > 0, string.concat("Price must be great than zero. Price index #", Strings.toString(i)) );
+            if (erc20[i] != address(0)) {
+                require(isAllowedERC20(erc20[i]), string.concat("Not allowed ERC for trade. ERC20 index #", Strings.toString(i)));
+            }
         }
         uint256[] memory ret = new uint256[](tokenURIs.length);
         address tokenOwner = (seller == address(0)) ? owner() : seller;
@@ -474,7 +512,9 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         returns (uint256)
     {
         require(price > 0, "Price must be great than zero");
-        require(allowedERC20forSale[erc20] == true, "This ERC20 not allow for trade");
+        if (erc20 != address(0)) {
+            require(isAllowedERC20(erc20) == true, "This ERC20 not allow for trade");
+        }
 
         _tokenIds.increment();
 

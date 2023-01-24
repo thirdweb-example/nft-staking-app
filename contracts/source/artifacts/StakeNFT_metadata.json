@@ -34,12 +34,22 @@
 					},
 					{
 						"internalType": "bool",
+						"name": "__allowUserSale",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "__tradeFee",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
 						"name": "__allowMint",
 						"type": "bool"
 					},
 					{
 						"internalType": "address[]",
-						"name": "_erc20fortrade",
+						"name": "__allowedERC20",
 						"type": "address[]"
 					}
 				],
@@ -374,25 +384,6 @@
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"name": "allowedERC20forSale",
-				"outputs": [
-					{
-						"internalType": "bool",
-						"name": "",
-						"type": "bool"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "address",
 						"name": "to",
 						"type": "address"
 					},
@@ -429,6 +420,25 @@
 			{
 				"inputs": [],
 				"name": "bankAmount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "erc20",
+						"type": "address"
+					}
+				],
+				"name": "bankAmountERC20",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -512,6 +522,32 @@
 						"internalType": "bool",
 						"name": "",
 						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getAllowUserSale",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getAllowedERC20",
+				"outputs": [
+					{
+						"internalType": "address[]",
+						"name": "",
+						"type": "address[]"
 					}
 				],
 				"stateMutability": "view",
@@ -643,6 +679,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "getTradeFee",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -683,6 +732,25 @@
 						"internalType": "struct StakeNFT.SelledNFT[]",
 						"name": "ret",
 						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "erc20",
+						"type": "address"
+					}
+				],
+				"name": "isAllowedERC20",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
 					}
 				],
 				"stateMutability": "view",
@@ -1022,6 +1090,32 @@
 			{
 				"inputs": [
 					{
+						"internalType": "bool",
+						"name": "_newAllowUserSale",
+						"type": "bool"
+					}
+				],
+				"name": "setAllowUserSale",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address[]",
+						"name": "newAllowedERC20",
+						"type": "address[]"
+					}
+				],
+				"name": "setAllowedERC20",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "address",
 						"name": "operator",
 						"type": "address"
@@ -1033,42 +1127,6 @@
 					}
 				],
 				"name": "setApprovalForAll",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "erc20",
-						"type": "address"
-					},
-					{
-						"internalType": "bool",
-						"name": "isAllowTrade",
-						"type": "bool"
-					}
-				],
-				"name": "setERC20forTrade",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "address[]",
-						"name": "erc20",
-						"type": "address[]"
-					},
-					{
-						"internalType": "bool[]",
-						"name": "isAllowTrade",
-						"type": "bool[]"
-					}
-				],
-				"name": "setERC20forTradeMany",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -1108,6 +1166,57 @@
 					}
 				],
 				"name": "setMintUris",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "__mintPrice",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "__allowTrade",
+						"type": "bool"
+					},
+					{
+						"internalType": "bool",
+						"name": "__allowUserSale",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "__tradeFee",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "__allowMint",
+						"type": "bool"
+					},
+					{
+						"internalType": "address[]",
+						"name": "__allowedERC20",
+						"type": "address[]"
+					}
+				],
+				"name": "setNewOptions",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_newTradeFee",
+						"type": "uint256"
+					}
+				],
+				"name": "setTradeFee",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -1231,6 +1340,19 @@
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "erc20",
+						"type": "address"
+					}
+				],
+				"name": "withdrawBankERC20",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
 			}
 		],
 		"devdoc": {
@@ -1304,7 +1426,7 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 99999
+			"runs": 200
 		},
 		"remappings": []
 	},
@@ -1446,11 +1568,11 @@
 			]
 		},
 		"source/StakeNFT.sol": {
-			"keccak256": "0x635f3b1f405131a81e1302aab5e3b95c7b49cd2e567fac403b4d8aadd9122c1b",
+			"keccak256": "0xa2035d711c1c5cd175755720a0ef3c668b432983b735b8f6edbab141655eb2bf",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://135115a9b2eea124727ae813f37df88ef1c3d2278dde9902c43a11b583b4e07b",
-				"dweb:/ipfs/QmPVA2gcde4sBBqbdKUwU8J8mKdxX2k23VR7aMXkvKsUa8"
+				"bzz-raw://a59983a3d13397bd2d8df5734731911765a22f29836a72e6d1571c53360235e1",
+				"dweb:/ipfs/Qmb6X5AaqudZWur77MSFGisAVEnfYcd3ghH79EkmbhUs3o"
 			]
 		}
 	},

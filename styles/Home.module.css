@@ -782,9 +782,20 @@
 }
 
 .openInNewTab {
-  padding: 10px;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  margin: 4px;
   color: #5baccb;
+  line-height: 22px;
+  vertical-align: baseline;
+  text-align: center;
 }
+.openInNewTab:hover {
+  color: #FFF;
+  background: #5baccb;
+}
+
 .confirmWindow {
   display: flex;
   position: fixed;
@@ -885,6 +896,7 @@
   margin-left: 4px;
   margin-right: 4px;
   text-align: center;
+  cursor: pointer;
 }
 
 .iconButton:hover {
@@ -1054,6 +1066,7 @@
   padding-left: 4px;
   padding-right: 4px;
   outline: 1px solid #FFF;
+  cursor: pointer;
 }
 .buttonWithIcon:hover {
   background: #1762bf;

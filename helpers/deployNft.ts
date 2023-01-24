@@ -10,6 +10,9 @@ const deployNft = (options) => {
       name,
       maxSupply,
       allowTrade,
+      allowUserSale,
+      allowedERC20,
+      tradeFee,
       allowMint,
       mintPrice,
     } = options
@@ -28,15 +31,37 @@ const deployNft = (options) => {
           gas: '0'
         }
 
+/*
+maxSupply: nftMaxSupply,
+allowTrade: (nftAllowTrade == 1),
+allowUserSale: (nftAllowUserSale == 1),
+tradeFee: nftTradeFee,
+allowedERC20: nftAllowedERC20,
+allowMint: (nftAllowMint == 1),
+mintPrice: toWei(`${nftMintPrice}`, 18)
+
+string memory __symbol,
+string memory __name,
+uint256 __maxSupply,
+uint256 __mintPrice,
+bool __allowTrade,
+bool __allowUserSale,
+uint __tradeFee,
+bool __allowMint,
+address[] memory _erc20fortrade
+*/
         const _arguments = [
           symbol,
           name,
           maxSupply,
           mintPrice,
           allowTrade,
-          allowMint
+          allowUserSale,
+          tradeFee,
+          allowMint,
+          allowedERC20
         ]
-
+console.log('>> _arguments', _arguments)
         const gasAmountCalculated = await nftContract.deploy({
           arguments: _arguments,
           data: NftContractData.data.bytecode.object

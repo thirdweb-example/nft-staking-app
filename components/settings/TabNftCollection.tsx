@@ -1,5 +1,6 @@
 import styles from "../../styles/Home.module.css"
 import { useEffect, useState } from "react"
+import { useStateUint } from "../../helpers/useState"
 import {
   AVAILABLE_NETWORKS_INFO,
   CHAIN_INFO,
@@ -14,10 +15,11 @@ import isImageUrl from "../../helpers/isImageUrl"
 import callNftMethod from "../../helpers/callNftMethod"
 import FaIcon from "../FaIcon"
 import MintNftForSale from "./MintNftForSale"
-
+import List from "../List"
 
 import crypto from "crypto"
 import { BigNumber } from 'bignumber.js'
+import NftInfoBlock from "./NftInfoBlock"
 
 
 export default function TabNftCollection(options) {
@@ -38,6 +40,9 @@ export default function TabNftCollection(options) {
   const [nftName, setNftName] = useState(``)
   const [nftMaxSupply, setNftMaxSupply] = useState(200)
   const [nftAllowTrade, setNftAllowTrade] = useState(0)
+  const [nftAllowUserSale, setNftAllowUserSale] = useState(1)
+  const [nftTradeFee, setNftTradeFee] = useStateUint(10)
+  const [nftAllowedERC20, setNftAllowedERC20] = useState([])
   const [nftAllowMint, setNftAllowMint] = useState(1)
   const [nftMintPrice, setNftMintPrice] = useState(0.001)
   const [nftInfo, setNftInfo] = useState({})
@@ -151,6 +156,9 @@ export default function TabNftCollection(options) {
       name: nftName,
       maxSupply: nftMaxSupply,
       allowTrade: (nftAllowTrade == 1),
+      allowUserSale: (nftAllowUserSale == 1),
+      tradeFee: nftTradeFee,
+      allowedERC20: nftAllowedERC20,
       allowMint: (nftAllowMint == 1),
       mintPrice: toWei(`${nftMintPrice}`, 18)
     }
@@ -376,6 +384,41 @@ export default function TabNftCollection(options) {
                     </select>
                   </span>
                 </div>
+                {nftAllowTrade == 1 && (
+                  <div className={styles.infoRow}>
+                    <label>Allow users to sell:</label>
+                    <span>
+                      <select value={nftAllowUserSale} onChange={(e) => { setNftAllowUserSale(e.target.value) }}>
+                        <option value={1}>Yes</option>
+                        <option value={0}>No</option>
+                      </select>
+                    </span>
+                  </div>
+                )}
+                {nftAllowUserSale == 1 && nftAllowTrade == 1 && (
+                  <div className={styles.infoRow}>
+                    <label>User trade fee:</label>
+                    <div>
+                      <div>
+                        <input type="number" min="0" max="30" value={nftTradeFee} onChange={(e) => { setNftTradeFee(e) }} />
+                        <strong>%</strong>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {nftAllowTrade == 1 && (
+                  <div className={styles.infoRow}>
+                    <label>Allowed ERC20 for trade:</label>
+                    <div>
+                      <div>
+                        <strong className={styles.inputInfo}>List of token contracts that can be used for trading on par with native currency</strong>
+                      </div>
+                      <div>
+                        <List items={nftAllowedERC20} onChange={(v) => { setNftAllowedERC20(v) }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className={styles.infoRow}>
                   <label>Allow mint:</label>
                   <span>
@@ -410,104 +453,15 @@ export default function TabNftCollection(options) {
             )}
           </div>
           {nftInfo && nftInfo && nftInfo.NFTStakeInfo && (
-            <div className={styles.adminForm}>
-              {toggleGroup({
-                title: `NFT Collection info`,
-                isOpened: true,
-                onToggle: () => {},
-                content: (
-                  <>
-                    <div className={styles.subFormInfo}>
-                      <div className={styles.infoRow}>
-                        <label>Contract version:</label>
-                        <span>
-                          <b>{NFTStakeInfo.version}</b>
-                        </span>
-                      </div>
-                      <div className={styles.infoRow}>
-                        <label>Owner</label>
-                        <span>
-                          <b>{NFTStakeInfo.owner}</b>
-                        </span>
-                      </div>
-                      <div className={styles.infoRow}>
-                        <label>Max supply</label>
-                        <span>
-                          <b>{NFTStakeInfo.maxSupply}</b>
-                        </span>
-                      </div>
-                      <div className={styles.infoRow}>
-                        <label>Total supply</label>
-                        <span>
-                          <b>{NFTStakeInfo.totalSupply}</b>
-                        </span>
-                      </div>
-                      <div className={styles.infoRow}>
-                        <label>Allow trade:</label>
-                        <span>
-                          {isNftInfoAllowTradeEdit ? (
-                            <>
-                              <select value={nftInfoAllowTrade ? 1 : 0} onChange={(e) => { setNftInfoAllowTrade(e.target.value) }}>
-                                <option value={0}>No</option>
-                                <option value={1}>Yes</option>
-                              </select>
-                              <a className={styles.buttonWithIcon}>
-                                <FaIcon icon="cloud-arrow-up" />
-                                Save changes
-                              </a>
-                              <a className={styles.buttonWithIcon}>
-                                <FaIcon icon="xmark" />
-                                Cancel
-                              </a>
-                            </>
-                          ) : (
-                            <>
-                              <b>{NFTStakeInfo.allowTrade ? `Yes` : `No`}</b>
-                              <a className={styles.adminActionButton} title={`Edit value`} onClick={beginEditNftInfoAllowTrade}>
-                                <FaIcon icon="pen-to-square" />
-                              </a>
-                            </>
-                          )}
-                        </span>
-                      </div>
-                      <div className={styles.infoRow}>
-                        <label>Allow mint:</label>
-                        <span>
-                          <b>{NFTStakeInfo.allowMint ? `Yes` : `No`}</b>
-                          <a className={styles.adminActionButton} title={`Edit value`}>
-                            <FaIcon icon="pen-to-square" />
-                          </a>
-                        </span>
-                      </div>
-                      <div className={styles.infoRow}>
-                        <label>Mint price:</label>
-                        <span>
-                          <b>
-                            {fromWei(
-                              NFTStakeInfo.mintPrice,
-                              nftChainInfo.nativeCurrency.decimals
-                            )}
-                            {` `}
-                            {nftChainInfo.nativeCurrency.symbol}
-                            <a className={styles.adminActionButton} title={`Edit value`}>
-                              <FaIcon icon="pen-to-square" />
-                            </a>
-                            <a className={styles.buttonWithIcon}>
-                              <FaIcon icon="cloud-arrow-up" />
-                              Save changes
-                            </a>
-                            <a className={styles.buttonWithIcon}>
-                              <FaIcon icon="xmark" />
-                              Cancel
-                            </a>
-                          </b>
-                        </span>
-                      </div>
-                    </div>
-                  </>
-                )
-              })}
-            </div>
+            <NftInfoBlock
+              NFTStakeInfo={nftInfo.NFTStakeInfo}
+              chainId={nftChainId}
+              getActiveChain={getActiveChain}
+              contractAddress={nftCollection}
+              openConfirmWindow={openConfirmWindow}
+              addNotify={addNotify}
+              onSaveChanges={doFetchNftInfo}
+            />
           )}
           {nftInfo && nftInfo && nftInfo.NFTStakeInfo && (
             <div className={styles.adminForm}>

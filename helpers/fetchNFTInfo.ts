@@ -8,6 +8,9 @@ import { Interface as AbiInterface } from '@ethersproject/abi'
 
 import { CHAIN_INFO } from "./constants"
 
+import { callMulticall } from './callMulticall'
+
+
 const fetchNftInfo = (address, chainId) => {
   return new Promise((resolve, reject) => {
     const chainInfo = CHAIN_INFO(chainId)
@@ -28,51 +31,33 @@ const fetchNftInfo = (address, chainId) => {
 
             contract.methods.isNFTStakeToken().call().then((isNFTStakeToken) => {
               try {
+                console.log('>>> begin')
+                const multicall = new web3.eth.Contract(MulticallAbi, MULTICALL_CONTRACTS[chainId])
                 const abiI = new AbiInterface(NFTAbi)
-                const encode = (method, args = []) => {
-                  return abiI.encodeFunctionData(method, args)
-                }
-                const prepareCall = (key, method, args = [], isBigNumber) => {
-                  return {
-                    target: address,
-                    key,
-                    method,
-                    isBigNumber,
-                    callData: encode(method, args)
+                callMulticall({
+                  multicall,
+                  target: address,
+                  encoder: abiI,
+                  calls: {
+                    owner:            { func: 'owner' },
+                    version:          { func: 'version', _isBigNumber: true },
+                    totalSupply:      { func: 'totalSupply', _isBigNumber: true },
+                    maxSupply:        { func: 'MAX_SUPPLY', _isBigNumber: true },
+                    allowMint:        { func: 'getAllowMint' },
+                    mintPrice:        { func: 'getMintPrice', _isBigNumber: true },
+                    mintUris:         { func: 'getMintUris' },
+                    allowTrade:       { func: 'getAllowTrade' },
+                    allowUserSale:    { func: 'getAllowUserSale' },
+                    tradeFee:         { func: 'getTradeFee', _isBigNumber: true },
+                    tokensAtSale:     { func: 'getTokensAtSale' },
+                    allowedERC20:     { func: 'getAllowedERC20' },
+                    
                   }
-                }
-                // Fetch all info with multicall
-                const _mc = new web3.eth.Contract(MulticallAbi, MULTICALL_CONTRACTS[chainId])
-          
-                const _calls = [
-                  prepareCall('owner', 'owner'),
-                  prepareCall('totalSupply', 'totalSupply', [], true),
-                  prepareCall('maxSupply', 'MAX_SUPPLY', [], true),
-                  prepareCall('allowMint', 'getAllowMint'),
-                  prepareCall('allowTrade', 'getAllowTrade'),
-                  prepareCall('mintPrice', 'getMintPrice', [], true),
-                  prepareCall('mintUris', 'getMintUris'),
-                  prepareCall('tokensAtSale', 'getTokensAtSell'),
-                  prepareCall('version', 'version', [], true)
-                ]
-
-                const moreInfo = {}
-                _mc.methods.aggregate(_calls).call().then((_answers) => {
-                  _answers.returnData.forEach((retData, _indexInCall) => {
-                    const answer = abiI.decodeFunctionResult(
-                      _calls[_indexInCall].method,
-                      retData
-                    )[0]
-
-                    moreInfo[_calls[_indexInCall].key] = (_calls[_indexInCall].isBigNumber)
-                      ? `${answer}`
-                      : answer
-                  })
-                  console.log('>>> moreInfo', moreInfo)
+                }).then((mcAnswer) => {
                   resolve({
                     ...baseInfo,
                     isNFTStakeToken: true,
-                    NFTStakeInfo: moreInfo,
+                    NFTStakeInfo: mcAnswer,
                   })
                 }).catch((err) => {
                   console.log('>>> Fail fetch all NFT info', err)
