@@ -833,40 +833,6 @@
 			{
 				"inputs": [
 					{
-						"internalType": "string",
-						"name": "tokenURI",
-						"type": "string"
-					},
-					{
-						"internalType": "address",
-						"name": "erc20",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "price",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "seller",
-						"type": "address"
-					}
-				],
-				"name": "mintNFTForSell",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
 						"internalType": "string[]",
 						"name": "tokenURIs",
 						"type": "string[]"
@@ -887,7 +853,7 @@
 						"type": "address"
 					}
 				],
-				"name": "mintNFTForSellMany",
+				"name": "mintNFTForSell",
 				"outputs": [
 					{
 						"internalType": "uint256[]",
@@ -1568,11 +1534,11 @@
 			]
 		},
 		"source/StakeNFT.sol": {
-			"keccak256": "0xa2035d711c1c5cd175755720a0ef3c668b432983b735b8f6edbab141655eb2bf",
+			"keccak256": "0x3c4185ead7f188f2e4db78f05e256ad3dd8dd757f7f3a76688d3bc9342a68ccf",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://a59983a3d13397bd2d8df5734731911765a22f29836a72e6d1571c53360235e1",
-				"dweb:/ipfs/Qmb6X5AaqudZWur77MSFGisAVEnfYcd3ghH79EkmbhUs3o"
+				"bzz-raw://b539be622539c0f9cd9936714a036dd1478fa8c58c72990aeee68b5c9438eb74",
+				"dweb:/ipfs/QmbX96YKzdgkJX3ogFuQatakpgRWL5L8kvSuGS8yDELgj3"
 			]
 		}
 	},

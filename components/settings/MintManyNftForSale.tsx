@@ -51,7 +51,7 @@ export default function MintManyNftForSale(options) {
         callNftMethod({
           activeWeb3,
           contractAddress: nftAddress,
-          method: `mintNFTForSellMany`,
+          method: `mintNFTForSell`,
           args: [
             uris,
             currencies,

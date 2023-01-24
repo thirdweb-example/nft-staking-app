@@ -9,6 +9,216 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/E
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
+// CAUTION
+// This version of SafeMath should only be used with Solidity 0.8 or later,
+// because it relies on the compiler's built in overflow checks.
+
+/**
+ * @dev Wrappers over Solidity's arithmetic operations.
+ *
+ * NOTE: `SafeMath` is generally not needed starting with Solidity 0.8, since the compiler
+ * now has built in overflow checking.
+ */
+library SafeMath {
+    /**
+     * @dev Returns the addition of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            uint256 c = a + b;
+            if (c < a) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b > a) return (false, 0);
+            return (true, a - b);
+        }
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+            // benefit is lost if 'b' is also tested.
+            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+            if (a == 0) return (true, 0);
+            uint256 c = a * b;
+            if (c / a != b) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the division of two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a / b);
+        }
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a % b);
+        }
+    }
+
+    /**
+     * @dev Returns the addition of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `+` operator.
+     *
+     * Requirements:
+     *
+     * - Addition cannot overflow.
+     */
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a + b;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a - b;
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `*` operator.
+     *
+     * Requirements:
+     *
+     * - Multiplication cannot overflow.
+     */
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a * b;
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers, reverting on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator.
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a / b;
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * reverting when dividing by zero.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a % b;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
+     * overflow (when the result is negative).
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {trySub}.
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        unchecked {
+            require(b <= a, errorMessage);
+            return a - b;
+        }
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers, reverting with custom message on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        unchecked {
+            require(b > 0, errorMessage);
+            return a / b;
+        }
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * reverting with custom message when dividing by zero.
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {tryMod}.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        unchecked {
+            require(b > 0, errorMessage);
+            return a % b;
+        }
+    }
+}
 
 contract StakeNFT is ERC721URIStorage, Ownable {
     using SafeERC20 for IERC20;
@@ -86,7 +296,7 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         _allowMint = __allowMint;
         _allowedERC20 = __allowedERC20;
     }
-    
+
     function setAllowedERC20(address[] memory newAllowedERC20) public onlyOwner {
         _allowedERC20 = newAllowedERC20;
     }
@@ -111,11 +321,15 @@ contract StakeNFT is ERC721URIStorage, Ownable {
     }
 
     function bankAmountERC20(address erc20) public view returns(uint256) {
-        return 0;
+        IERC20 token = IERC20(erc20);
+        return token.balanceOf(address(this));
     }
     function withdrawBankERC20(address erc20) public onlyOwner {
-
+        IERC20 token = IERC20(erc20);
+        uint256 balance = token.balanceOf(address(this));
+        token.transfer(owner(), balance);
     }
+
     function setAllowMint(bool _newAllowMint) public onlyOwner {
         _allowMint = _newAllowMint;
     }
@@ -329,11 +543,23 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         require(buyerAllowance >= _tokensAtSale[_tokenId].price, "You did not allow the contract to send the purchase amount");
         
 
+        uint256 amount = _tokensAtSale[_tokenId].price;
+        uint256 feeAmount = SafeMath.mul(SafeMath.div(amount, 100), _tradeFee);
+        if (_tokensAtSale[_tokenId].seller == owner()) feeAmount = 0;
+        uint256 amountWithFee = SafeMath.sub(amount, feeAmount);
+
         payToken.safeTransferFrom(
             address(msg.sender),
             address(_tokensAtSale[_tokenId].seller),
-            _tokensAtSale[_tokenId].price
+            amountWithFee
         );
+        if (feeAmount > 0) {
+            payToken.safeTransferFrom(
+                address(msg.sender),
+                address(owner()),
+                feeAmount
+            );
+        }
         _transfer(address(this), msg.sender, _tokenId);
         _isTokensAtSale[_tokenId] = false;
         
@@ -358,8 +584,16 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         // check this is not sell by ERC20
         require(_tokensAtSale[_tokenId].erc20 == address(0), "This token selled by ERC20");
         
+        uint256 amount = msg.value;
+        uint256 feeAmount = SafeMath.mul(SafeMath.div(amount, 100), _tradeFee);
+        if (_tokensAtSale[_tokenId].seller == owner()) feeAmount = 0;
+        uint256 amountWithFee = SafeMath.sub(amount, feeAmount);
 
-        payable(_tokensAtSale[_tokenId].seller).transfer(msg.value);
+        payable(_tokensAtSale[_tokenId].seller).transfer(amountWithFee);
+        if (feeAmount > 0) {
+            payable(owner()).transfer(feeAmount);
+        }
+        
         _transfer(address(this), msg.sender, _tokenId);
         _isTokensAtSale[_tokenId] = false;
 
@@ -448,13 +682,13 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         uint256 newItemId = _tokenIds.current();
         _mint(msg.sender, newItemId);
         _setTokenURI(newItemId, _mintUris[_randUri]);
-
+        payable(owner()).transfer(msg.value);
         fixTotalSupply();
         emit Mint(msg.sender, newItemId, tokenURI(newItemId));
         return newItemId;
     }
 
-    function mintNFTForSellMany(
+    function mintNFTForSell(
         string[] memory tokenURIs,
         address[] memory erc20,
         uint256[] memory prices,
@@ -500,47 +734,6 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         }
         fixTotalSupply();
         return ret;
-    }
-
-    function mintNFTForSell(
-        string memory tokenURI,
-        address erc20,
-        uint256 price,
-        address seller
-    ) 
-        public onlyOwner
-        returns (uint256)
-    {
-        require(price > 0, "Price must be great than zero");
-        if (erc20 != address(0)) {
-            require(isAllowedERC20(erc20) == true, "This ERC20 not allow for trade");
-        }
-
-        _tokenIds.increment();
-
-        uint256 newItemId = _tokenIds.current();
-        _mint(address(this), newItemId);
-        _setTokenURI(newItemId, tokenURI);
-        _isTokensAtSale[newItemId] = true;
-        
-        address tokenOwner = (seller == address(0)) ? owner() : seller;
-
-        _tokensAtSale[newItemId] = SelledNFT(
-            newItemId,
-            tokenURI,
-            tokenOwner,
-            price,
-            erc20
-        );
-
-        fixTotalSupply();
-        emit Mint(tokenOwner, newItemId, tokenURI);
-        if (erc20 == address(0)) {
-            emit PutUpForSale(tokenOwner, newItemId, tokenURI, price);
-        } else {
-            emit PutUpForSaleWithERC20(tokenOwner, newItemId, tokenURI, erc20, price);
-        }
-        return newItemId;
     }
 
     function mintNFT(address recipient, string memory tokenURI)
