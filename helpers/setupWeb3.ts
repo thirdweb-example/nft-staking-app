@@ -149,6 +149,18 @@ const onBlockchainChanged = (callback) => {
   }
 }
 
+const onWalletChanged = (callback) => {
+  if (window.ethereum) {
+    window.ethereum.on("accountsChanged", (accounts) => {
+      if (accounts.length > 0) {
+        callback(accounts[0])
+      } else {
+        callback(false)
+      }
+    })
+  }
+}
+
 const getConnectedAddress = () => {
   if (window && window.ethereum) {
     return new Promise((resolve, reject) => {
@@ -175,6 +187,7 @@ export {
   isMetamaskConnected,
   getConnectedAddress,
   getCurrentChainId,
+  onWalletChanged,
 }
 
 export default setupWeb3

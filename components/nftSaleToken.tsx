@@ -25,6 +25,7 @@ const nftToken = (options) => {
     onRemoveFromTrade,
     onAddToTrade,
     isPreview,
+    isWalletConnected
   } = options
 
 
@@ -40,10 +41,17 @@ const nftToken = (options) => {
           <h3>#{tokenId}</h3>
         </>
       )}
+
       {!isPreview && (
         <>
           {isUserNFT ? (
             <>
+              <a
+                className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
+                href={getLink(`stake`)}
+              >
+                Go to staking
+              </a>
               {isTradeAllow && (
                 <button disabled={isApproving || isBuying || isRemoveFromTrade}
                   className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
@@ -52,50 +60,48 @@ const nftToken = (options) => {
                   Sell
                 </button>
               )}
-              <a
-                className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
-                href={getLink(`stake`)}
-              >
-                Go to staking
-              </a>
             </>
           ) : (
             <>
               <div className={styles.nftTokenPrice}>{price}{` `}{currency}</div>
-              {isOwner ? (
-                <button disabled={isApproving || isBuying || isRemoveFromTrade}
-                  className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
-                  onClick={onRemoveFromTrade}
-                >
-                  {isRemoveFromTrade
-                    ? isActive ? `Removing...` : `Remove from sale`
-                    : `Remove from sale`
-                  }
-                </button>
-              ) : (
+              {isWalletConnected && (
                 <>
-                  {needApprove ? (
-                    <button
-                      disabled={isApproving || isBuying || isRemoveFromTrade}
+                  {isOwner ? (
+                    <button disabled={isApproving || isBuying || isRemoveFromTrade}
                       className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
-                      onClick={onApproveAndBuy}
+                      onClick={onRemoveFromTrade}
                     >
-                      {isApproving
-                        ? isActive ? `Approving...` : `Approve & Buy`
-                        : `Approve & Buy`
+                      {isRemoveFromTrade
+                        ? isActive ? `Removing...` : `Remove from sale`
+                        : `Remove from sale`
                       }
                     </button>
                   ) : (
-                    <button
-                      disabled={isApproving || isBuying || isRemoveFromTrade}
-                      className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
-                      onClick={onBuy}
-                    >
-                      {isBuying
-                        ? isActive ? `Buying...` : `Buy`
-                        : `Buy`
-                      }
-                    </button>
+                    <>
+                      {needApprove ? (
+                        <button
+                          disabled={isApproving || isBuying || isRemoveFromTrade}
+                          className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
+                          onClick={onApproveAndBuy}
+                        >
+                          {isApproving
+                            ? isActive ? `Approving...` : `Approve & Buy`
+                            : `Approve & Buy`
+                          }
+                        </button>
+                      ) : (
+                        <button
+                          disabled={isApproving || isBuying || isRemoveFromTrade}
+                          className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
+                          onClick={onBuy}
+                        >
+                          {isBuying
+                            ? isActive ? `Buying...` : `Buy`
+                            : `Buy`
+                          }
+                        </button>
+                      )}
+                    </>
                   )}
                 </>
               )}

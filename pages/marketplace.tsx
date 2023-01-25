@@ -2,7 +2,7 @@ import type { NextPage } from "next"
 import { useEffect, useState } from "react"
 import styles from "../styles/Home.module.css"
 
-import { setupWeb3, switchOrAddChain, doConnectWithMetamask, isMetamaskConnected } from "../helpers/setupWeb3"
+import { setupWeb3, switchOrAddChain, doConnectWithMetamask, isMetamaskConnected, onWalletChanged } from "../helpers/setupWeb3"
 import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
 import navBlock from "../components/navBlock"
 import logoBlock from "../components/logoBlock"
@@ -22,9 +22,11 @@ import BigNumber from "bignumber.js"
 import approveToken from "../helpers/approveToken"
 import fetchUserNfts from "../helpers/fetchUserNfts"
 import SellNftModal from "../components/SellNftModal"
+import Web3 from 'web3'
 
 
 const debugLog = (msg) => { console.log(msg) }
+
 
 const Marketplace: NextPage = (props) => {
   const {
@@ -210,13 +212,12 @@ const Marketplace: NextPage = (props) => {
         fetchTokensListInfo({
           erc20list: NFTStakeInfo.allowedERC20,
           chainId,
-          withAllowance: {
+          withAllowance: (address) ? {
             allowanceFrom: address,
             allowanceTo: nftDropContractAddress
-          }
+          } : false
         }).then((answ) => {
           setAllowedERC20Info(answ)
-          console.log('>>> allowedERC20Info', answ)
           setAllowedERC20InfoFetching(false)
           setAllowedERC20InfoFetched(true)
         }).catch((err) => {
@@ -229,6 +230,7 @@ const Marketplace: NextPage = (props) => {
       }
     }
   }, [ nftInfo ])
+
   const processError = (error, error_namespace) => {
     let metamaskError = false
     try {
@@ -260,9 +262,11 @@ const Marketplace: NextPage = (props) => {
       console.log('>>> fail fetch nft info', err)
     })
   }
+
   const initOnWeb3Ready = async () => {
     if (activeWeb3 && (`${activeChainId}` == `${chainId}`)) {
       activeWeb3.eth.getAccounts().then((accounts) => {
+        console.log('>>> initOnWeb3Ready', accounts)
         setAddress(accounts[0])
         const _airdropContract = new activeWeb3.eth.Contract(NftAirdropContractData.abi, nftDropContractAddress)
         setAirdropContract(_airdropContract)
@@ -286,6 +290,40 @@ const Marketplace: NextPage = (props) => {
   }
 
   useEffect(() => {
+    onWalletChanged((newAccount) => {
+      setAddress(newAccount)
+      if (newAccount) {
+        initOnWeb3Ready()
+        setReloadUserNfts(true)
+      }
+    })
+  }, [])
+
+  useEffect(() => {
+    if (chainId && nftDropContractAddress && !address) {
+      console.log('>>> has chainId')
+      const chainInfo = CHAIN_INFO(chainId)
+      console.log('>>> chainInfo', chainInfo)
+      if (chainInfo) {
+        try {
+          const web3 = new Web3(chainInfo.rpcUrls[0])
+          console.log('>>> web3', web3)
+          setActiveWeb3(web3)
+          fetchNftInfo(nftDropContractAddress, chainId).then((_nftInfo) => {
+            console.log('>>> nft info fetched no address', _nftInfo)
+            setNftInfo(_nftInfo)
+            setNftInfoFetched(true)
+          }).catch((err) => {
+            console.log('>>> fail fetch nft info', err)
+          })
+        } catch (err) {
+          console.log('>>> err', err)
+        }
+      }
+    }
+  }, [ chainId, nftDropContractAddress, address])
+  
+  useEffect(() => {
     if (storageData
       && storageData.chainId
       && storageData.nftCollection
@@ -297,7 +335,7 @@ const Marketplace: NextPage = (props) => {
 
   useEffect(() => {
     debugLog('on useEffect activeWeb3 initOnWeb3Ready')
-    if (chainId && nftDropContractAddress) {
+    if (activeWeb3 && chainId && nftDropContractAddress) {
       initOnWeb3Ready()
     }
   }, [activeWeb3, chainId, nftDropContractAddress])
@@ -336,136 +374,142 @@ const Marketplace: NextPage = (props) => {
 
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
-      {!address ? (
-        <>
-          <div className="mpBeforeConnectWallet">
-            {getText('MarketPage_BeforeConnect_Text')}
-          </div>
-          <button disabled={isWalletConecting} className={`${styles.mainButton} primaryButton`} onClick={connectWithMetamask}>
-            {isWalletConecting ? `Connecting` : `Connect Wallet`}
-          </button>
-          <div className="mpAfterConnectWallet">
-            {getText('MarketPage_AfterConnect_Text')}
-          </div>
-        </>
-      ) : (
-        <>
-          {nftInfoFetched ? (
-            <>
-              {nftInfo.isNFTStakeToken ? (
-                <>
-                  <div className={styles.nftBoxGrid}>
-                    {allowedERC20InfoFetched ? (
-                      <>
-                        {tokensAtSale.map((lotInfo, lotIndex) => {
-                          const {
-                            uri,
-                            tokenId,
-                            erc20,
-                            seller
-                          } = lotInfo
-                          const price = fromWei(
-                            lotInfo.price,
-                            erc20 == ZERO_ADDRESS
-                              ? nativeCurrency.decimals
-                              : allowedERC20Info[erc20].decimals
-                          )
-                          let needApprove = false
-                          if (erc20 != ZERO_ADDRESS) {
-                            needApprove = new BigNumber(lotInfo.price.toString()).isGreaterThan( allowedERC20Info[erc20].allowance)
+      <>
+        {!address ? (
+          <>
+            <div className="mpBeforeConnectWallet">
+              {getText('MarketPage_BeforeConnect_Text')}
+            </div>
+            <button disabled={isWalletConecting} className={`${styles.mainButton} primaryButton`} onClick={connectWithMetamask}>
+              {isWalletConecting ? `Connecting` : `Connect Wallet`}
+            </button>
+            <div className="mpAfterConnectWallet">
+              {getText('MarketPage_AfterConnect_Text')}
+            </div>
+          </>
+        ) : (
+          <h4>Connected wallet {address}</h4>
+        )}
+        {nftInfoFetched ? (
+          <>
+            {nftInfo.isNFTStakeToken ? (
+              <>
+                <div className={styles.nftBoxGrid}>
+                  {allowedERC20InfoFetched ? (
+                    <>
+                      {tokensAtSale.map((lotInfo, lotIndex) => {
+                        const {
+                          uri,
+                          tokenId,
+                          erc20,
+                          seller
+                        } = lotInfo
+                        const price = fromWei(
+                          lotInfo.price,
+                          erc20 == ZERO_ADDRESS
+                            ? nativeCurrency.decimals
+                            : allowedERC20Info[erc20].decimals
+                        )
+                        let needApprove = false
+                        if (erc20 != ZERO_ADDRESS) {
+                          needApprove = new BigNumber(lotInfo.price.toString()).isGreaterThan( allowedERC20Info[erc20].allowance)
+                        }
+                        return nftSaleToken({
+                          isWalletConnected: address,
+                          tokenId: tokenId.toString(),
+                          tokenUri: uri,
+                          price,
+                          needApprove,
+                          seller,
+                          isERC: (erc20 != ZERO_ADDRESS),
+                          currency: erc20 == ZERO_ADDRESS ? nativeCurrency.symbol : allowedERC20Info[erc20].symbol,
+                          openConfirmWindow,
+                          isApproving,
+                          isBuying,
+                          isActive: (lotIndex === currentLot),
+                          isOwner: (lotInfo.seller == address),
+                          isRemoveFromTrade,
+                          onRemoveFromTrade: () => {
+                            setCurrentLot(lotIndex)
+                            doRemoveFromTrade(lotIndex)
+                          },
+                          onBuy: () => {
+                            setCurrentLot(lotIndex)
+                            doBuyLot(lotIndex)
+                          },
+                          onApproveAndBuy: () => {
+                            setCurrentLot(lotIndex)
+                            doApproveAndBuy(lotIndex)
                           }
-                          return nftSaleToken({
-                            tokenId: tokenId.toString(),
-                            tokenUri: uri,
-                            price,
-                            needApprove,
-                            seller,
-                            isERC: (erc20 != ZERO_ADDRESS),
-                            currency: erc20 == ZERO_ADDRESS ? nativeCurrency.symbol : allowedERC20Info[erc20].symbol,
-                            openConfirmWindow,
-                            isApproving,
-                            isBuying,
-                            isActive: (lotIndex === currentLot),
-                            isOwner: (lotInfo.seller == address),
-                            isRemoveFromTrade,
-                            onRemoveFromTrade: () => {
-                              setCurrentLot(lotIndex)
-                              doRemoveFromTrade(lotIndex)
-                            },
-                            onBuy: () => {
-                              setCurrentLot(lotIndex)
-                              doBuyLot(lotIndex)
-                            },
-                            onApproveAndBuy: () => {
-                              setCurrentLot(lotIndex)
-                              doApproveAndBuy(lotIndex)
-                            }
-                          })
-                        })}
-                      </>
-                    ) : (
-                      <>
-                        <div>Loading...</div>
-                      </>
-                    )}
-                  </div>
-                  <hr className={`${styles.divider} ${styles.spacerTop}`} />
-                  <h2>Your NFTs</h2>
-                  <hr className={`${styles.divider} ${styles.spacerTop}`} />
-                  <div className={styles.nftBoxGrid}>
-                    {isUserNftsFetched ? (
-                      <>
-                        {userNfts.length > 0 ? (
-                          <>
-                            {userNfts.map((info, lotIndex) => {
-                              return nftSaleToken({
-                                tokenId: info.tokenId.toString(),
-                                tokenUri: info.tokenURI,
-                                openConfirmWindow,
-                                isUserNFT: true,
-                                isTradeAllow: true,
-                                onAddToTrade: () => { doSellNft(lotIndex) }
-                              })
-                            })}
-                          </>
-                        ) : (
-                          <div>You are dont have any NFTs</div>
-                        )}
-                      </>
-                    ) : (
+                        })
+                      })}
+                    </>
+                  ) : (
+                    <>
                       <div>Loading...</div>
-                    )}
-                  </div>
-                  {isSellNft && (
-                    <SellNftModal {...{
-                      activeWeb3,
-                      openConfirmWindow,
-                      addNotify,
-                      nftInfo: sellNftInfo,
-                      chainId,
-                      nftContract: nftDropContractAddress,
-                      allowedERC20Info,
-                      tradeFee: nftInfo.NFTStakeInfo.tradeFee.toString(),
-                      onClose: () => { setIsSellNft(false) },
-                      onSelled: () => {
-                        setIsSellNft(false)
-                        refreshTokensAtSale()
-                        setReloadUserNfts(true)
-                      }
-                    }} />
+                    </>
                   )}
-                </>
-              ) : (
-                <>
-                  <div>Not NFTStake contract</div>
-                </>
-              )}
-            </>
-          ) : (
-            <div>{getText(`MarketPage_Loading`, `Loading...`)}</div>
-          )}
-        </>
-      )}
+                </div>
+                <hr className={`${styles.divider} ${styles.spacerTop}`} />
+                {address !== false && (
+                  <>
+                    <h2>Your NFTs</h2>
+                    <hr className={`${styles.divider} ${styles.spacerTop}`} />
+                    <div className={styles.nftBoxGrid}>
+                      {isUserNftsFetched ? (
+                        <>
+                          {userNfts.length > 0 ? (
+                            <>
+                              {userNfts.map((info, lotIndex) => {
+                                return nftSaleToken({
+                                  tokenId: info.tokenId.toString(),
+                                  tokenUri: info.tokenURI,
+                                  openConfirmWindow,
+                                  isUserNFT: true,
+                                  isTradeAllow: nftInfo.NFTStakeInfo.allowUserSale,
+                                  onAddToTrade: () => { doSellNft(lotIndex) }
+                                })
+                              })}
+                            </>
+                          ) : (
+                            <div>You are dont have any NFTs</div>
+                          )}
+                        </>
+                      ) : (
+                        <div>Loading...</div>
+                      )}
+                    </div>
+                  </>
+                )}
+                {isSellNft && (
+                  <SellNftModal {...{
+                    activeWeb3,
+                    openConfirmWindow,
+                    addNotify,
+                    nftInfo: sellNftInfo,
+                    chainId,
+                    nftContract: nftDropContractAddress,
+                    allowedERC20Info,
+                    tradeFee: nftInfo.NFTStakeInfo.tradeFee.toString(),
+                    onClose: () => { setIsSellNft(false) },
+                    onSelled: () => {
+                      setIsSellNft(false)
+                      refreshTokensAtSale()
+                      setReloadUserNfts(true)
+                    }
+                  }} />
+                )}
+              </>
+            ) : (
+              <>
+                <div>Not NFTStake contract</div>
+              </>
+            )}
+          </>
+        ) : (
+          <div>{getText(`MarketPage_Loading`, `Loading...`)}</div>
+        )}
+      </>
     </div>
   );
 };
