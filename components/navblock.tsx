@@ -20,6 +20,11 @@ const menus = [
     ] : []
   ),
   {
+    id: 'marketplace',
+    title: 'Marketplace',
+    link: 'marketplace'
+  },
+  {
     id: 'stake',
     title: 'Stake',
     link: 'stake'

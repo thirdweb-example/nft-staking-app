@@ -11,9 +11,13 @@ const fetchTokensListInfo = (options) => {
   const {
     erc20list,
     chainId,
+    withAllowance,
   } = options
 
-  
+  const {
+    allowanceFrom,
+    allowanceTo
+  } = withAllowance || {}
 
   return new Promise((resolve, reject) => {
     const chainInfo = CHAIN_INFO(chainId)
@@ -45,6 +49,15 @@ const fetchTokensListInfo = (options) => {
               encoder: abiI,
               target: erc20address
             },
+            ...(withAllowance ? [
+              {
+                group: erc20address,
+                func: `allowance`,
+                args: [ allowanceFrom, allowanceTo ],
+                encoder: abiI,
+                target: erc20address,
+              }
+            ] : [])
           ]
         })
         callMulticallGroup({

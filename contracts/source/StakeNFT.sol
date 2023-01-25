@@ -602,10 +602,10 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         _clearSellToken(_tokenId);
     }
 
-    function sellNFTforERC20(
+    function sellNFT(
         uint256 _tokenId,
-        address _erc20,
-        uint256 price
+        uint256 price,
+        address _erc20
     )
         public
     {
@@ -613,7 +613,10 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         require(_allowUserSale || (msg.sender == owner()), "Trading is not allowed for users");
         require(msg.sender == ownerOf(_tokenId), "This is not your NFT");
         require(price > 0, "Price must be greater than zero");
-        require(isAllowedERC20(_erc20) == true, "This ERC20 not allowed as a trading currency");
+        if (_erc20 != address(0)) {
+            // Sell with ERC20
+            require(isAllowedERC20(_erc20) == true, "This ERC20 not allowed as a trading currency");
+        }
 
         _isTokensAtSale[_tokenId] = true;
         _tokensAtSale[_tokenId] = SelledNFT(
@@ -624,32 +627,11 @@ contract StakeNFT is ERC721URIStorage, Ownable {
             _erc20
         );
         _transfer(msg.sender, address(this), _tokenId);
-
-        emit PutUpForSaleWithERC20(msg.sender, _tokenId, _tokensAtSale[_tokenId].uri, _erc20, price);
-    }
-
-    function sellNFT(
-        uint256 _tokenId,
-        uint256 price
-    ) 
-        public
-    {
-        require(_allowTrade == true, "Trade not allowed");
-        require(_allowUserSale || (msg.sender == owner()), "Trading is not allowed for users");
-        require(msg.sender == ownerOf(_tokenId), "This is not your NFT");
-        require(price > 0, "Price must be great than zero");
-
-        _isTokensAtSale[_tokenId] = true;
-        _tokensAtSale[_tokenId] = SelledNFT(
-            _tokenId,
-            tokenURI(_tokenId),
-            msg.sender,
-            price,
-            address(0)
-        );
-        _transfer(msg.sender, address(this), _tokenId);
-
-        emit PutUpForSale(msg.sender, _tokenId, _tokensAtSale[_tokenId].uri, price);
+        if (_erc20 == address(0)) {
+            emit PutUpForSaleWithERC20(msg.sender, _tokenId, _tokensAtSale[_tokenId].uri, _erc20, price);
+        } else {
+            emit PutUpForSale(msg.sender, _tokenId, _tokensAtSale[_tokenId].uri, price);
+        }
     }
 
     function deSellNFT(uint256 _tokenId) public {

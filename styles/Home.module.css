@@ -423,6 +423,16 @@
   padding-bottom: 20px;
 }
 
+.nftSaleBox H3 {
+  margin: 0px;
+  margin-top: 10px;
+}
+.nftSaleBox IMG {
+  padding-bottom: 10px;
+}
+.nftSaleBox .nftTokenPrice {
+  padding-bottom: 10px;
+}
 .optionSelectBox {
   border-radius: 16px;
   border: 1px solid #ccc;
