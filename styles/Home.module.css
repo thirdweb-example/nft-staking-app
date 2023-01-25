@@ -412,6 +412,7 @@
   border: 1px solid #ccc;
   width: 19%;
   min-height: 200px;
+  min-width: 200px;
   margin-bottom: 10px;
 }
 

@@ -21,6 +21,7 @@ import { toWei, fromWei } from "../helpers/wei"
 import BigNumber from "bignumber.js"
 import approveToken from "../helpers/approveToken"
 import fetchUserNfts from "../helpers/fetchUserNfts"
+import SellNftModal from "../components/SellNftModal"
 
 
 const debugLog = (msg) => { console.log(msg) }
@@ -64,11 +65,6 @@ const Marketplace: NextPage = (props) => {
       erc20,
       price,
     } = tokensAtSale[lotIndex]
-    const needApproveAmount = new BigNumber(
-      price.toString()
-    ).minus(
-      allowedERC20Info[erc20].allowance
-    ).toString()
 
     setIsApproving(true)
     approveToken({
@@ -76,7 +72,7 @@ const Marketplace: NextPage = (props) => {
       chainId,
       tokenAddress: erc20,
       approveFor: nftDropContractAddress,
-      weiAmount: needApproveAmount,
+      weiAmount: price.toString(),
       onTrx: (hash) => {
         addNotify(`Approving TX hash ${hash}`, `success`)
       },
@@ -91,7 +87,50 @@ const Marketplace: NextPage = (props) => {
       }
     })
   }
+
   
+  
+  const [ isRemoveFromTrade, setIsRemoveFromTrade ] = useState(false)
+  
+  const doRemoveFromTrade = (lotIndex) => {
+    const {
+      tokenId
+    } = tokensAtSale[lotIndex]
+
+    openConfirmWindow({
+      title: `Remove lot from marketplace`,
+      message: `Do you want remove NFT #${tokenId.toString()} from marketplace?`,
+      onConfirm: () => {
+        setIsRemoveFromTrade(true)
+        addNotify(`Removing NFT from marketplace. Confirm transaction`)
+        callNftMethod({
+          activeWeb3,
+          contractAddress: nftDropContractAddress,
+          method: 'deSellNFT',
+          args: [
+            tokenId.toString()
+          ],
+          onTrx: (txHash) => {
+            console.log('>> onTrx', txHash)
+            addNotify(`Remove NFT from marketplace TX ${txHash}`, `success`)
+          },
+          onSuccess: (receipt) => {},
+          onError: (err) => {
+            console.log('>> onError', err)
+            addNotify(`Fail remove NFT. ${err.message ? err.message : ''}`, `error`)
+            setIsRemoveFromTrade(false)
+          },
+          onFinally: (answer) => {
+            addNotify(`NFT successfull removed from marketplace`, `success`)
+            setIsRemoveFromTrade(false)
+            refreshTokensAtSale()
+            setReloadUserNfts(true)
+          }
+        })
+      }
+    })
+  }
+
   const [ isBuying, setIsBuying ] = useState(false)
   const doBuyLot = (lotIndex) => {
     addNotify(`Buying NFT. Confirm transaction`)
@@ -122,6 +161,7 @@ const Marketplace: NextPage = (props) => {
         addNotify(`NFT success buyed`, `success`)
         setIsBuying(false)
         refreshTokensAtSale()
+        setReloadUserNfts(true)
       }
     })
   }
@@ -133,18 +173,33 @@ const Marketplace: NextPage = (props) => {
   
   useEffect(() => {
     if (chainId && address && nftDropContractAddress && reloadUserNfts) {
+      setReloadUserNfts(false)
+      setUserNfts([])
+      setIsUserNftsFetched(false)
+      setIsUserNftsFetching(true)
       fetchUserNfts({
         chainId,
         walletAddress: address,
         nftAddress: nftDropContractAddress
       }).then((answer) => {
-        console.log('>>> answer', answer)
+        setUserNfts(answer)
+        setIsUserNftsFetching(false)
+        setIsUserNftsFetched(true)
       }).catch((err) => {
+        setIsUserNftsFetching(false)
+        setIsUserNftsFetched(true)
         console.log('>>> err', err)
       })
     }
   }, [ chainId, address, nftDropContractAddress, reloadUserNfts ])
-  
+
+  const [ isSellNft, setIsSellNft ] = useState(false)
+  const [ sellNftInfo, setSellNftInfo ] = useState({})
+  const doSellNft = (lotIndex) => {
+    setSellNftInfo(userNfts[lotIndex])
+    setIsSellNft(true)
+  }
+
   useEffect(() => {
     if (nftInfo && nftInfo.isNFTStakeToken && nftInfo.NFTStakeInfo) {
       const { NFTStakeInfo } = nftInfo
@@ -278,6 +333,7 @@ const Marketplace: NextPage = (props) => {
       <h1 className={`${styles.h1} pageTitle`}>
         {getText(`MarketPage_Title`, `NFTs Marketplace`)}
       </h1>
+
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
       {!address ? (
@@ -299,7 +355,7 @@ const Marketplace: NextPage = (props) => {
               {nftInfo.isNFTStakeToken ? (
                 <>
                   <div className={styles.nftBoxGrid}>
-                    {allowedERC20InfoFetched && (
+                    {allowedERC20InfoFetched ? (
                       <>
                         {tokensAtSale.map((lotInfo, lotIndex) => {
                           const {
@@ -330,6 +386,12 @@ const Marketplace: NextPage = (props) => {
                             isApproving,
                             isBuying,
                             isActive: (lotIndex === currentLot),
+                            isOwner: (lotInfo.seller == address),
+                            isRemoveFromTrade,
+                            onRemoveFromTrade: () => {
+                              setCurrentLot(lotIndex)
+                              doRemoveFromTrade(lotIndex)
+                            },
                             onBuy: () => {
                               setCurrentLot(lotIndex)
                               doBuyLot(lotIndex)
@@ -341,8 +403,57 @@ const Marketplace: NextPage = (props) => {
                           })
                         })}
                       </>
+                    ) : (
+                      <>
+                        <div>Loading...</div>
+                      </>
                     )}
                   </div>
+                  <hr className={`${styles.divider} ${styles.spacerTop}`} />
+                  <h2>Your NFTs</h2>
+                  <hr className={`${styles.divider} ${styles.spacerTop}`} />
+                  <div className={styles.nftBoxGrid}>
+                    {isUserNftsFetched ? (
+                      <>
+                        {userNfts.length > 0 ? (
+                          <>
+                            {userNfts.map((info, lotIndex) => {
+                              return nftSaleToken({
+                                tokenId: info.tokenId.toString(),
+                                tokenUri: info.tokenURI,
+                                openConfirmWindow,
+                                isUserNFT: true,
+                                isTradeAllow: true,
+                                onAddToTrade: () => { doSellNft(lotIndex) }
+                              })
+                            })}
+                          </>
+                        ) : (
+                          <div>You are dont have any NFTs</div>
+                        )}
+                      </>
+                    ) : (
+                      <div>Loading...</div>
+                    )}
+                  </div>
+                  {isSellNft && (
+                    <SellNftModal {...{
+                      activeWeb3,
+                      openConfirmWindow,
+                      addNotify,
+                      nftInfo: sellNftInfo,
+                      chainId,
+                      nftContract: nftDropContractAddress,
+                      allowedERC20Info,
+                      tradeFee: nftInfo.NFTStakeInfo.tradeFee.toString(),
+                      onClose: () => { setIsSellNft(false) },
+                      onSelled: () => {
+                        setIsSellNft(false)
+                        refreshTokensAtSale()
+                        setReloadUserNfts(true)
+                      }
+                    }} />
+                  )}
                 </>
               ) : (
                 <>
