@@ -1,6 +1,6 @@
 export const nftDropContractAddress =
-  "0x658163668BF69555326C7a45799cB08a6586A8F4";
+  "0x86eAf8D635eb11D5CD801c41744F44e50d4fd8d2";
 export const tokenContractAddress =
-  "0xb1bb6e2E5BFc210AFb172d7491bf4aD09c289793";
+  "0x12ea05ba6E8405cBeceB5b51134A821e86858F7E";
 export const stakingContractAddress =
-  "0x297154E4aF2f97b4E4713413C1CfA6a288E05291";
+  "0x830Ace54DFbf3a011601bD0Bc1f9806d45D2d0E4";

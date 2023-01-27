@@ -4,7 +4,6 @@ import {
   useAddress,
   useContract,
   useContractRead,
-  useContractWrite,
   useOwnedNFTs,
   useTokenBalance,
   Web3Button,
@@ -33,10 +32,6 @@ const Stake: NextPage = () => {
   const { contract, isLoading } = useContract(stakingContractAddress);
   const { data: ownedNfts } = useOwnedNFTs(nftDropContract, address);
   const { data: tokenBalance } = useTokenBalance(tokenContract, address);
-  const { mutateAsync: claimRewards } = useContractWrite(
-    contract,
-    "claimRewards"
-  );
   const [claimableRewards, setClaimableRewards] = useState<BigNumber>();
   const { data: stakedTokens } = useContractRead(
     contract,
@@ -103,7 +98,7 @@ const Stake: NextPage = () => {
           </div>
 
           <Web3Button
-            action={() => claimRewards([])}
+            action={(contract) => contract.call("claimRewards")}
             contractAddress={stakingContractAddress}
           >
             Claim Rewards
