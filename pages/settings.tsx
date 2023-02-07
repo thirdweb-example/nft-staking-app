@@ -53,7 +53,7 @@ const settingsTabs = {
   mainmenu: `Menu Items`,
   texts: `Edit texts`,
   design: `Design`,
-  social: `Social links`
+  //social: `Social links`
 }
 
 const debugLog = (msg) => { console.log(msg) }
@@ -87,6 +87,7 @@ const Settings: NextPage = (props) => {
     setDoReloadStorage,
     storageTexts,
     storageDesign,
+    storageMenu,
   } = props
 
   const [activeChainId, setActiveChainId] = useState(false)
@@ -959,6 +960,7 @@ const Settings: NextPage = (props) => {
     storageDesign,
     storageTexts,
     storageData,
+    storageMenu
   }
   const tabDesign = new TabDesign(_tabOptions)
   const tabTexts = new TabTexts(_tabOptions)
@@ -988,7 +990,7 @@ const Settings: NextPage = (props) => {
   if (isInstalledOnDomain) showInstallBox = false
   return (
     <div className={styles.container}>
-      {navBlock(`settings`, true)}
+      {navBlock(`settings`, storageMenu, true)}
       <h1 className={styles.h1}>Settings</h1>
       {storageData !== null && (
         <>

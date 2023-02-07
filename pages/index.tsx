@@ -10,11 +10,11 @@ import { useEffect, useState } from "react"
 
 const Home: NextPage = (props) => {
   const router = useRouter();
-  const { isOwner, getText, getDesign } = props
+  const { isOwner, getText, getDesign, storageMenu } = props
 
   return (
     <div className={styles.container}>
-      {navBlock(`index`, isOwner)}
+      {navBlock(`index`, storageMenu, isOwner)}
       {/* Top Section */}
       {logoBlock({
         getText,

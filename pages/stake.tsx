@@ -35,6 +35,7 @@ const Stake: NextPage = (props) => {
     addNotify,
     getText,
     getDesign,
+    storageMenu,
   } = props
 
   const showDebugPanel = false
@@ -665,7 +666,7 @@ const Stake: NextPage = (props) => {
 
   return (
     <div className={styles.container}>
-      {navBlock(`stake`, isOwner)}
+      {navBlock(`stake`, storageMenu, isOwner)}
       {logoBlock({
         getText,
         getDesign

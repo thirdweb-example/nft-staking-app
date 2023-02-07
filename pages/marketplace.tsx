@@ -36,6 +36,7 @@ const Marketplace: NextPage = (props) => {
     getText,
     getDesign,
     openConfirmWindow,
+    storageMenu,
   } = props
 
   const [ chainId, setChainId ] = useState(storageData?.chainId)
@@ -363,7 +364,7 @@ const Marketplace: NextPage = (props) => {
   
   return (
     <div className={styles.container}>
-      {navBlock(`marketplace`, isOwner)}
+      {navBlock(`marketplace`, storageMenu, isOwner)}
       {logoBlock({
         getText,
         getDesign

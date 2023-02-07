@@ -44,6 +44,7 @@ const Mint: NextPage = (props) => {
     addNotify,
     getText,
     getDesign,
+    storageMenu,
   } = props
 
   const mintUris = [
@@ -238,7 +239,7 @@ const Mint: NextPage = (props) => {
   const mintChainInfo = CHAIN_INFO(chainId)
   return (
     <div className={styles.container}>
-      {navBlock(`mint`, isOwner)}
+      {navBlock(`mint`, storageMenu, isOwner)}
       {logoBlock({
         getText,
         getDesign

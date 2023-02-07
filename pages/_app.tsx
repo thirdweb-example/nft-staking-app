@@ -31,6 +31,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     setDoReloadStorage,
     storageTexts,
     storageDesign,
+    storageMenu,
   } = useStorage()
   const router = useRouter()
 
@@ -216,6 +217,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                 setDoReloadStorage={setDoReloadStorage}
                 storageTexts={storageTexts}
                 storageDesign={storageDesign}
+                storageMenu={storageMenu}
                 getText={getText}
                 getDesign={getDesign}
               />
