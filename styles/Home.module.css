@@ -768,7 +768,7 @@
   border-bottom: 0;
 }
 
-.adminForm .subFormInfo .infoRow LABEL {
+.adminForm .subFormInfo .infoRow>LABEL {
   display: block;
   width: 30%;
 }
@@ -1139,4 +1139,38 @@
 
 .actionsRowMain BUTTON {
   margin: 10px;
+}
+
+.adminPopupWindow {
+  display: flex;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  background: #0000007a;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+}
+
+.adminPopupWindow>DIV {
+  width: 100%;
+  max-width: 600px;
+  border: 2px solid #FFF;
+  background: #5a5959;
+  box-shadow: 0px 0px 5px 5px rgba(0,0,0,0.75);
+}
+.adminPopupWindow>DIV>H3 {
+  margin: 0px;
+  padding: 10px;
+  font-size: 12pt;
+  background: #0862af;
+  border-bottom: 1px solid #FFF;
+}
+.adminPopupWindow .adminForm {
+  width: 100%;
+}
+.adminPopupWindow .adminForm .subFormInfo {
+  border: 0px;
 }

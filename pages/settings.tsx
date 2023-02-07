@@ -5,6 +5,7 @@ import adminFormRow from "../components/adminFormRow"
 import TabNftCollection from "../components/settings/TabNftCollection"
 import TabDesign from "../components/settings/TabDesign"
 import TabTexts from "../components/settings/TabTexts"
+import TabMenu from "../components/settings/TabMenu"
 
 import useStorage from "../storage/"
 import { useEffect, useState } from "react"
@@ -49,6 +50,7 @@ const storageAddress = '0xafb8f27df1f629432a47214b4e1674cbcbdb02df'
 const settingsTabs = {
   main: `Main settings`,
   nftconfig: `NFT collection`,
+  mainmenu: `Menu Items`,
   texts: `Edit texts`,
   design: `Design`,
   social: `Social links`
@@ -955,10 +957,12 @@ const Settings: NextPage = (props) => {
     addNotify,
     getActiveChain,
     storageDesign,
+    storageTexts,
     storageData,
   }
   const tabDesign = new TabDesign(_tabOptions)
   const tabTexts = new TabTexts(_tabOptions)
+  const tabMenu = new TabMenu(_tabOptions)
 
   /* ------------------------------------------- */
   const renderActiveChainInfo = () => {
@@ -1027,6 +1031,7 @@ const Settings: NextPage = (props) => {
                       <hr className={`${styles.divider} ${styles.spacerTop}`} />
                       {/* -------------------------------------------------*/ }
                       {activeTab === `main` && renderMainTab()}
+                      {activeTab === `mainmenu` && tabMenu.render()}
                       {activeTab === `nftconfig` && tabNftCollection.render()}
                       {activeTab === `texts` && tabTexts.render()}
                       {activeTab === `design` && tabDesign.render()}
