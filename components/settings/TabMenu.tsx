@@ -9,7 +9,7 @@ import iconButton from "../iconButton"
 import FaIcon from "../FaIcon"
 import openInTab from "../openInTab"
 
-import { sysMenus, defMenus } from "../../helpers/getLink"
+import { sysMenus, defMenus } from "../../appconfig/menu"
 
 import AdminPopupWindow from "../AdminPopupWindow"
 

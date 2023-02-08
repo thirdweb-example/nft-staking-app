@@ -1,4 +1,5 @@
-import { getLink, defMenus, sysMenus } from "../helpers/getLink";
+import { getLink } from "../helpers/getLink";
+import { defMenus, sysMenus } from "../appconfig/menu"
 import styles from "../styles/Home.module.css";
 import useStorage from "../storage/"
 import { useRouter } from "next/router";
