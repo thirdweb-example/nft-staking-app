@@ -87,7 +87,7 @@ export default function useStorage() {
           console.log('>>> error', error)
           setError(error)
         }
-        console.log('>>> storageData parsed', parsed)
+        
         if (parsed) {
           const { owner } = storageData
 

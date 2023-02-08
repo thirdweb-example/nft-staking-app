@@ -666,7 +666,7 @@ const Stake: NextPage = (props) => {
 
   return (
     <div className={styles.container}>
-      {navBlock(`stake`, storageMenu, isOwner)}
+      {navBlock(`stake`)}
       {logoBlock({
         getText,
         getDesign

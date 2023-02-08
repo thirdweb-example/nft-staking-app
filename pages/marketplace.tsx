@@ -364,7 +364,7 @@ const Marketplace: NextPage = (props) => {
   
   return (
     <div className={styles.container}>
-      {navBlock(`marketplace`, storageMenu, isOwner)}
+      {navBlock(`marketplace`)}
       {logoBlock({
         getText,
         getDesign

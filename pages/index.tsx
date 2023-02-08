@@ -14,7 +14,7 @@ const Home: NextPage = (props) => {
 
   return (
     <div className={styles.container}>
-      {navBlock(`index`, storageMenu, isOwner)}
+      {navBlock(`index`)}
       {/* Top Section */}
       {logoBlock({
         getText,

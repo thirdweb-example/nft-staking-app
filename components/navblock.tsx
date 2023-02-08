@@ -1,12 +1,20 @@
 import { getLink, defMenus, sysMenus } from "../helpers/getLink";
 import styles from "../styles/Home.module.css";
+import useStorage from "../storage/"
 import { useRouter } from "next/router";
 import { getBoolOption } from "../helpers"
 
-const navBlock = (curPage, storageMenu, isAdmin = false) => {
+const navBlock = (curPage) => {
   const router = useRouter()
+  const {
+    storageMenu,
+    isOwner,
+    isInstalled,
+    storageIsLoading
+  } = useStorage()
   const menuItems = (storageMenu && storageMenu.length ? storageMenu : defMenus)
 
+  if (storageIsLoading) return null
   return (
     <>
       <nav className={`${styles.mainNav} headerNavMenu`}>
@@ -25,7 +33,7 @@ const navBlock = (curPage, storageMenu, isAdmin = false) => {
             </a>
           )
         })}
-        {isAdmin && (
+        {(isOwner || !isInstalled) && (
           <a 
             href={getLink(`settings`)}
             className={(curPage == `settings`) ? `${styles.active} headerNavActive` : ``}

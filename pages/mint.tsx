@@ -239,7 +239,7 @@ const Mint: NextPage = (props) => {
   const mintChainInfo = CHAIN_INFO(chainId)
   return (
     <div className={styles.container}>
-      {navBlock(`mint`, storageMenu, isOwner)}
+      {navBlock(`mint`)}
       {logoBlock({
         getText,
         getDesign
