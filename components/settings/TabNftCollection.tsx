@@ -40,12 +40,18 @@ export default function TabNftCollection(options) {
   const [nftSymbol, setNftSymbol] = useState(``)
   const [nftName, setNftName] = useState(``)
   const [nftMaxSupply, setNftMaxSupply] = useState(200)
+  
   const [nftAllowTrade, setNftAllowTrade] = useState(0)
   const [nftAllowUserSale, setNftAllowUserSale] = useState(1)
   const [nftTradeFee, setNftTradeFee] = useStateUint(10)
   const [nftAllowedERC20, setNftAllowedERC20] = useState([])
+  
   const [nftAllowMint, setNftAllowMint] = useState(1)
   const [nftMintPrice, setNftMintPrice] = useState(0.001)
+  
+  const [nftAllowMintOwn, setAllowMintOwn] = useState(1)
+  const [nftMintOwnPrice, setNftMintOwnPrice] = useState(0.001)
+  
   const [nftInfo, setNftInfo] = useState({})
   const [nftInfoFetched, setNftInfoFetched] = useState(false)
   const [nftInfoFetching, setNftInfoFetching] = useState(false)
@@ -445,6 +451,32 @@ export default function TabNftCollection(options) {
                         </div>
                       )}
                     </span>
+                  </div>
+                )}
+                <div className={styles.infoRow}>
+                  <label>Allow user own mint:</label>
+                  <div>
+                    <div>
+                      <select value={nftAllowMintOwn} onChange={(e) => { setAllowMintOwn(e.target.value) }}>
+                        <option value={1}>Yes</option>
+                        <option value={0}>No</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                {nftAllowMintOwn == 1 && (
+                  <div className={styles.infoRow}>
+                    <label>Mint price ({CHAIN_INFO(nftChainId).nativeCurrency.symbol}):</label>
+                    <div>
+                      <div>
+                        <input type="number" step="0.1" value={nftMintOwnPrice} onChange={(e) => { setNftMintOwnPrice(e.target.value) }} />
+                        {!(nftMintOwnPrice > 0) && (
+                          <div>
+                            <b className={styles.hasError}>Mint price must be greater than zero</b>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
                 <div className={styles.actionsRow}>

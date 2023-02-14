@@ -394,6 +394,19 @@
 				"inputs": [
 					{
 						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					}
+				],
+				"name": "addBlackList",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
 						"name": "to",
 						"type": "address"
 					},
@@ -457,6 +470,19 @@
 					}
 				],
 				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "burn",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -791,6 +817,25 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					}
+				],
+				"name": "isBlacklisted",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "isNFTStakeToken",
 				"outputs": [
@@ -960,6 +1005,19 @@
 					}
 				],
 				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					}
+				],
+				"name": "removeBlackList",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -1155,11 +1213,6 @@
 			{
 				"inputs": [
 					{
-						"internalType": "uint256",
-						"name": "__mintPrice",
-						"type": "uint256"
-					},
-					{
 						"internalType": "bool",
 						"name": "__allowTrade",
 						"type": "bool"
@@ -1178,6 +1231,21 @@
 						"internalType": "bool",
 						"name": "__allowMint",
 						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "__mintPrice",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "__allowOwnMint",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "__ownMintPrice",
+						"type": "uint256"
 					},
 					{
 						"internalType": "address[]",
@@ -1550,11 +1618,11 @@
 			]
 		},
 		"source/StakeNFT.sol": {
-			"keccak256": "0x9f8fbce31cd6f9dd03693ed735cbdd10f0dc3f1b60952e7b83bc30dfe31a2266",
+			"keccak256": "0x91750fa2913abaa38c8d4f169fcdd49d590b725678ffff841a25aed952c11cc7",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://c200dc7a8639f65b17ce0252e2b5d406139c6a7b0e3078e5dd14b1796e1ea968",
-				"dweb:/ipfs/QmRkdgRDXA5izTPjrkoLFkKEsuZmMzpwF7LYQWeWnGJdR4"
+				"bzz-raw://e3a413568b150f18e479d2401b5b0e7f134bfb395a4b721df8af2660dcbc412a",
+				"dweb:/ipfs/QmXuYq2titQMtVuYHpTf6ZchKgfuMBmgNuF5CcUbwpwygH"
 			]
 		}
 	},

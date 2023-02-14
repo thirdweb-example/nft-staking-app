@@ -254,6 +254,8 @@ contract StakeNFT is ERC721URIStorage, Ownable {
     mapping(uint256 => bool) private _isTokensAtSale;
     mapping(uint256 => SelledNFT) private _tokensAtSale;
 
+    mapping(address => bool) private _blackList;
+
     address[] private _allowedERC20;
 
     bytes32 private _prevSeed = 0x0000000000000000000000000000000000000000000000000000000000000000;
@@ -289,15 +291,31 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         _allowedERC20 = __allowedERC20;
     }
 
+    function addBlackList(address user) public onlyOwner {
+        _blackList[user] = true;
+    }
+    function removeBlackList(address user) public onlyOwner {
+        _blackList[user] = false;
+    }
+
+    function isBlacklisted(address user) public view returns(bool) {
+        return _blackList[user];
+    }
+
     function setNewOptions(
-        uint256 __mintPrice,
         bool __allowTrade,
         bool __allowUserSale,
         uint __tradeFee,
         bool __allowMint,
+        uint256 __mintPrice,
+        bool __allowOwnMint,
+        uint256 __ownMintPrice,
+
         address[] memory __allowedERC20
     ) public onlyOwner {
         _mintPrice = __mintPrice;
+        _ownMintPrice = __ownMintPrice;
+        _allowOwnMint = __allowOwnMint;    
         _allowTrade = __allowTrade;
         _allowUserSale = __allowUserSale;
         _tradeFee = __tradeFee;
@@ -730,6 +748,7 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         public payable
         returns (uint256)
     {
+        require(_blackList[msg.sender] == false, "This account is blacklisted");
         require(_allowOwnMint == true, "Own Mint not allowed");
         require(_ownMintPrice > 0, "Mint price not configured");
         require(msg.value >= _ownMintPrice, "You have not paid enough for mint");
@@ -743,6 +762,10 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         fixTotalSupply();
         emit Mint(recipient, newItemId, tokenURI);
         return newItemId;
+    }
+
+    function burn(uint256 tokenId) public onlyOwner {
+        _setTokenURI(tokenId,"");
     }
 
     function mintNFT(address recipient, string memory tokenURI)
