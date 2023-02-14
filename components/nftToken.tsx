@@ -3,6 +3,7 @@ import isImageUrl from "../helpers/isImageUrl"
 import { getLink } from "../helpers/getLink"
 import { getUnixTimestamp } from "../helpers/getUnixTimestamp"
 import { TimeToText } from "../helpers/TimeToText"
+import NftMedia from "./NftMedia"
 
 const nftToken = (options) => {
   const {
@@ -46,7 +47,7 @@ const nftToken = (options) => {
       {tokenUri !== false && isImageUrl(tokenUri) ? (
         <>
           <h3>#{tokenId}</h3>
-          <img src={tokenUri} />
+          <NftMedia url={tokenUri} />
         </>
       ) : (
         <>

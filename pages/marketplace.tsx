@@ -31,6 +31,9 @@ const debugLog = (msg) => { console.log(msg) }
 const Marketplace: NextPage = (props) => {
   const {
     storageData,
+    storageData: {
+      isBaseConfigReady,
+    },
     isOwner,
     addNotify,
     getText,
@@ -430,6 +433,7 @@ const Marketplace: NextPage = (props) => {
                           isActive: (lotIndex === currentLot),
                           isOwner: (lotInfo.seller == address),
                           isRemoveFromTrade,
+                          isBaseConfigReady,
                           onRemoveFromTrade: () => {
                             setCurrentLot(lotIndex)
                             doRemoveFromTrade(lotIndex)
@@ -490,6 +494,7 @@ const Marketplace: NextPage = (props) => {
                     nftInfo: sellNftInfo,
                     chainId,
                     nftContract: nftDropContractAddress,
+                    isBaseConfigReady,
                     allowedERC20Info,
                     tradeFee: nftInfo.NFTStakeInfo.tradeFee.toString(),
                     onClose: () => { setIsSellNft(false) },

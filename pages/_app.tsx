@@ -35,10 +35,17 @@ function MyApp({ Component, pageProps }: AppProps) {
   } = useStorage()
   const router = useRouter()
 
-  const settingsUrl = (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') ? 'settings' : 'settings.html'
-  const routerBaseName = router.asPath.split('/').reverse()[0];
+  const urlExt = (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') ? `` : `.html`
 
-  const isSettingsPage = (routerBaseName === settingsUrl)
+
+  const routerBaseName = router.asPath.split('/').reverse()[0].split('?')[0];
+
+  const isSettingsPage = (routerBaseName === `settings${urlExt}`)
+  const isMarketPage = (routerBaseName === `marketplace${urlExt}`)
+  const isMintPage = (routerBaseName === `mint${urlExt}`)
+  const isMintOwnPage = (routerBaseName === `mintown${urlExt}`)
+  const isHomePage = (routerBaseName === `index${urlExt}`) || (routerBaseName === ``)
+
 
   /* Confirm window */
   const [ isConfirmWindowOpened, setIsConfirmWindowOpened ] = useState(false)
@@ -152,7 +159,12 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
   }, [])
 
-
+  let showNeedConfig = false
+  
+  if (storageData && !storageData.isBaseConfigReady && storageData.isInstalled && !isSettingsPage) showNeedConfig = true
+  if (storageData && !storageData.isBaseConfigReady && storageData.isNFTConfigReady && storageData.isInstalled
+    && (isMarketPage || isMintPage || isHomePage || isMintOwnPage)
+  ) showNeedConfig = false
   
   const getDesign = getStorageDesign(usedDesign)
   return (
@@ -194,15 +206,14 @@ function MyApp({ Component, pageProps }: AppProps) {
               </a>
             </div>
           )}
-          {storageData && !storageData.isBaseConfigReady && storageData.isInstalled && !isSettingsPage && (
+          {showNeedConfig ? (
             <div className={styles.container}>
               <h2>NFTStake need base setup</h2>
               <a href={getLink(`settings`)} className={`${styles.mainButton} ${styles.autoWidth} primaryButton`}>
                 Go to setup
               </a>
             </div>
-          )}
-          {((!storageIsLoading && storageData && storageData.isInstalled && storageData.isBaseConfigReady) || isSettingsPage) && (
+          ) : (
             <>
               {!isSettingsPage && (
                 <StorageStyles getDesign={getDesign} />

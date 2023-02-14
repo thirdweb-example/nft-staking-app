@@ -2,7 +2,8 @@ const devDomains = [
   'localhost',
   'localhost.nftstake',
   'nftstakedemo.localhost',
-  'shendel.github.io'
+  'shendel.github.io',
+  'vkmp.localhost'
 ]
 
 const isProd = () => {

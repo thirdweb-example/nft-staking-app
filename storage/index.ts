@@ -60,6 +60,7 @@ export default function useStorage() {
   const [storageMenu, setStorageMenu] = useState(false)
   const [isOwner, setIsOwner] = useState(false)
   const [isInstalled, setIsInstalled] = useState(false)
+  const [isStakeInstalled, setIsStakeInstalled] = useState(false)
   const [error, setError] = useState(null)
 
   const storage = useStorageContract()
@@ -98,10 +99,15 @@ export default function useStorage() {
             && parsed.farmContract !== ''
           )
 
+          const isNFTConfigReady = (
+            parsed.chainId != ''
+            && parsed.nftCollection !== ''
+          )
           setStorageData({
             ...parsed,
             owner: owner === ZERO_ADDRESS ? '' : owner,
             isBaseConfigReady,
+            isNFTConfigReady,
             isInstalled: !(owner === ZERO_ADDRESS),
           })
           setIsInstalled(!(owner === ZERO_ADDRESS))

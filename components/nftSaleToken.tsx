@@ -3,6 +3,7 @@ import isImageUrl from "../helpers/isImageUrl"
 import { getLink } from "../helpers/getLink"
 import { getUnixTimestamp } from "../helpers/getUnixTimestamp"
 import { TimeToText } from "../helpers/TimeToText"
+import NftMedia from "./NftMedia"
 
 const nftToken = (options) => {
   const {
@@ -25,16 +26,17 @@ const nftToken = (options) => {
     onRemoveFromTrade,
     onAddToTrade,
     isPreview,
-    isWalletConnected
+    isWalletConnected,
+    isBaseConfigReady
   } = options
 
 
   return (
     <div className={`${styles.nftBox} nftTokenBox ${styles.nftSaleBox}`} key={tokenId.toString()}>
-      {tokenUri !== false && isImageUrl(tokenUri) ? (
+      {tokenUri !== false ? (
         <>
           <h3>#{tokenId}</h3>
-          <img src={tokenUri} />
+          <NftMedia url={tokenUri} />
         </>
       ) : (
         <>
@@ -46,12 +48,14 @@ const nftToken = (options) => {
         <>
           {isUserNFT ? (
             <>
-              <a
-                className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
-                href={getLink(`stake`)}
-              >
-                Go to staking
-              </a>
+              {isBaseConfigReady && (
+                <a
+                  className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}
+                  href={getLink(`stake`)}
+                >
+                  Go to staking
+                </a>
+              )}
               {isTradeAllow && (
                 <button disabled={isApproving || isBuying || isRemoveFromTrade}
                   className={`${styles.mainButton} ${styles.spacerBottom} primaryButton`}

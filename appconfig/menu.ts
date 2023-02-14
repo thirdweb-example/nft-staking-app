@@ -1,6 +1,7 @@
 export const sysMenus = {
   HOME: `index`,
   MINT: `mint`,
+  MINTOWN: `mintown`,
   MARKETPLACE: `marketplace`,
   STAKE: `stake`
 }
@@ -13,7 +14,13 @@ export const defMenus = [
     blank: false,
   },
   {
-    title: 'Mint NFT',
+    title: 'Mint',
+    target: 'MINTOWN',
+    link: '',
+    blank: false
+  },
+  {
+    title: 'Mint Random NFT',
     target: 'MINT',
     link: '',
     blank: false

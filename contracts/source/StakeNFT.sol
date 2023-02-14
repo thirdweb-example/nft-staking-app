@@ -248,6 +248,8 @@ contract StakeNFT is ERC721URIStorage, Ownable {
     bool private _allowUserSale = true;
     uint private _tradeFee = 0;
     bool private _allowMint = true;
+    bool private _allowOwnMint = true;
+
 
     mapping(uint256 => bool) private _isTokensAtSale;
     mapping(uint256 => SelledNFT) private _tokensAtSale;
@@ -261,15 +263,19 @@ contract StakeNFT is ERC721URIStorage, Ownable {
     string[] private _mintUris;
     uint256 private _mintPrice = 0;
 
+    uint256 private _ownMintPrice = 0;
+
     constructor(
         string memory __symbol,
         string memory __name,
         uint256 __maxSupply,
         uint256 __mintPrice,
+        uint256 __ownMintPrice,
         bool __allowTrade,
         bool __allowUserSale,
         uint __tradeFee,
         bool __allowMint,
+        bool __allowOwnMint,
         address[] memory __allowedERC20
     ) ERC721(__name, __symbol) {
         MAX_SUPPLY = __maxSupply;
@@ -278,6 +284,8 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         _allowUserSale = __allowUserSale;
         _tradeFee = __tradeFee;
         _allowMint = __allowMint;
+        _allowOwnMint = __allowOwnMint;
+        _ownMintPrice = __ownMintPrice;
         _allowedERC20 = __allowedERC20;
     }
 
