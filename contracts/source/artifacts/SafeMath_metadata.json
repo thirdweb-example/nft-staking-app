@@ -28,7 +28,7 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 999
+			"runs": 99999
 		},
 		"remappings": []
 	},
@@ -170,11 +170,11 @@
 			]
 		},
 		"source/StakeNFT.sol": {
-			"keccak256": "0x7e7d5634175cf6f7825cc0fdd727e18468c795a3900f99b937eb9622f31f4725",
+			"keccak256": "0x9f8fbce31cd6f9dd03693ed735cbdd10f0dc3f1b60952e7b83bc30dfe31a2266",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://a729653ba793ec118e11a302b6a8d814b2aa26729d5c9c2ac4feeef651d6490e",
-				"dweb:/ipfs/QmQtRU8WGkgTHVon9Xry3dRsGx4mb1EnPoSGzVdCadXta7"
+				"bzz-raw://c200dc7a8639f65b17ce0252e2b5d406139c6a7b0e3078e5dd14b1796e1ea968",
+				"dweb:/ipfs/QmRkdgRDXA5izTPjrkoLFkKEsuZmMzpwF7LYQWeWnGJdR4"
 			]
 		}
 	},

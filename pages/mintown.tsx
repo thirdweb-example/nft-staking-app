@@ -14,20 +14,10 @@ import fetchNftInfo from "../helpers/fetchNftInfo"
 import callNftMethod from "../helpers/callNftMethod"
 import crypto from "crypto"
 import nftToken from "../components/nftToken"
-// Eth-testnet
-/*
-const chainId = 5;
-const nftDropContractAddress = "0xefeffe4d50392998efe4cf46b6fbaa19a58a041a"
-const tokenContractAddress = "0xaFF4481D10270F50f203E0763e2597776068CBc5"
-const stakingContractAddress = "0x8b740b4ad15e2201f291cbfc487977b0ecb5fc84"
-*/
-// Bnb-testnet
-/*
-const chainId = 97;
-const nftDropContractAddress = "0x7682598A861336359740C08b3D1C5981F9473979"
-const tokenContractAddress = "0x703f112bda4cc6cb9c5fb4b2e6140f6d8374f10b"
-const stakingContractAddress = "0xAcf15259F8B99094b7051679a9e60B2F270558ce"
-*/
+
+import { FileUploader } from "react-drag-drop-files"
+import { infuraUpload as IpfsUpload } from "../helpers/ipfs/infuraUpload"
+
 
 import NftAirdropContractData from "../contracts/source/artifacts/StakeNFT.json"
 import MyNFTAbi from '../contracts/MyNFTAbi.json'
@@ -47,18 +37,6 @@ const Mint: NextPage = (props) => {
     storageMenu,
   } = props
 
-  const mintUris = [
-    'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/apple.png',
-    'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/bar.png',
-    'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/bell.png',
-    'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/cherry.png',
-    'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/lemon.png',
-    'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/orange.png',
-    'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/plum.png',
-    'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/seven.png',
-    'https://github.com/shendel/crypto-casino/raw/master/public/images/games/slots/symbols/water-melon.png',
-  ]
-
   const [ chainId, setChainId ] = useState(storageData?.chainId)
   const [ nftDropContractAddress, setNftDropContractAddress ] = useState(storageData?.nftCollection)
 
@@ -73,9 +51,6 @@ const Mint: NextPage = (props) => {
   const [airdropContract, setAirdropContract] = useState(false)
 
   const [isWalletConecting, setIsWalletConnecting] = useState(false)
-  const [isMinting, setIsMinting] = useState(false)
-  const [isMinted, setIsMinted] = useState(false)
-  const [mintedNFT, setMintedNft] = useState({})
 
   const processError = (error, error_namespace) => {
     let metamaskError = false
@@ -214,29 +189,116 @@ const Mint: NextPage = (props) => {
     }
   }
 
-  const doMintNFT = async () => {
-    if (address && nftContract) {
-      setIsMinting(true)
-      addNotify(`Confirm transaction for mint demo NFT`)
-      try {
-        const nftUri = mintUris[Math.floor(Math.random()*mintUris.length)]
-        const mintTxData = await calcSendArgWithFee(address, nftContract, "claimNFT", [nftUri])
-        nftContract.methods.claimNFT(nftUri).send(mintTxData).then(() => {
-          setIsMinted(true)
-          setIsMinting(false)
-          addNotify(`Demo NFT minted! Now you can test stake farm.`, `success`)
-        }).catch((e) => {
-          addNotify(`Mint demo NFT transaction failed`, `error`)
-          setIsMinting(false)
-        })
-      } catch (e) {
-        addNotify(`Mint demo NFT transaction failed`, `error`)
-        setIsMinting(false)
+
+  
+  
+  
+  const mintChainInfo = CHAIN_INFO(chainId)
+
+  const nftAllowedTypes = [ "JPEG", "JPG", "PNG", "GIF" ]
+  const [ nftImage, setNftImage ] = useState(null)
+  const [ nftImageData, setNftImageData ] = useState(null)
+  const [ nftImageDataBuffer, setNftImageDataBuffer ] = useState(null)
+
+  const [ nftName, setNftName ] = useState(``)
+  const [ nftDesc, setNftDesc ] = useState(``)
+  
+
+  const handleChangeNFTImage = (file) => {
+    setNftImage(file);
+  }
+  
+  useEffect(() => {
+    let fileReader, isCancel = false
+    let fileReaderBuffer, isCancelBuffer = false
+    if (nftImage) {
+      fileReader = new FileReader()
+      fileReader.onload = (e) => {
+        const { result } = e.target
+        if (result && !isCancel) {
+          console.log('>>> nft image', result)
+          setNftImageData(result)
+        }
+      }
+      fileReader.readAsDataURL(nftImage)
+      
+      fileReaderBuffer = new FileReader()
+      fileReaderBuffer.onload = (e) => {
+        const { result } = e.target
+        if (result && !isCancelBuffer) {
+          console.log('>>> nft image buffer', result)
+          setNftImageDataBuffer(result)
+        }
+      }
+      fileReaderBuffer.readAsArrayBuffer(nftImage)
+    }
+    return () => {
+      isCancel = true
+      if (fileReader && fileReader.readyState === 1) {
+        fileReader.abort()
+      }
+      isCancelBuffer = true
+      if (fileReaderBuffer && fileReaderBuffer.readyState === 1) {
+        fileReaderBuffer.abort()
       }
     }
-  }
 
-  const mintChainInfo = CHAIN_INFO(chainId)
+  }, [nftImage])
+
+  const [ isMinting, setIsMinting ] = useState(false)
+
+  const [ isImageUpload, setIsImageUpload ] = useState(false)
+  const [ isImageUploaded, setIsImageUploaded ] = useState(false)
+  const [ isImageUploadError, setIsImageUploadError ] = useState(false)
+  const [ imageUploadedCID, setImageUploadedCID ] = useState(false)
+  
+  const [ isJsonUpload, setIsJsonUpload ] = useState(false)
+  const [ isJsonUploaded, setIsJsonUploaded ] = useState(false)
+  const [ isJsonUploadError, setIsJsonUploadError ] = useState(false)
+  const [ jsonUploadedCID, setJsonUploadedCID ] = useState(false)
+
+  const doMintNFT = () => {
+    console.log('>>. do mint')
+    setIsMinting(true)
+    
+    setIsImageUpload(true)
+    setIsImageUploadError(false)
+    setIsImageUploaded(false)
+    
+    setIsJsonUpload(false)
+    setIsJsonUploaded(false)
+    setIsJsonUploadError(false)
+    
+    IpfsUpload(nftImageDataBuffer).then((imageCid) => {
+      console.log('>>> cid', imageCid)
+      setImageUploadedCID(imageCid)
+      const json = {
+        name: nftName,
+        description: nftDesc,
+        image: `ipfs://${imageCid}`,
+      }
+      setIsImageUpload(false)
+      setIsImageUploaded(true)
+      setIsJsonUpload(true)
+      IpfsUpload(JSON.stringify(json)).then((jsonCID) => {
+        setIsJsonUpload(false)
+        setIsImageUploaded(true)
+        setJsonUploadedCID(jsonCID)
+        console.log('>>> json CID', jsonCID)
+      }).catch((err) => {
+        console.log('err', err)
+        setIsJsonUpload(false)
+        setIsJsonUploadError(true)
+        setIsMinting(false)
+      })
+    }).catch((err) => {
+      console.log('>>> err', err)
+      setIsImageUploadError(true)
+      setIsImageUpload(false)
+      setIsMinting(false)
+    })
+  }
+  
   return (
     <div className={styles.container}>
       {navBlock(`mintown`)}
@@ -267,6 +329,38 @@ const Mint: NextPage = (props) => {
             <>
               {nftInfo.isNFTStakeToken ? (
                 <>
+                  <style jsx>
+                  {`
+                    .mintOwnForm {
+                    }
+                  `}
+                  </style>
+                  <div className="mintOwnForm">
+                    <div>
+                      <FileUploader
+                        multiple={false}
+                        handleChange={handleChangeNFTImage}
+                        types={nftAllowedTypes}
+                      />
+                      {nftImageData && (
+                        <div>
+                          <img src={nftImageData} />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <label>Name:</label>
+                      <input type="text" value={nftName} onChange={(e) => { setNftName(e.target.value) }} />
+                    </div>
+                    <div>
+                      <label>Description:</label>
+                      <textarea value={nftDesc} onChange={(e) => { setNftDesc(e.target.value) } } />
+                    </div>
+                    <div>
+                      <button onClick={doMintNFT}>Mint NFT</button>
+                    </div>
+                  </div>
+                  {/*
                   <h2 className="mintPageSubTitle">{getText(`MintPage_Managed_Title`, `Mint NFT`)}</h2>
                   <div className="mintPageTextBeforePrice">
                     {getText('MintPage_TextBeforePrice')}
@@ -302,9 +396,11 @@ const Mint: NextPage = (props) => {
                       })}
                     </>
                   )}
+                  */}
                 </>
               ) : (
                 <>
+                  {/*
                   {!isMinted ? (
                     <button disabled={isMinting} className={`${styles.mainButton} primaryButton`} onClick={doMintNFT}>
                       {isMinting ? `Minting NFT...` : `Mint NFT`}
@@ -317,6 +413,7 @@ const Mint: NextPage = (props) => {
                       </a>
                     </>
                   )}
+                  */}
                 </>
               )}
             </>

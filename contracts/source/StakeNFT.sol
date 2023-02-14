@@ -726,6 +726,25 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         return ret;
     }
 
+    function mint(address recipient, string memory tokenURI)
+        public payable
+        returns (uint256)
+    {
+        require(_allowOwnMint == true, "Own Mint not allowed");
+        require(_ownMintPrice > 0, "Mint price not configured");
+        require(msg.value >= _ownMintPrice, "You have not paid enough for mint");
+
+        _tokenIds.increment();
+
+        uint256 newItemId = _tokenIds.current();
+        _mint(recipient, newItemId);
+        _setTokenURI(newItemId, tokenURI);
+
+        fixTotalSupply();
+        emit Mint(recipient, newItemId, tokenURI);
+        return newItemId;
+    }
+
     function mintNFT(address recipient, string memory tokenURI)
         public onlyOwner
         returns (uint256)

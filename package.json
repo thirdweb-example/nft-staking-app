@@ -28,6 +28,7 @@
     "next": "^12.1.6",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
+    "react-drag-drop-files": "^2.3.8",
     "react-input-color": "^4.0.1"
   },
   "devDependencies": {
@@ -35,8 +36,12 @@
     "@types/react": "^17.0.40",
     "eslint": "^8.11.0",
     "eslint-config-next": "^12.1.0",
+    "filereader": "^0.10.3",
     "glob": "^8.0.3",
     "human-standard-token-abi": "^2.0.0",
+    "ipfs-http-client": "^60.0.0",
+    "nodejs-base64": "^2.0.0",
+    "react-file-reader": "^1.1.4",
     "typescript": "^4.6.2",
     "web3": "^1.7.4"
   }
