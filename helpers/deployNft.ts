@@ -15,6 +15,8 @@ const deployNft = (options) => {
       tradeFee,
       allowMint,
       mintPrice,
+      mintOwnPrice,
+      allowMintOwn
     } = options
     const onTrx = options.onTrx || (() => {})
     const onSuccess = options.onSuccess || (() => {})
@@ -32,33 +34,40 @@ const deployNft = (options) => {
         }
 
 /*
-maxSupply: nftMaxSupply,
-allowTrade: (nftAllowTrade == 1),
-allowUserSale: (nftAllowUserSale == 1),
-tradeFee: nftTradeFee,
-allowedERC20: nftAllowedERC20,
-allowMint: (nftAllowMint == 1),
-mintPrice: toWei(`${nftMintPrice}`, 18)
+      maxSupply: nftMaxSupply,
+      allowTrade: (nftAllowTrade == 1),
+      allowUserSale: (nftAllowUserSale == 1),
+      tradeFee: nftTradeFee,
+      allowedERC20: nftAllowedERC20,
+      allowMint: (nftAllowMint == 1),
+      mintPrice: toWei(`${nftMintPrice}`, 18), // @todo - 18 заменить на децимался нативной валюты
+      allowMintOwn: (nftAllowMintOwn == 1),
+      mintOwnPrice: toWei(`${nftMintOwnPrice}`, 18), // @todo - 18 заменить на децимался нативной валюты
+      
 
-string memory __symbol,
-string memory __name,
-uint256 __maxSupply,
-uint256 __mintPrice,
-bool __allowTrade,
-bool __allowUserSale,
-uint __tradeFee,
-bool __allowMint,
-address[] memory _erc20fortrade
+        string memory __symbol,
+        string memory __name,
+        uint256 __maxSupply,
+        uint256 __mintPrice,
+        uint256 __ownMintPrice,
+        bool __allowTrade,
+        bool __allowUserSale,
+        uint __tradeFee,
+        bool __allowMint,
+        bool __allowOwnMint,
+        address[] memory __allowedERC20
 */
         const _arguments = [
           symbol,
           name,
           maxSupply,
           mintPrice,
+          mintOwnPrice,
           allowTrade,
           allowUserSale,
           tradeFee,
           allowMint,
+          allowMintOwn,
           allowedERC20
         ]
 console.log('>> _arguments', _arguments)

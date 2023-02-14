@@ -49,7 +49,7 @@ export default function TabNftCollection(options) {
   const [nftAllowMint, setNftAllowMint] = useState(1)
   const [nftMintPrice, setNftMintPrice] = useState(0.001)
   
-  const [nftAllowMintOwn, setAllowMintOwn] = useState(1)
+  const [nftAllowMintOwn, setAllowMintOwn] = useState(0)
   const [nftMintOwnPrice, setNftMintOwnPrice] = useState(0.001)
   
   const [nftInfo, setNftInfo] = useState({})
@@ -150,6 +150,8 @@ export default function TabNftCollection(options) {
     && nftMaxSupply > 0
     && (
       (nftAllowMint == 1 && nftMintPrice > 0) || (nftAllowMint == 0)
+      ||
+      (nftAllowMintOwn == 1 && nftMintOwnPrice > 0) || (nftAllowMintOwn == 0)
     )
   )
   
@@ -161,6 +163,19 @@ export default function TabNftCollection(options) {
     
     const activeChainInfo = CHAIN_INFO(activeChainId)
 
+    /*
+        string memory __symbol,
+        string memory __name,
+        uint256 __maxSupply,
+        uint256 __mintPrice,
+        uint256 __ownMintPrice,
+        bool __allowTrade,
+        bool __allowUserSale,
+        uint __tradeFee,
+        bool __allowMint,
+        bool __allowOwnMint,
+        address[] memory __allowedERC20
+    */
     const deployOptions = {
       activeWeb3,
       symbol: nftSymbol,
@@ -171,7 +186,10 @@ export default function TabNftCollection(options) {
       tradeFee: nftTradeFee,
       allowedERC20: nftAllowedERC20,
       allowMint: (nftAllowMint == 1),
-      mintPrice: toWei(`${nftMintPrice}`, 18)
+      mintPrice: toWei(`${nftMintPrice}`, 18), // @todo - 18 заменить на децимался нативной валюты
+      allowMintOwn: (nftAllowMintOwn == 1),
+      mintOwnPrice: toWei(`${nftMintOwnPrice}`, 18), // @todo - 18 заменить на децимался нативной валюты
+      
     }
     
     openConfirmWindow({

@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.17+commit.8df45f5f"
+		"version": "0.8.1+commit.df193b15"
 	},
 	"language": "Solidity",
 	"output": {
@@ -1469,14 +1469,14 @@
 		"compilationTarget": {
 			"source/StakeNFT.sol": "StakeNFT"
 		},
-		"evmVersion": "london",
+		"evmVersion": "istanbul",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 99999
+			"runs": 200
 		},
 		"remappings": []
 	},
@@ -1609,6 +1609,14 @@
 				"dweb:/ipfs/QmUaRPa2Nm2WfKeCq8yRCR94JZFCnfr4xw9LJADWxhTcwt"
 			]
 		},
+		"https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/utils/math/SafeMath.sol": {
+			"keccak256": "0xa80cb30fccbba7c8ff72ac82cc898576a78d4c3031e85676840048f3fe195f5d",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://22fff2b2370631317e0e4bf36eabb136e96f1db5d5993c61e13b27d7615b504f",
+				"dweb:/ipfs/QmfTW395az3LUhe3Gm5BUCwkaj9Sk1fURZKvHL2XzDHYQk"
+			]
+		},
 		"https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/utils/math/SignedMath.sol": {
 			"keccak256": "0xf92515413956f529d95977adc9b0567d583c6203fc31ab1c23824c35187e3ddc",
 			"license": "MIT",
@@ -1618,11 +1626,11 @@
 			]
 		},
 		"source/StakeNFT.sol": {
-			"keccak256": "0x91750fa2913abaa38c8d4f169fcdd49d590b725678ffff841a25aed952c11cc7",
+			"keccak256": "0x482cf07c5447170bff2db71c5b938af67b156ccd43ebc5b24d97c2d10f651011",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://e3a413568b150f18e479d2401b5b0e7f134bfb395a4b721df8af2660dcbc412a",
-				"dweb:/ipfs/QmXuYq2titQMtVuYHpTf6ZchKgfuMBmgNuF5CcUbwpwygH"
+				"bzz-raw://8ddd0303105aa5adc294d22e283b6a9ae1349a3e952b333734e382f249f7bf54",
+				"dweb:/ipfs/Qme6XwkrvDQpLiR2CqJjXjukGsh8RafPnJjhfsTCu49Eh1"
 			]
 		}
 	},
