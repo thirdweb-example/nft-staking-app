@@ -155,6 +155,14 @@ contract StakeNFT is ERC721URIStorage, Ownable {
         return _allowMint;
     }
 
+    function setAllowMintOwn(bool _newValue) public onlyOwner {
+        _allowOwnMint = _newValue;
+    }
+
+    function getAllowMintOur() public view returns (bool) {
+        return _allowOwnMint;
+    }
+
     function setAllowUserSale(bool _newAllowUserSale) public onlyOwner {
         _allowUserSale = _newAllowUserSale;
     }
@@ -185,6 +193,14 @@ contract StakeNFT is ERC721URIStorage, Ownable {
 
     function getMintPrice() public view returns (uint256) {
         return _mintPrice;
+    }
+
+    function setMintOwnPrice(uint256 _newValue) public onlyOwner {
+        _ownMintPrice = _newValue;
+    }
+    
+    function getMintOwnPrice() public view returns (uint256) {
+        return _ownMintPrice;
     }
 
     function setMaxSupply(uint256 _newMaxSupply) public onlyOwner {

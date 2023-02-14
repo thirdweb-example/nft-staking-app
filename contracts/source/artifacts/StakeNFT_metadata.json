@@ -552,6 +552,19 @@
 			},
 			{
 				"inputs": [],
+				"name": "getAllowMintOur",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
 				"name": "getAllowTrade",
 				"outputs": [
 					{
@@ -603,6 +616,19 @@
 						"internalType": "address",
 						"name": "",
 						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getMintOwnPrice",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
@@ -1118,6 +1144,19 @@
 				"inputs": [
 					{
 						"internalType": "bool",
+						"name": "_newValue",
+						"type": "bool"
+					}
+				],
+				"name": "setAllowMintOwn",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bool",
 						"name": "_newAllowTrade",
 						"type": "bool"
 					}
@@ -1180,6 +1219,19 @@
 					}
 				],
 				"name": "setMaxSupply",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_newValue",
+						"type": "uint256"
+					}
+				],
+				"name": "setMintOwnPrice",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -1626,11 +1678,11 @@
 			]
 		},
 		"source/StakeNFT.sol": {
-			"keccak256": "0x482cf07c5447170bff2db71c5b938af67b156ccd43ebc5b24d97c2d10f651011",
+			"keccak256": "0xabd13da8b73a4586ff9753ac37f9902c978c5f0b9661199a9639e9fc9a0a3874",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://8ddd0303105aa5adc294d22e283b6a9ae1349a3e952b333734e382f249f7bf54",
-				"dweb:/ipfs/Qme6XwkrvDQpLiR2CqJjXjukGsh8RafPnJjhfsTCu49Eh1"
+				"bzz-raw://11ba82ae68c86d141082784112c96727c28411b58703b0334da8c6ba682392fb",
+				"dweb:/ipfs/QmUERk46QG2WhyeYCAjdrNVDMVSzYQrWKaJLeVQEKwMHfL"
 			]
 		}
 	},
