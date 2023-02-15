@@ -30,6 +30,8 @@ const callNftMethod = (options) => {
           args || [],
           weiAmount
         )
+        const gasPrice = await activeWeb3.eth.getGasPrice()
+        sendArgs.gasPrice = gasPrice
         console.log('>> amount 2', weiAmount, sendArgs)
 
         nftContract.methods[method](...(args || []))

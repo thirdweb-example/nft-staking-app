@@ -45,6 +45,8 @@ const deployFarmContract = (options) => {
             .toFixed(0)
         ).toString(16)
 
+        const gasPrice = await activeWeb3.eth.getGasPrice()
+        txArguments.gasPrice = gasPrice
         txArguments.gas = '0x' + gasAmounWithPercentForSuccess
 
         farmContract.deploy({

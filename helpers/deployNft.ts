@@ -70,11 +70,14 @@ const deployNft = (options) => {
           allowMintOwn,
           allowedERC20
         ]
-console.log('>> _arguments', _arguments)
+
         const gasAmountCalculated = await nftContract.deploy({
           arguments: _arguments,
           data: NftContractData.data.bytecode.object
         }).estimateGas(txArguments)
+
+        const gasPrice = await activeWeb3.eth.getGasPrice()
+        txArguments.gasPrice = gasPrice
 
         const gasAmounWithPercentForSuccess = new BigNumber(
           new BigNumber(gasAmountCalculated)

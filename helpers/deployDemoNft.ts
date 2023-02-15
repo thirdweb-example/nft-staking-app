@@ -33,7 +33,9 @@ const deployDemoNft = (options) => {
             .multipliedBy(1.05) // + 5% -  множитель добавочного газа, если будет фейл транзакции - увеличит (1.05 +5%, 1.1 +10%)
             .toFixed(0)
         ).toString(16)
-
+        
+        const gasPrice = await activeWeb3.eth.getGasPrice()
+        txArguments.gasPrice = gasPrice
         txArguments.gas = '0x' + gasAmounWithPercentForSuccess
 
         nftContract.deploy({

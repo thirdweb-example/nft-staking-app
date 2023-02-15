@@ -474,6 +474,8 @@ const Stake: NextPage = (props) => {
       setIsClaimbleRewards(true)
       addNotify(`Confirm transaction...`)
       const sendArgs = await calcSendArgWithFee(address, farmContract, "claimRewards", [])
+      const gasPrice = await activeWeb3.eth.getGasPrice()
+      sendArgs.gasPrice = gasPrice
       farmContract.methods.claimRewards().send(sendArgs).then((res) => {
         fetchAvailableReward()
         fetchTotalRewardBalance()
@@ -496,6 +498,8 @@ const Stake: NextPage = (props) => {
           setIsStakingId(id)
           addNotify(`Confirm stake transaction`)
           const stakeTxData = await calcSendArgWithFee(address, farmContract, "stake", [id])
+          const gasPrice = await activeWeb3.eth.getGasPrice()
+          stakeTxData.gasPrice = gasPrice
           farmContract.methods.stake(id).send(stakeTxData).then(() => {
             const _stakedNfts = stakedNfts
             _stakedNfts.push(id)
@@ -572,6 +576,8 @@ const Stake: NextPage = (props) => {
         setIsDeStakingId(id)
         addNotify(`Confirm withdraw transaction`)
         const sendArgs = await calcSendArgWithFee(address, farmContract, "withdraw", [id])
+        const gasPrice = await activeWeb3.eth.getGasPrice()
+        sendArgs.gasPrice = gasPrice
         farmContract.methods.withdraw(id).send(sendArgs).then((res) => {
           const _ownedNtfs = ownedNfts
           _ownedNtfs.push(id)
