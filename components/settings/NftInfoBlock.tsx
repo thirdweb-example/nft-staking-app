@@ -35,7 +35,11 @@ export default function NftInfoBlock(options) {
     tradeFee,
     allowMint,
     mintPrice,
+
     allowedERC20,
+    
+    allowMintOwn,
+    mintOwnPrice,
   } = NFTStakeInfo
 
   const nativeCurrency = CHAIN_INFO(chainId).nativeCurrency
@@ -43,6 +47,8 @@ export default function NftInfoBlock(options) {
   
   const [ newAllowMint, setNewAllowMint ] = useState((allowMint) ? 1 : 0)
   const [ newMintPrice, setNewMintPrice ] = useState(fromWei(mintPrice, nativeCurrency.decimals))
+  const [ newAllowMintOwn, setNewAllowMintOwn ] = useState((allowMintOwn) ? 1 : 0)
+  const [ newMintOwnPrice, setNewMintOwnPrice ] = useState(fromWei(mintOwnPrice, nativeCurrency.decimals))
   const [ newAllowTrade, setNewAllowTrade ] = useState((allowTrade) ? 1 : 0)
   const [ newAllowUserSale, setNewAllowUserSale ] = useState((allowUserSale) ? 1 : 0)
   const [ newTradeFee, setNewTradeFee ] = useState(tradeFee)

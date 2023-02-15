@@ -15,7 +15,7 @@ import callNftMethod from "../helpers/callNftMethod"
 import crypto from "crypto"
 import nftToken from "../components/nftToken"
 
-import { FileUploader } from "react-drag-drop-files"
+import { FileUploader } from "../components/DragDropUpload"
 import { infuraUpload as IpfsUpload } from "../helpers/ipfs/infuraUpload"
 
 
@@ -23,6 +23,8 @@ import NftAirdropContractData from "../contracts/source/artifacts/StakeNFT.json"
 import MyNFTAbi from '../contracts/MyNFTAbi.json'
 import { CHAIN_INFO } from "../helpers/constants"
 import { toWei, fromWei } from "../helpers/wei"
+
+import FaIcon from "../components/FaIcon"
 
 
 const debugLog = (msg) => { console.log(msg) }
@@ -246,6 +248,7 @@ const Mint: NextPage = (props) => {
   }, [nftImage])
 
   const [ isMinting, setIsMinting ] = useState(false)
+  const [ isMinted, setIsMinted ] = useState(false)
 
   const [ isImageUpload, setIsImageUpload ] = useState(false)
   const [ isImageUploaded, setIsImageUploaded ] = useState(false)
@@ -257,9 +260,28 @@ const Mint: NextPage = (props) => {
   const [ isJsonUploadError, setIsJsonUploadError ] = useState(false)
   const [ jsonUploadedCID, setJsonUploadedCID ] = useState(false)
 
+  const [ mintTx, setMintTx ] = useState(false)
+  const [ isMintShow, setIsMintShow ] = useState(false)
+  
+  const [ mintedNFT, setMintedNft ] = useState(false)
+  
+  const resetMintForm = () => {
+    setIsMintShow(false)
+    setIsImageUploaded(false)
+    setIsJsonUploaded(false)
+    setNftName(``)
+    setNftDesc(``)
+    setNftImage(null)
+    setNftImageData(null)
+    setNftImageDataBuffer(null)
+  }
   const doMintNFT = () => {
-    console.log('>>. do mint')
-    setIsMinting(true)
+    if (nftImageDataBuffer == null) return addNotify(`Select NFT image`, `error`)
+    if (nftName == ``) return addNotify(`Enter NFT name`, `error`)
+    if (nftDesc == ``) return addNotify(`Enter NFT description`, `error`)
+
+    setIsMinting(false)
+    setMintTx(false)
     
     setIsImageUpload(true)
     setIsImageUploadError(false)
@@ -268,6 +290,8 @@ const Mint: NextPage = (props) => {
     setIsJsonUpload(false)
     setIsJsonUploaded(false)
     setIsJsonUploadError(false)
+    
+    setIsMintShow(true)
     
     IpfsUpload(nftImageDataBuffer).then((imageCid) => {
       console.log('>>> cid', imageCid)
@@ -282,9 +306,54 @@ const Mint: NextPage = (props) => {
       setIsJsonUpload(true)
       IpfsUpload(JSON.stringify(json)).then((jsonCID) => {
         setIsJsonUpload(false)
-        setIsImageUploaded(true)
+        setIsJsonUploaded(true)
         setJsonUploadedCID(jsonCID)
         console.log('>>> json CID', jsonCID)
+        setIsMinting(true)
+        callNftMethod({
+          activeWeb3,
+          contractAddress: nftDropContractAddress,
+          method: 'mint',
+          weiAmount: nftInfo.NFTStakeInfo.mintOwnPrice,
+          args: [
+            address,
+            `ipfs://${jsonCID}`
+          ],
+          onTrx: (txHash) => {
+            console.log('>> onTrx', txHash)
+            addNotify(`NFT mint TX ${txHash}`, `success`)
+            setMintTx(txHash)
+          },
+          onSuccess: (receipt) => {
+            console.log('>> onSuccess', receipt)
+            addNotify(`NFT mint transaction broadcasted`, `success`)
+          },
+          onError: (err) => {
+            console.log('>> onError', err)
+            addNotify(`Fail mint NFT. ${err.message ? err.message : ''}`, `error`)
+          },
+          onFinally: (answer) => {
+            console.log('>> onFinally', answer)
+            if (
+              answer?.events?.Mint?.returnValues?.tokenUri
+              && answer?.events?.Mint?.returnValues?.tokenId
+            ) {
+              const {
+                tokenId,
+                tokenUri,
+              } = answer.events.Mint.returnValues
+
+              setMintedNft({
+                tokenId,
+                tokenUri,
+              })
+
+              addNotify(`NFT #${tokenId} minted!`, `success`)
+            }
+            setIsMinting(false)
+            setIsMinted(true)
+          }
+        })
       }).catch((err) => {
         console.log('err', err)
         setIsJsonUpload(false)
@@ -298,7 +367,13 @@ const Mint: NextPage = (props) => {
       setIsMinting(false)
     })
   }
-  
+
+  // Image uploader costumize
+  const [ isImageDrag, setIsImageDrag ] = useState(false)
+  const handleDragImage = (isDragging) => {
+    setIsImageDrag(isDragging)
+    console.log('>>> is drag', isDragging)
+  }
   return (
     <div className={styles.container}>
       {navBlock(`mintown`)}
@@ -332,33 +407,130 @@ const Mint: NextPage = (props) => {
                   <style jsx>
                   {`
                     .mintOwnForm {
+                      max-width: 640px;
+                      margin: 0 auto;
+                      width: 100%;
+                      position: relative;
+                    }
+                    .mintOwnForm .imageHolder {
+                      display: block;
+                      width: 100%;
+                      padding: 10px;
+                      border: 1px solid #000;
+                      border-radius: 10px;
+                      border-top: 0px;
+                      border-top-left-radius: 0px;
+                      border-top-right-radius: 0px;
+                      margin-bottom: 10px;
+                    }
+                    .mintOwnForm .imageHolder IMG {
+                      display: block;
+                      width: 100%;
+                    }
+                    .mintOwnForm .imageUploader > LABEL {
+                      display: block;
+                      width: 100%;
+                      outline: 1px solid red;
+                    }
+                    
+                    .mintOwnForm .inputHolder {
+                      display: block;
+                      text-align: left;
+                      margin-bottom: 10px;
+                    }
+                    .mintOwnForm .inputHolder LABEL {
+                      display: block;
+                      color: #000;
+                    }
+                    .mintOwnForm .inputHolder INPUT[type="text"],
+                    .mintOwnForm .inputHolder TEXTAREA {
+                      display: block;
+                      width: 100%;
+                      background: #FFF;
+                      border: 1px solid #000;
+                      border-radius: 5px;
+                      color: #000;
+                      height: 2.5em;
+                      padding-left: 10px;
+                      padding-right: 10px;
+                    }
+                    .mintOwnForm .inputHolder TEXTAREA {
+                      height: 10em;
+                    }
+                    .mintOwnForm .mintProgress {
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      position: absolute;
+                      top: 0px;
+                      right: 0px;
+                      bottom: 0px;
+                      left: 0px;
+                      background: #edeef0b0;
+                      color: #346297;
+                    }
+                    .mintOwnForm .mintProgress>DIV {
+                      width: 80%;
+                      padding: 10px;
+                      border: 1px solid #346297;
+                      background: #edeef0;
+                      box-shadow: 0px 0px 6px 0px black;
+                    }
+                    .mintOwnForm .mintProgress LABEL {
+                      display: block;
+                      font-size: 12pt;
+                      padding-bottom: 5px;
+                      font-weight: bold;
+                    }
+                    .mintOwnForm .mintProgress LABEL.error {
+                      color: #bb0404;
                     }
                   `}
                   </style>
                   <div className="mintOwnForm">
-                    <div>
+                    <div className="imageUploader">
                       <FileUploader
                         multiple={false}
                         handleChange={handleChangeNFTImage}
+                        onDraggingStateChange={handleDragImage}
                         types={nftAllowedTypes}
                       />
                       {nftImageData && (
-                        <div>
+                        <div className="imageHolder">
                           <img src={nftImageData} />
                         </div>
                       )}
                     </div>
-                    <div>
+                    <div className="inputHolder">
                       <label>Name:</label>
                       <input type="text" value={nftName} onChange={(e) => { setNftName(e.target.value) }} />
                     </div>
-                    <div>
+                    <div className="inputHolder">
                       <label>Description:</label>
                       <textarea value={nftDesc} onChange={(e) => { setNftDesc(e.target.value) } } />
                     </div>
                     <div>
-                      <button onClick={doMintNFT}>Mint NFT</button>
+                      <button onClick={doMintNFT} className={`${styles.mainButton} primaryButton`}>Mint NFT</button>
                     </div>
+                    {isMintShow && (
+                      <div className="mintProgress">
+                        <div>
+                          {isImageUpload && (<label>Uploading Image to IPFS provider...</label>)}
+                          {isImageUploaded && (<label>Image uploaded to IPFS</label>)}
+                          {isImageUploadError && (<label className="error">Fail upload image to IPFS provider</label>)}
+                          {isJsonUpload && (<label>Uploading NFT metadata to IPFS provider...</label>)}
+                          {isJsonUploaded && (<label>NFT metadata uploaded to IPFS</label>)}
+                          {isJsonUploadError && (<label className="error">Fail upload NFT metadata to IPFS</label>)}
+                          {isMinting && !isMinted && (<label>Minting NFT. Confirm transaction</label>)}
+                          {isMinted && (<label>NFT Minted!</label>)}
+                          {isMinted && (
+                            <div>
+                              <button onClick={resetMintForm} className={`${styles.mainButton} primaryButton`}>Close</button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {/*
                   <h2 className="mintPageSubTitle">{getText(`MintPage_Managed_Title`, `Mint NFT`)}</h2>

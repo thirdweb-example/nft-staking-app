@@ -1,4 +1,4 @@
-const IPFS_GATEWAY = `https://ipfs.io/ipfs/`
+const IPFS_GATEWAY = `https://skywalker.infura-ipfs.io/ipfs/` //`https://ipfs.io/ipfs/`
 
 export const ipfsUrl = (url) => {
   if (url.startsWith(`ipfs://`)) {

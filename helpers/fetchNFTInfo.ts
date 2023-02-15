@@ -44,6 +44,8 @@ const fetchNftInfo = (address, chainId) => {
                     totalSupply:      { func: 'totalSupply', _isBigNumber: true },
                     maxSupply:        { func: 'MAX_SUPPLY', _isBigNumber: true },
                     allowMint:        { func: 'getAllowMint' },
+                    allowMintOwn:     { func: 'getAllowMintOur' }, // @to-do - fix name in contract
+                    mintOwnPrice:     { func: 'getMintOwnPrice', _isBigNumber: true },
                     mintPrice:        { func: 'getMintPrice', _isBigNumber: true },
                     mintUris:         { func: 'getMintUris' },
                     allowTrade:       { func: 'getAllowTrade' },
