@@ -140,57 +140,6 @@ const Mint: NextPage = (props) => {
     })
   }
 
-  const doMintPayable = async () => {
-    if (address && airdropContract) {
-      setIsMinting(true)
-      addNotify(`Confirm transaction for mint NFT`)
-      const seed = crypto.randomBytes(32).toString('hex')
-      console.log(nftInfo)
-      callNftMethod({
-        activeWeb3,
-        contractAddress: nftDropContractAddress,
-        method: 'mintRandom',
-        weiAmount: nftInfo.NFTStakeInfo.mintPrice,
-        args: [
-          `0x${seed}`
-        ],
-        onTrx: (txHash) => {
-          console.log('>> onTrx', txHash)
-          addNotify(`NFT mint TX ${txHash}`, `success`)
-        },
-        onSuccess: (receipt) => {
-          console.log('>> onSuccess', receipt)
-          addNotify(`NFT mint transaction broadcasted`, `success`)
-        },
-        onError: (err) => {
-          console.log('>> onError', err)
-          addNotify(`Fail mint NFT. ${err.message ? err.message : ''}`, `error`)
-        },
-        onFinally: (answer) => {
-          console.log('>> onFinally', answer)
-          if (
-            answer?.events?.Mint?.returnValues?.tokenUri
-            && answer?.events?.Mint?.returnValues?.tokenId
-          ) {
-            const {
-              tokenId,
-              tokenUri,
-            } = answer.events.Mint.returnValues
-
-            setMintedNft({
-              tokenId,
-              tokenUri,
-            })
-
-            addNotify(`NFT #${tokenId} minted!`, `success`)
-          }
-          setIsMinting(false)
-          setIsMinted(true)
-        }
-      })
-    }
-  }
-
 
   
   
@@ -218,7 +167,6 @@ const Mint: NextPage = (props) => {
       fileReader.onload = (e) => {
         const { result } = e.target
         if (result && !isCancel) {
-          console.log('>>> nft image', result)
           setNftImageData(result)
         }
       }
@@ -228,12 +176,12 @@ const Mint: NextPage = (props) => {
       fileReaderBuffer.onload = (e) => {
         const { result } = e.target
         if (result && !isCancelBuffer) {
-          console.log('>>> nft image buffer', result)
           setNftImageDataBuffer(result)
         }
       }
       fileReaderBuffer.readAsArrayBuffer(nftImage)
     }
+    
     return () => {
       isCancel = true
       if (fileReader && fileReader.readyState === 1) {
@@ -382,20 +330,23 @@ const Mint: NextPage = (props) => {
         getDesign
       })}
       <h1 className={`${styles.h1} pageTitle`}>
-        {getText(`MintPage_Title`, `Mint Demo NFTs for test`)}
+        {getText(`MintOwnPage_Title`, `Mint NFTs`)}
       </h1>
       <hr className={`${styles.divider} ${styles.spacerTop}`} />
 
+      {nftInfoFetched && (
+        <h2>Mint price is {fromWei(nftInfo.NFTStakeInfo.mintOwnPrice, mintChainInfo.nativeCurrency.decimals)} {mintChainInfo.nativeCurrency.symbol} + Blockchain fee</h2>
+      )}
       {!address ? (
         <>
           <div className="mintBeforeConnectWallet">
-            {getText('StakePage_BeforeConnect_Text')}
+            {getText('MintPage_BeforeConnect_Text')}
           </div>
           <button disabled={isWalletConecting} className={`${styles.mainButton} primaryButton`} onClick={connectWithMetamask}>
             {isWalletConecting ? `Connecting` : `Connect Wallet`}
           </button>
           <div className="mintAfterConnectWallet">
-            {getText('StakePage_AfterConnect_Text')}
+            {getText('MintPage_AfterConnect_Text')}
           </div>
         </>
       ) : (
@@ -532,65 +483,15 @@ const Mint: NextPage = (props) => {
                       </div>
                     )}
                   </div>
-                  {/*
-                  <h2 className="mintPageSubTitle">{getText(`MintPage_Managed_Title`, `Mint NFT`)}</h2>
-                  <div className="mintPageTextBeforePrice">
-                    {getText('MintPage_TextBeforePrice')}
-                  </div>
-                  <div className={`${styles.mintPageDesc} mintPagePrice`}>
-                    {getText(
-                      `MintPage_Managed_PriceInfo`,
-                      `Mint price is %amount% %currency%`,
-                      {
-                        amount: fromWei(nftInfo.NFTStakeInfo.mintPrice, mintChainInfo.nativeCurrency.decimals),
-                        currency: mintChainInfo.nativeCurrency.symbol,
-                      }
-                    )}
-                  </div>
-                  <div className="mintPageTextAfterPrice">
-                    {getText('MintPage_TextAfterPrice')}
-                  </div>
-                  <div className={styles.mintPageMintedHolder}>
-                    <button disabled={isMinting} className={`${styles.mainButton} primaryButton`} onClick={doMintPayable}>
-                      {isMinting
-                        ? `Minting NFT...`
-                        : (isMinted)
-                          ? `Mint some one`
-                          : `Mint NFT`
-                      }
-                    </button>
-                  </div>
-                  {mintedNFT && mintedNFT.tokenId && mintedNFT.tokenUri && (
-                    <>
-                      {nftToken({
-                        ...mintedNFT,
-                        isMinted: true,
-                      })}
-                    </>
-                  )}
-                  */}
                 </>
               ) : (
                 <>
-                  {/*
-                  {!isMinted ? (
-                    <button disabled={isMinting} className={`${styles.mainButton} primaryButton`} onClick={doMintNFT}>
-                      {isMinting ? `Minting NFT...` : `Mint NFT`}
-                    </button>
-                  ) : (
-                    <>
-                      <h2>Demo NFT minted</h2>
-                      <a href={getLink('stake')} className={`${styles.mainButton} primaryButton`}>
-                        Go to Stake NFT
-                      </a>
-                    </>
-                  )}
-                  */}
+                  
                 </>
               )}
             </>
           ) : (
-            <div>{getText(`MinPage_Loading`, `Loading...`)}</div>
+            <div>{getText(`MintPage_Loading`, `Loading...`)}</div>
           )}
         </>
       )}

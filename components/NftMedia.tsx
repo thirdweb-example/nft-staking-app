@@ -71,12 +71,14 @@ export default function NftMedia(options) {
                 {isImageUrl && (
                   <img src={ipfsUrl(url)} />
                 )}
+                {jsonData && jsonData.name && (
+                  <strong>{jsonData.name}</strong>
+                )}
               </>
             )}
           </>
         )}
       </div>
-      <div>NFT MEDIA</div>
     </>
   )
 }
