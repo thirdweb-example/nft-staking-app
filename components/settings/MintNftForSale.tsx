@@ -10,6 +10,8 @@ import fetchTokensListInfo from "../../helpers/fetchTokensListInfo"
 import FormTabs from "../FormTabs"
 import MintManyNftForSale from "./MintManyNftForSale"
 import ImageInput from "../ImageInput"
+import InputImage from "../InputImage"
+
 
 
 export default function MintNftForSale(options) {
@@ -109,6 +111,7 @@ export default function MintNftForSale(options) {
     })
   }
 
+  
   const tabs = new FormTabs({
     activeTab: `mintone`,
     tabs: [
@@ -123,7 +126,10 @@ export default function MintNftForSale(options) {
                   <label>URI:</label>
                   <span>
                     <div>
+                      <InputImage />
+                      {/*
                       <ImageInput value={tokenUri} onChange={(v) => { setTokenUri(v) }} />
+                      */}
                     </div>
                     {hasTokenUriError && (
                       <div>
