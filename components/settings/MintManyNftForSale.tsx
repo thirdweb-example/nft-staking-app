@@ -12,7 +12,7 @@ import {
 import { fromWei, toWei } from "../../helpers/wei"
 
 import AdminNftMetadataGenerator from "../AdminNftMetadataGenerator"
-
+import { createNftMetadata } from "../../helpers/createNftMetadata"
 
 export default function MintManyNftForSale(options) {
   const {
@@ -29,59 +29,76 @@ export default function MintManyNftForSale(options) {
   const [ isMinting, setIsMinting ] = useState(false)
   
   const doMintItems = () => {
-    const uris = []
-    const prices = []
-    const currencies = []
-    /* ToDo - check errors */
-    items.forEach((item) => {
-      uris.push(item.uri)
-      currencies.push(item.currency)
-      prices.push(toWei(
-        item.price,
-        (item.currency == ZERO_ADDRESS)
-          ? nativeCurrency.decimals
-          : allowedERC20Info[item.currency].decimals
-      ))
-    })
     openConfirmWindow({
       title: `Mint NFTs for sale`,
       message: `Mint these NFT items and put up its to sale?`,
       onConfirm: () => {
         setIsMinting(true)
-        addNotify(`Minting NFTs. Confirm transaction`)
-        const { activeWeb3 } = getActiveChain()
-        callNftMethod({
-          activeWeb3,
-          contractAddress: nftAddress,
-          method: `mintNFTForSell`,
-          args: [
-            uris,
-            currencies,
-            prices,
-            ZERO_ADDRESS
-          ],
-          onTrx: (txHash) => {
-            addNotify(`Mint NFTs for sale TX ${txHash}`, `success`)
-            console.log('>> onTrx', txHash)
-          },
-          onSuccess: (receipt) => {
-            addNotify(`Broadcast Mint NFTs TX`, `success`)
-            console.log('>> onSuccess', receipt)
-          },
-          onError: (err) => {
-            addNotify(`Fail mint NFTs. ${err.message ? err.message : ''}`, `error`)
-            setIsMinting(false)
-            console.log('>> onError', err)
-          },
-          onFinally: (answer) => {
-            const newTokenIds = answer.events.Mint.map((rv) => {
-              return rv.returnValues.tokenId
+        addNotify(`Uploading metadata to IPFS...`)
+        Promise.all(items.map((itemData, itemKey) => {
+          return new Promise((resolve, reject) => {
+            console.log(itemKey)
+            updateIsUploading(itemKey, true)
+            createNftMetadata(itemData.metadata).then((url) => {
+              updateIsUploaded(itemKey, true)
+              resolve(url)
+            }).catch((err) => {
+              reject(err)
             })
-            addNotify(`NFTs is minted! NTFs ids is ${newTokenIds.join(', ')}`, `success`)
-            setIsMinting(false)
-            setItems([])
-            console.log('>> onFinally', answer)
-          }
+          })
+        })).then((uris) => {
+          addNotify(`Metadata uploaded to IPFS`, `success`)
+          const prices = []
+          const currencies = []
+          /* ToDo - check errors */
+          items.forEach((item) => {
+            //uris.push(item.uri)
+            currencies.push(item.currency)
+            prices.push(toWei(
+              item.price,
+              (item.currency == ZERO_ADDRESS)
+                ? nativeCurrency.decimals
+                : allowedERC20Info[item.currency].decimals
+            ))
+          })
+    
+          addNotify(`Minting NFTs. Confirm transaction`)
+          const { activeWeb3 } = getActiveChain()
+          callNftMethod({
+            activeWeb3,
+            contractAddress: nftAddress,
+            method: `mintNFTForSell`,
+            args: [
+              uris,
+              currencies,
+              prices,
+              ZERO_ADDRESS
+            ],
+            onTrx: (txHash) => {
+              addNotify(`Mint NFTs for sale TX ${txHash}`, `success`)
+              console.log('>> onTrx', txHash)
+            },
+            onSuccess: (receipt) => {
+              addNotify(`Broadcast Mint NFTs TX`, `success`)
+              console.log('>> onSuccess', receipt)
+            },
+            onError: (err) => {
+              addNotify(`Fail mint NFTs. ${err.message ? err.message : ''}`, `error`)
+              setIsMinting(false)
+              console.log('>> onError', err)
+            },
+            onFinally: (answer) => {
+              const newTokenIds = answer.events.Mint.map((rv) => {
+                return rv.returnValues.tokenId
+              })
+              addNotify(`NFTs is minted! NTFs ids is ${newTokenIds.join(', ')}`, `success`)
+              setIsMinting(false)
+              setItems([])
+              console.log('>> onFinally', answer)
+            }
+          })
+        }).catch((err) => {
+          console.log('promise err', err)
         })
       }
     })
@@ -105,12 +122,37 @@ export default function MintManyNftForSale(options) {
       return [...prev]
     })
   }
+  const updateMetadata = (index, newValue) => {
+    setItems((prev) => {
+      prev[index].metadata = newValue
+      return [...prev]
+    })
+  }
+  const updateIsUploading = (index, newValue) => {
+    setItems((prev) => {
+      prev[index].isUploading = newValue
+      return [...prev]
+    })
+  }
+  const updateIsUploaded = (index, newValue) => {
+    setItems((prev) => {
+      prev[index].isUploaded = newValue
+      return [...prev]
+    })
+  }
+  const updateIsValid = (index, newValue) => {
+    setItems((prev) => {
+      prev[index].isValid = newValue
+      return [...prev]
+    })
+  }
   const removeItem = (index) => {
     setItems((prev) => {
       prev.splice(index, 1)
       return [...prev]
     })
   }
+  
   const addItem = () => {
     setItems((prev) => {
       return [
@@ -120,6 +162,10 @@ export default function MintManyNftForSale(options) {
           price: 0,
           currency: ZERO_ADDRESS,
           hasError: false,
+          isValid: false,
+          metadata: {},
+          isUploaded: false,
+          isUploading: false
         }
       ]
     })
@@ -192,10 +238,14 @@ export default function MintManyNftForSale(options) {
                   return (
                     <tr key={itemKey}>
                       <td>
-                        <AdminNftMetadataGenerator compact={true} />
-                        {/*
-                        <ImageInput value={items[itemKey].uri} onChange={(value) => { updateUri(itemKey, value) }} />
-                        */}
+                        <AdminNftMetadataGenerator
+                          compact={true}
+                          metadata={items[itemKey].metadata}
+                          setMetadata={(data) => { updateMetadata(itemKey, data) }}
+                          setIsValid={(isValid) => { updateIsValid(itemKey, isValid) }}
+                          isUploading={items[itemKey].isUploading}
+                          isUploaded={items[itemKey].isUploaded}
+                        />
                       </td>
                       <td>
                         <input type="number" min="0" value={items[itemKey].price} onChange={(e) => { updatePrice(itemKey, e.target.value) }} />

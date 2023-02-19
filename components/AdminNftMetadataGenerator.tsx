@@ -58,6 +58,8 @@ export default function AdminNftMetadataGenerator(options) {
         .adminNftMetadata.compact INPUT[type="text"],
         .adminNftMetadata.compact TEXTAREA {
           width: 100%;
+          display: block;
+          height: 100%;
         }
         .adminNftMetadata DIV.uploadProcess {
           position: absolute;
@@ -80,17 +82,26 @@ export default function AdminNftMetadataGenerator(options) {
           margin-left: 10px;
           color: #1ebd1e;
         }
+        .adminNftMetadata.compact>DIV {
+          padding-left: 10px;
+        }
+        .adminNftMetadata DIV.hasError {
+          background: #a31515;
+        }
+        .adminNftMetadata DIV.isOk {
+          background: green;
+        }
       `}
       </style>
       {compact ? (
         <>
-          <div>
+          <div className={(imageData !== null) ? 'isOk' : 'hasError'}>
             <InputImage data={imageData} setData={setImageData} placeholder={`Select NFT Media file`} />
           </div>
-          <div>
+          <div className={(name && name !== ``) ? 'isOk' : 'hasError'}>
             <input type="text" value={name} placeholder={`NFT Name`} onChange={(e) => { setName(e.target.value) }} />
           </div>
-          <div>
+          <div className="isOk">
             <textarea placeholder={`NFT description`} value={desc} onChange={(e) => { setDesc(e.target.value) }}></textarea>
           </div>
         </>
@@ -122,19 +133,17 @@ export default function AdminNftMetadataGenerator(options) {
           </div>
         </div>
       )}
-      {isUploading && (
+      {(isUploading || isUploaded) && (
         <div className="uploadProcess">
-          <span>Uploading to IPFS...</span>
-        </div>
-      )}
-      {isUploaded && (
-        <div className="uploadProcess">
-          <span>
-            Uploaded to IPFS
+          {isUploading && !isUploaded && (<span>Uploading to IPFS...</span>)}
+          {isUploaded && (
             <span>
-              <FaIcon icon="circle-check" />
+              Uploaded to IPFS
+              <span>
+                <FaIcon icon="circle-check" />
+              </span>
             </span>
-          </span>
+          )}
         </div>
       )}
     </div>
