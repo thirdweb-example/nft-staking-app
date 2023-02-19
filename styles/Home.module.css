@@ -695,6 +695,7 @@
   background: #FFF;
 }
 
+
 .adminFormInputHolder.hasError INPUT,
 .adminFormInputHolder.hasError SELECT {
   background: #f5a7a7;
@@ -728,10 +729,15 @@
 }
 
 .adminForm .subFormInfo .infoRow INPUT,
+.adminForm .subFormInfo .infoRow TEXTAREA,
 .adminForm .subFormInfo .infoRow SELECT {
   padding: 5px;
 }
 
+.adminForm .subFormInfo .infoRow TEXTAREA {
+  display: block;
+  width: 100%;
+}
 .adminForm .subFormInfo .infoRow>SPAN>DIV>STRONG,
 .adminForm .subFormInfo .infoRow>DIV>DIV>STRONG {
   padding-left: 5px;

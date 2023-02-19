@@ -12,6 +12,8 @@ import MintManyNftForSale from "./MintManyNftForSale"
 import ImageInput from "../ImageInput"
 import InputImage from "../InputImage"
 
+import AdminNftMetadataGenerator from "../AdminNftMetadataGenerator"
+import { createNftMetadata } from "../../helpers/createNftMetadata"
 
 
 export default function MintNftForSale(options) {
@@ -39,6 +41,8 @@ export default function MintNftForSale(options) {
   const [ isAllowedERC20Fetching, setIsAllowedERC20Fetching ] = useState(false)
   const [ allowedERC20Info, setAllowedERC20Info ] = useState({}) 
 
+  const [ nftMetadata, setNftMetadata ] = useState({})
+  
   useEffect(() => {
     if (nftInfo && nftInfo.allowedERC20 && !isAllowedERC20Fetching) {
       if (nftInfo.allowedERC20.length > 0) {
@@ -69,43 +73,51 @@ export default function MintNftForSale(options) {
       message: `Mint NFT for sale?`,
       onConfirm: () => {
         setIsNftMinting(true)
-        addNotify(`Mint NFT for sale. Confirm transaction`)
-        const { activeWeb3 } = getActiveChain()
-        callNftMethod({
-          activeWeb3,
-          contractAddress: nftAddress,
-          method: `mintNFTForSell`,
-          args: [
-            [tokenUri],
-            [tokenCurrency],
-            [toWei(
-              tokenPrice,
-              (tokenCurrency == ZERO_ADDRESS)
-                ? nativeCurrency.decimals
-                : allowedERC20Info[tokenCurrency].decimals
-            )],
-            ZERO_ADDRESS
-          ],
-          onTrx: (txHash) => {
-            addNotify(`Mint NFT for sale TX ${txHash}`, `success`)
-            console.log('>> onTrx', txHash)
-          },
-          onSuccess: (receipt) => {
-            addNotify(`Broadcast Mint NFT TX`, `success`)
-            console.log('>> onSuccess', receipt)
-          },
-          onError: (err) => {
-            addNotify(`Fail mint NFT. ${err.message ? err.message : ''}`, `error`)
-            setIsNftMinting(false)
-            console.log('>> onError', err)
-          },
-          onFinally: (answer) => {
-            const tokenId = answer?.events?.Mint?.returnValues?.tokenId
-            addNotify(`NFT #${tokenId} is minted!`, `success`)
-            setIsNftMinting(false)
-            setTokenUri(``)
-            console.log('>> onFinally', answer)
-          }
+        addNotify(`Uploading Metadata to IPFS`)
+        createNftMetadata({
+          ...nftMetadata
+        }).then((mediaIpfsUrl) => {
+          console.log('>>> mediaIpfsUrl', mediaIpfsUrl)
+          addNotify(`Mint NFT for sale. Confirm transaction`)
+          const { activeWeb3 } = getActiveChain()
+          callNftMethod({
+            activeWeb3,
+            contractAddress: nftAddress,
+            method: `mintNFTForSell`,
+            args: [
+              [mediaIpfsUrl],
+              [tokenCurrency],
+              [toWei(
+                tokenPrice,
+                (tokenCurrency == ZERO_ADDRESS)
+                  ? nativeCurrency.decimals
+                  : allowedERC20Info[tokenCurrency].decimals
+              )],
+              ZERO_ADDRESS
+            ],
+            onTrx: (txHash) => {
+              addNotify(`Mint NFT for sale TX ${txHash}`, `success`)
+              console.log('>> onTrx', txHash)
+            },
+            onSuccess: (receipt) => {
+              addNotify(`Broadcast Mint NFT TX`, `success`)
+              console.log('>> onSuccess', receipt)
+            },
+            onError: (err) => {
+              addNotify(`Fail mint NFT. ${err.message ? err.message : ''}`, `error`)
+              setIsNftMinting(false)
+              console.log('>> onError', err)
+            },
+            onFinally: (answer) => {
+              const tokenId = answer?.events?.Mint?.returnValues?.tokenId
+              addNotify(`NFT #${tokenId} is minted!`, `success`)
+              setIsNftMinting(false)
+              setTokenUri(``)
+              console.log('>> onFinally', answer)
+            }
+          })
+        }).catch((e) => {
+          addNotify(`Fail create NFT Metadata. ${e.message ? e.message : ''}`, `error`)
         })
       }
     })
@@ -120,24 +132,16 @@ export default function MintNftForSale(options) {
         title: `Mint one NFT`,
         content: (
           <>
+            {isAllowedERC20Fetched && (
+              <>
+                
+              </>
+            )}
+            
             {isAllowedERC20Fetched ? (
               <div className={styles.subFormInfo}>
-                <div className={styles.infoRow}>
-                  <label>URI:</label>
-                  <span>
-                    <div>
-                      <InputImage />
-                      {/*
-                      <ImageInput value={tokenUri} onChange={(v) => { setTokenUri(v) }} />
-                      */}
-                    </div>
-                    {hasTokenUriError && (
-                      <div>
-                        <b className={styles.hasError}>Specify corrent token uri</b>
-                      </div>
-                    )}
-                  </span>
-                </div>
+                <AdminNftMetadataGenerator metadata={nftMetadata} setMetadata={setNftMetadata} />
+                <hr />
                 {allowedERC20 && allowedERC20.length > 0 && (
                   <div className={styles.infoRow}>
                     <label>Sell currency:</label>
@@ -188,7 +192,7 @@ export default function MintNftForSale(options) {
                 </div>
                 <div className={styles.actionsRow}>
                   <button
-                    disabled={hasTokenUriError || hasTokenPriceError}
+                    disabled={hasTokenPriceError}
                     onClick={doMintNtf}
                   >
                     {isNftMinting ? `Minting NFT for sale...` : `Mint NFT for sale`}

@@ -26,7 +26,6 @@ export default function InputImage(options) {
       fileReader.onload = (e) => {
         const { result } = e.target
         if (result && !isCancel) {
-          console.log('ImageData', result)
           setImageData(result)
         }
       }
