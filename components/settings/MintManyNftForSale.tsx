@@ -11,6 +11,8 @@ import {
 } from "../../helpers/constants"
 import { fromWei, toWei } from "../../helpers/wei"
 
+import AdminNftMetadataGenerator from "../AdminNftMetadataGenerator"
+
 
 export default function MintManyNftForSale(options) {
   const {
@@ -178,9 +180,8 @@ export default function MintManyNftForSale(options) {
         <table>
           <thead>
             <tr>
-              <td className="uriCell">Url</td>
+              <td className="uriCell">Metadata</td>
               <td className="priceCell">Price</td>
-              <td className="currencyCell">Currency</td>
               <td className="optionsCell"></td>
             </tr>
           </thead>
@@ -191,12 +192,13 @@ export default function MintManyNftForSale(options) {
                   return (
                     <tr key={itemKey}>
                       <td>
+                        <AdminNftMetadataGenerator compact={true} />
+                        {/*
                         <ImageInput value={items[itemKey].uri} onChange={(value) => { updateUri(itemKey, value) }} />
+                        */}
                       </td>
                       <td>
                         <input type="number" min="0" value={items[itemKey].price} onChange={(e) => { updatePrice(itemKey, e.target.value) }} />
-                      </td>
-                      <td>
                         <select value={items[itemKey].currency} onChange={(e) => { updateCurrency(itemKey, e.target.value) }} >
                           <option value={ZERO_ADDRESS}>{nativeCurrency.symbol}</option>
                           {allowedERC20Info && (
@@ -225,7 +227,7 @@ export default function MintManyNftForSale(options) {
               </>
             ) : (
               <tr>
-                <td colSpan="4" className="empty">Mint list for sale is empty</td>
+                <td colSpan="3" className="empty">Mint list for sale is empty</td>
               </tr>
             )}
           </tbody>

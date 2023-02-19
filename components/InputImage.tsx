@@ -6,6 +6,7 @@ export default function InputImage(options) {
   const {
     data,
     setData,
+    placeholder
   } = {
     data: null,
     setData: () => {},
@@ -140,7 +141,7 @@ export default function InputImage(options) {
         <span>
           {image
             ? `Selected file ${image.name}`
-            : `Cleck here for select media`
+            : (placeholder || `Cleck here for select media`)
           }
         </span>
         {imageData && (

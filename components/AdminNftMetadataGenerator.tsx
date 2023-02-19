@@ -8,13 +8,17 @@ export default function AdminNftMetadataGenerator(options) {
   const {
     metadata,
     setMetadata,
+    compact,
+    setIsValid
   } = {
     metadata: {
       imageData: null,
       name: '',
       desc: '',
     },
+    compact: false,
     setMetadata: () => {},
+    setIsValid: () => {},
     ...options
   }
   
@@ -34,8 +38,32 @@ export default function AdminNftMetadataGenerator(options) {
       name,
       desc,
     })
+    setIsValid((imageData !== null && name && name !== ``))
   }, [ imageData, name, desc ])
 
+  if (compact) {
+    return (
+      <div className="admin-nft-metadata-compact">
+        <style jsx>
+        {`
+          .admin-nft-metadata-compact INPUT[type="text"],
+          .admin-nft-metadata-compact TEXTAREA {
+            width: 100%;
+          }
+        `}
+        </style>
+        <div>
+          <InputImage data={imageData} setData={setImageData} placeholder={`Select NFT Media file`} />
+        </div>
+        <div>
+          <input type="text" value={name} placeholder={`NFT Name`} onChange={(e) => { setName(e.target.value) }} />
+        </div>
+        <div>
+          <textarea placeholder={`NFT description`} value={desc} onChange={(e) => { setDesc(e.target.value) }}></textarea>
+        </div>
+      </div>
+    )
+  }
   return (  
     <>
       <div className={styles.subFormInfo}>
@@ -43,7 +71,7 @@ export default function AdminNftMetadataGenerator(options) {
           <label>Media (JPG, PNG, GIV, SVG):</label>
           <div>
             <div>
-              <InputImage data={imageData} setData={setImageData} />
+              <InputImage data={imageData} setData={setImageData} placeholder={`Select NFT Media file`} />
             </div>
           </div>
         </div>

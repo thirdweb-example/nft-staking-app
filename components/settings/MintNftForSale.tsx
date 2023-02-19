@@ -42,6 +42,7 @@ export default function MintNftForSale(options) {
   const [ allowedERC20Info, setAllowedERC20Info ] = useState({}) 
 
   const [ nftMetadata, setNftMetadata ] = useState({})
+  const [ nftMetadataValid, setNftMetadataValid ] = useState(false)
   
   useEffect(() => {
     if (nftInfo && nftInfo.allowedERC20 && !isAllowedERC20Fetching) {
@@ -140,7 +141,11 @@ export default function MintNftForSale(options) {
             
             {isAllowedERC20Fetched ? (
               <div className={styles.subFormInfo}>
-                <AdminNftMetadataGenerator metadata={nftMetadata} setMetadata={setNftMetadata} />
+                <AdminNftMetadataGenerator
+                  metadata={nftMetadata}
+                  setMetadata={setNftMetadata}
+                  setIsValid={setNftMetadataValid}
+                />
                 <hr />
                 {allowedERC20 && allowedERC20.length > 0 && (
                   <div className={styles.infoRow}>
@@ -192,7 +197,7 @@ export default function MintNftForSale(options) {
                 </div>
                 <div className={styles.actionsRow}>
                   <button
-                    disabled={hasTokenPriceError}
+                    disabled={!nftMetadataValid || hasTokenPriceError}
                     onClick={doMintNtf}
                   >
                     {isNftMinting ? `Minting NFT for sale...` : `Mint NFT for sale`}
