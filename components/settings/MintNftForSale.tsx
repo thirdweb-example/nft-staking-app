@@ -42,6 +42,8 @@ export default function MintNftForSale(options) {
   const [ allowedERC20Info, setAllowedERC20Info ] = useState({}) 
 
   const [ nftMetadata, setNftMetadata ] = useState({})
+  const [ nftMetadataUploading, setNftMetadataUploading ] = useState(false)
+  const [ nftMetadataUploaded, setNftMetadataUploaded ] = useState(false)
   const [ nftMetadataValid, setNftMetadataValid ] = useState(false)
   
   useEffect(() => {
@@ -75,9 +77,12 @@ export default function MintNftForSale(options) {
       onConfirm: () => {
         setIsNftMinting(true)
         addNotify(`Uploading Metadata to IPFS`)
+        setNftMetadataUploading(true)
         createNftMetadata({
           ...nftMetadata
         }).then((mediaIpfsUrl) => {
+          setNftMetadataUploading(false)
+          setNftMetadataUploaded(true)
           console.log('>>> mediaIpfsUrl', mediaIpfsUrl)
           addNotify(`Mint NFT for sale. Confirm transaction`)
           const { activeWeb3 } = getActiveChain()
@@ -107,17 +112,20 @@ export default function MintNftForSale(options) {
             onError: (err) => {
               addNotify(`Fail mint NFT. ${err.message ? err.message : ''}`, `error`)
               setIsNftMinting(false)
+              setNftMetadataUploaded(false)
               console.log('>> onError', err)
             },
             onFinally: (answer) => {
               const tokenId = answer?.events?.Mint?.returnValues?.tokenId
               addNotify(`NFT #${tokenId} is minted!`, `success`)
               setIsNftMinting(false)
-              setTokenUri(``)
+              setNftMetadataUploaded(false)
+              setMetadata({})
               console.log('>> onFinally', answer)
             }
           })
         }).catch((e) => {
+          setNftMetadataUploading(false)
           addNotify(`Fail create NFT Metadata. ${e.message ? e.message : ''}`, `error`)
         })
       }
@@ -145,6 +153,8 @@ export default function MintNftForSale(options) {
                   metadata={nftMetadata}
                   setMetadata={setNftMetadata}
                   setIsValid={setNftMetadataValid}
+                  isUploading={nftMetadataUploading}
+                  isUploaded={nftMetadataUploaded}
                 />
                 <hr />
                 {allowedERC20 && allowedERC20.length > 0 && (
