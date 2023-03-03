@@ -13,6 +13,7 @@ export const defMenus = [
     link: '',
     blank: false,
   },
+  /*
   {
     title: 'Mint',
     target: 'MINTOWN',
@@ -31,6 +32,7 @@ export const defMenus = [
     link: '',
     blank: false
   },
+  */
   {
     title: 'Stake',
     target: 'STAKE',

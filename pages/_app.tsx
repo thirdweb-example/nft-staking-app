@@ -200,41 +200,44 @@ function MyApp({ Component, pageProps }: AppProps) {
         </div>
       ) : (
         <>
-          {!storageIsLoading && storageData && !storageData.isInstalled && !isSettingsPage && (
+          {!storageIsLoading && storageData && !storageData.isInstalled && !isSettingsPage ? (
             <div className={styles.container}>
               <h2>NFTStake need install on this domain</h2>
               <a href={getLink(`settings`)} className={`${styles.mainButton} ${styles.autoWidth} primaryButton`}>
                 Go to Install
               </a>
             </div>
-          )}
-          {showNeedConfig ? (
-            <div className={styles.container}>
-              <h2>NFTStake need base setup</h2>
-              <a href={getLink(`settings`)} className={`${styles.mainButton} ${styles.autoWidth} primaryButton`}>
-                Go to setup
-              </a>
-            </div>
           ) : (
             <>
-              {!isSettingsPage && (
-                <StorageStyles getDesign={getDesign} />
+              {showNeedConfig ? (
+                <div className={styles.container}>
+                  <h2>NFTStake need base setup</h2>
+                  <a href={getLink(`settings`)} className={`${styles.mainButton} ${styles.autoWidth} primaryButton`}>
+                    Go to setup
+                  </a>
+                </div>
+              ) : (
+                <>
+                  {!isSettingsPage && (
+                    <StorageStyles getDesign={getDesign} />
+                  )}
+                  <Component
+                    {...pageProps }
+                    storageData={storageData}
+                    storageIsLoading={storageIsLoading}
+                    openConfirmWindow={openConfirmWindow}
+                    isOwner={isOwner}
+                    addNotify={addNotify}
+                    setDoReloadStorage={setDoReloadStorage}
+                    storageTexts={storageTexts}
+                    storageDesign={storageDesign}
+                    storageMenu={storageMenu}
+                    getText={getText}
+                    getDesign={getDesign}
+                    iframeHideMenu={iframeHideMenu}
+                  />
+                </>
               )}
-              <Component
-                {...pageProps }
-                storageData={storageData}
-                storageIsLoading={storageIsLoading}
-                openConfirmWindow={openConfirmWindow}
-                isOwner={isOwner}
-                addNotify={addNotify}
-                setDoReloadStorage={setDoReloadStorage}
-                storageTexts={storageTexts}
-                storageDesign={storageDesign}
-                storageMenu={storageMenu}
-                getText={getText}
-                getDesign={getDesign}
-                iframeHideMenu={iframeHideMenu}
-              />
             </>
           )}
         </>
