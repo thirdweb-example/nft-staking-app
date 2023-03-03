@@ -14,7 +14,7 @@
 
 # production
 /build
-/staticbuild/
+/vendor/
 
 # misc
 .DS_Store

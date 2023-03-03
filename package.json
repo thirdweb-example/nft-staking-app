@@ -7,6 +7,7 @@
     "build": "next build",
     "prepare": "node prepare-static",
     "buildstatic": "next build && next export && node prepare-static",
+    "buildwp": "next build && next export && node prepare-static && node prepare-wp",
     "start": "next start",
     "lint": "next lint"
   },

@@ -124,7 +124,7 @@ function nftstaking_frontsettings_page() {
  */
 function nftstaking_settings_page_view() {
 
-  $settings_url = NFTSTAKING_URL . "staticbuild/settings.html?isSettingsFrame=true";
+  $settings_url = NFTSTAKING_URL . "vendor/settings.html?isSettingsFrame=true";
 ?>
 
 <div class="wrap">
