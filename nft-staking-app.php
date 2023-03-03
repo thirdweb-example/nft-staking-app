@@ -20,4 +20,4 @@ define( 'NFTSTAKING_VER', '1.0.1');
 /**
  * Plugin Init
  */
-//require NFTSTAKING_PATH . 'inc' . DIRECTORY_SEPARATOR . 'init.php';
+require NFTSTAKING_PATH . 'inc' . DIRECTORY_SEPARATOR . 'init.php';
