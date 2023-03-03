@@ -39,3 +39,4 @@ yarn-error.log*
 *.tsbuildinfo
 .env
 .env.production
+.env.ts

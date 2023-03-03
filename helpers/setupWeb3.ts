@@ -1,7 +1,7 @@
 import Web3 from 'web3'
 import { AVAILABLE_NETWORKS_INFO } from './constants'
 
-const switchOrAddChain = async (neededChainId) => {
+const switchOrAddChain = (neededChainId) => {
   const {
     chainId,
     chainName,
@@ -10,37 +10,45 @@ const switchOrAddChain = async (neededChainId) => {
     nativeCurrency,
   } = getChainInfoById(neededChainId)
 
-  const params = [
-    {
-      chainId,
-      chainName,
-      rpcUrls,
-      blockExplorerUrls,
-      nativeCurrency,
-    }
-  ]
-
-  try {
-    const isSwitch = await window.ethereum.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: `0x${Number(chainId).toString(16)}` }],
-    });
-  } catch (switchError) {
-    // This error code indicates that the chain has not been added to MetaMask.
-    if (switchError.code === 4902) {
-      try {
-        const isAdd = await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params,
-        });
-      } catch (addError) {
-        // handle "add" error
+  return new Promise(async (resolve, reject) => {
+    const params = [
+      {
+        chainId,
+        chainName,
+        rpcUrls,
+        blockExplorerUrls,
+        nativeCurrency,
       }
-    } else {
-      console.error('Switch chain error: ', switchError.message)
-      return false
+    ]
+
+    try {
+      const isSwitch = await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${Number(chainId).toString(16)}` }],
+      });
+      if (isSwitch == false) {
+        resolve(false)
+      } else {
+        resolve(true)
+      }
+    } catch (switchError) {
+      // This error code indicates that the chain has not been added to MetaMask.
+      if (switchError.code === 4902) {
+        try {
+          const isAdd = await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params,
+          });
+          resolve(true)
+        } catch (addError) {
+          // handle "add" error
+        }
+      } else {
+        console.error('Switch chain error: ', switchError.message)
+        resolve(false)
+      }
     }
-  }
+  })
 }
 
 const getChainInfoById = (chainId: string) => AVAILABLE_NETWORKS_INFO.find(networkInfo => `${networkInfo.networkVersion}` === `${chainId}`)
@@ -104,8 +112,20 @@ const doConnectWithMetamask = async (options) => {
         if (onSetActiveWeb3) onSetActiveWeb3(web3)
         if (onConnected) onConnected(activeChainId, web3)
       } else {
+        
+        const _onSwitch = () => {
+          console.log('>>> after switch', needChainId)
+          setupWeb3().then(async (afterSwitch) => {
+            console.log('>>> afterSwitch', afterSwitch)
+            if (`${afterSwitch.activeChainId}` === `${needChainId}`) {
+              await doConnectWithMetamask(options)
+            }
+          })
+        }
+        window.ethereum.once('networkChanged', _onSwitch)
         try {
           const isSwitched = await switchOrAddChain(needChainId)
+          console.log('>>> isSwitched', isSwitched)
           if (isSwitched === false) {
             if (onError) onError({ message: 'REJECT_SWITCH_NETWORK' })
             return
@@ -114,11 +134,7 @@ const doConnectWithMetamask = async (options) => {
           if (onError) onError(err)
         }
         setTimeout(() => {
-          setupWeb3().then(async (afterSwitch) => {
-            if (`${afterSwitch.activeChainId}` === `${needChainId}`) {
-              await doConnectWithMetamask(options)
-            }
-          })
+          //_onSwitch()
         }, 1000)
       }
     }).catch((err) => {
