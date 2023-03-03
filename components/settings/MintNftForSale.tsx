@@ -219,7 +219,7 @@ export default function MintNftForSale(options) {
             )}
           </>
         )
-      },
+      },{/*
       {
         key: `mintmore`,
         title: `Mint many NFT`,
@@ -240,6 +240,7 @@ export default function MintNftForSale(options) {
           </>
         )
       }
+      */}
     ]
   })
   return {
