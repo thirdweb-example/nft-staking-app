@@ -40,6 +40,8 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const routerBaseName = router.asPath.split('/').reverse()[0].split('?')[0];
 
+  const iframeHideMenu = router.asPath.indexOf('isSettingsFrame=true') !== -1
+
   const isSettingsPage = (routerBaseName === `settings${urlExt}`)
   const isMarketPage = (routerBaseName === `marketplace${urlExt}`)
   const isMintPage = (routerBaseName === `mint${urlExt}`)
@@ -231,6 +233,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                 storageMenu={storageMenu}
                 getText={getText}
                 getDesign={getDesign}
+                iframeHideMenu={iframeHideMenu}
               />
             </>
           )}
