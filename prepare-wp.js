@@ -1,6 +1,7 @@
 const glob = require('glob')
 const { readFileSync, writeFileSync } = require('fs')
 const fsExtra = require('fs-extra')
+const archiver = require('archiver')
 
 const root_folder = './out'
 const out_folder = './wordpress'
@@ -25,6 +26,22 @@ fsExtra.emptyDir('./wordpressbuild').then(() => {
     })).then(() => {
       console.log('>>> WordPress updated')
       console.log('>>> Make zip')
+      const output = fsExtra.createWriteStream('nft-staking-app.zip')
+      const archive = archiver('zip')
+
+      output.on('close', function () {
+          console.log(archive.pointer() + ' total bytes')
+          console.log('WP Plugin zipped.')
+      });
+
+      archive.on('error', function(err){
+          throw err
+      });
+
+      archive.pipe(output)
+      archive.directory('./wordpressbuild', 'nft-staking-app')
+
+      archive.finalize()
     })
   })
 })
