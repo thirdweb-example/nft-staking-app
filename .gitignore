@@ -14,6 +14,7 @@
 
 # production
 /build
+/vendor/
 
 # misc
 .DS_Store
@@ -38,3 +39,6 @@ yarn-error.log*
 *.tsbuildinfo
 .env
 .env.production
+.env.ts
+wordpressbuild/
+nft-staking-app.zip

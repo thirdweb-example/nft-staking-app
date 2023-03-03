@@ -88,6 +88,7 @@ const Settings: NextPage = (props) => {
     storageTexts,
     storageDesign,
     storageMenu,
+    iframeHideMenu,
   } = props
 
   const [activeChainId, setActiveChainId] = useState(false)
@@ -990,7 +991,7 @@ const Settings: NextPage = (props) => {
   if (isInstalledOnDomain) showInstallBox = false
   return (
     <div className={styles.container}>
-      {navBlock(`settings`, storageMenu, true)}
+      {!iframeHideMenu && navBlock(`settings`, storageMenu, true)}
       <h1 className={styles.h1}>Settings</h1>
       {storageData !== null && (
         <>

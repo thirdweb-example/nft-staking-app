@@ -525,6 +525,7 @@ export default function TabNftCollection(options) {
             </div>
           )}
           {/*<button onClick={testClaim} className="someOwnClass">Test claim</button>*/}
+          {/*
           {nftInfoFetched && isManagedNFT && (
             <div className={styles.adminForm}>
               {toggleGroup({
@@ -541,6 +542,7 @@ export default function TabNftCollection(options) {
               })}
             </div>
           )}
+          */}
         </>
       )
     }

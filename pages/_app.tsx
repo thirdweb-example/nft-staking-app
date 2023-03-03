@@ -40,6 +40,8 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const routerBaseName = router.asPath.split('/').reverse()[0].split('?')[0];
 
+  const iframeHideMenu = router.asPath.indexOf('isSettingsFrame=true') !== -1
+
   const isSettingsPage = (routerBaseName === `settings${urlExt}`)
   const isMarketPage = (routerBaseName === `marketplace${urlExt}`)
   const isMintPage = (routerBaseName === `mint${urlExt}`)
@@ -198,40 +200,44 @@ function MyApp({ Component, pageProps }: AppProps) {
         </div>
       ) : (
         <>
-          {!storageIsLoading && storageData && !storageData.isInstalled && !isSettingsPage && (
+          {!storageIsLoading && storageData && !storageData.isInstalled && !isSettingsPage ? (
             <div className={styles.container}>
               <h2>NFTStake need install on this domain</h2>
               <a href={getLink(`settings`)} className={`${styles.mainButton} ${styles.autoWidth} primaryButton`}>
                 Go to Install
               </a>
             </div>
-          )}
-          {showNeedConfig ? (
-            <div className={styles.container}>
-              <h2>NFTStake need base setup</h2>
-              <a href={getLink(`settings`)} className={`${styles.mainButton} ${styles.autoWidth} primaryButton`}>
-                Go to setup
-              </a>
-            </div>
           ) : (
             <>
-              {!isSettingsPage && (
-                <StorageStyles getDesign={getDesign} />
+              {showNeedConfig ? (
+                <div className={styles.container}>
+                  <h2>NFTStake need base setup</h2>
+                  <a href={getLink(`settings`)} className={`${styles.mainButton} ${styles.autoWidth} primaryButton`}>
+                    Go to setup
+                  </a>
+                </div>
+              ) : (
+                <>
+                  {!isSettingsPage && (
+                    <StorageStyles getDesign={getDesign} />
+                  )}
+                  <Component
+                    {...pageProps }
+                    storageData={storageData}
+                    storageIsLoading={storageIsLoading}
+                    openConfirmWindow={openConfirmWindow}
+                    isOwner={isOwner}
+                    addNotify={addNotify}
+                    setDoReloadStorage={setDoReloadStorage}
+                    storageTexts={storageTexts}
+                    storageDesign={storageDesign}
+                    storageMenu={storageMenu}
+                    getText={getText}
+                    getDesign={getDesign}
+                    iframeHideMenu={iframeHideMenu}
+                  />
+                </>
               )}
-              <Component
-                {...pageProps }
-                storageData={storageData}
-                storageIsLoading={storageIsLoading}
-                openConfirmWindow={openConfirmWindow}
-                isOwner={isOwner}
-                addNotify={addNotify}
-                setDoReloadStorage={setDoReloadStorage}
-                storageTexts={storageTexts}
-                storageDesign={storageDesign}
-                storageMenu={storageMenu}
-                getText={getText}
-                getDesign={getDesign}
-              />
             </>
           )}
         </>
@@ -256,9 +262,11 @@ function MyApp({ Component, pageProps }: AppProps) {
           </div>
         </div>
       )}
-      <footer className={`${styles.mainFooter} mainFooter`} >
-        {getText(`App_Footer`, `Powered by OnOut - [no-code tool to create NFTStake](https://onout.org/nftstake/)`)}
-      </footer>
+      {!iframeHideMenu && (
+        <footer className={`${styles.mainFooter} mainFooter`} >
+          {getText(`App_Footer`, `Powered by OnOut - [no-code tool to create NFTStake](https://onout.org/nftstake/)`)}
+        </footer>
+      )}
     </div>
   );
 }

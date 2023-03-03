@@ -7,6 +7,7 @@
     "build": "next build",
     "prepare": "node prepare-static",
     "buildstatic": "next build && next export && node prepare-static",
+    "buildwp": "next build && next export && node prepare-static && node prepare-wp",
     "start": "next start",
     "lint": "next lint"
   },
@@ -34,6 +35,7 @@
   "devDependencies": {
     "@types/node": "^17.0.21",
     "@types/react": "^17.0.40",
+    "archiver": "^5.3.1",
     "eslint": "^8.11.0",
     "eslint-config-next": "^12.1.0",
     "filereader": "^0.10.3",
