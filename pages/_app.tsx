@@ -259,9 +259,11 @@ function MyApp({ Component, pageProps }: AppProps) {
           </div>
         </div>
       )}
-      <footer className={`${styles.mainFooter} mainFooter`} >
-        {getText(`App_Footer`, `Powered by OnOut - [no-code tool to create NFTStake](https://onout.org/nftstake/)`)}
-      </footer>
+      {!iframeHideMenu && (
+        <footer className={`${styles.mainFooter} mainFooter`} >
+          {getText(`App_Footer`, `Powered by OnOut - [no-code tool to create NFTStake](https://onout.org/nftstake/)`)}
+        </footer>
+      )}
     </div>
   );
 }
