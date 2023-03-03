@@ -70,6 +70,7 @@ function nftstaking_frontsettings_page() {
 					</label>
 				</td>
 			</tr>
+      <!--
       <tr>
         <th scope="row">
           <label><?php esc_html_e('Market permalink', 'nftstaking' );?></label>
@@ -83,6 +84,7 @@ function nftstaking_frontsettings_page() {
           </a>
 				</td>
       </tr>
+      -->
       <tr>
 				<th scope="row"></th>
 				<td>
