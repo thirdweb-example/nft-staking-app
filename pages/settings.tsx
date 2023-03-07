@@ -15,6 +15,7 @@ import {
   doConnectWithMetamask,
   isMetamaskConnected,
   getCurrentChainId,
+  getActiveChainId,
   onBlockchainChanged,
 } from "../helpers/setupWeb3"
 import { calcSendArgWithFee } from "../helpers/calcSendArgWithFee"
@@ -35,7 +36,7 @@ import delay from "../helpers/delay"
 import { toWei, fromWei } from "../helpers/wei"
 import openInTab from "../components/openInTab"
 import { textsGroups } from "../helpers/textsGroups"
-
+import SwitchNetworkAndCall from "../components/SwitchNetworkAndCall"
 
 import {
   AVAILABLE_NETWORKS_INFO,
@@ -236,6 +237,7 @@ const Settings: NextPage = (props) => {
       }
     }
     console.log('>> do save', getCurrentChainId() !== storageChainId, getCurrentChainId(), storageChainId)
+    /*
     if (!getCurrentChainId(storageChainId)) {
       const storageChainInfo = CHAIN_INFO(storageChainId)
       openConfirmWindow({
@@ -250,8 +252,9 @@ const Settings: NextPage = (props) => {
         okLabel: `Switch`,
       })
     } else {
+    */
       _doSave()
-    }
+    //}
   }
 
   const getActiveChain = () => {
@@ -454,10 +457,10 @@ const Settings: NextPage = (props) => {
   const [ isDeployingNFTDemo, setIsDeployingNFTDemo ] = useState(false)
 
   const doDeployDemoNFT = () => {
-    const activeChainInfo = CHAIN_INFO(activeChainId)
+    const activeChainInfo = CHAIN_INFO(getActiveChainId())
     openConfirmWindow({
       title: `Deploying Demo NFT`,
-      message: `Deploy Demo NFT at ${activeChainInfo.chainName} (${activeChainId})?`,
+      message: `Deploy Demo NFT at ${activeChainInfo.chainName} (${getActiveChainId()})?`,
       okLabel: `Deploy`,
       onConfirm: () => {
         setIsDeployingNFTDemo(true)
@@ -470,7 +473,7 @@ const Settings: NextPage = (props) => {
             setNewNftCollection(contractAddress)
             setIsDeployingNFTDemo(false)
             addNotify(`Demo NFT Collection deployed`, `success`)
-            _doFetchNFTInfo(contractAddress, newChainId || activeChainId)
+            _doFetchNFTInfo(contractAddress, getActiveChainId())
           },
           onTrx: (hash) => {
             addNotify(`NFT Collection deploy TX ${hash}...`, `success`)
@@ -497,10 +500,10 @@ const Settings: NextPage = (props) => {
   const [ canDeploy, setCanDeploy ] = useState(false)
 
   const doDeployFarmContract = () => {
-    const activeChainInfo = CHAIN_INFO(activeChainId)
+    const activeChainInfo = CHAIN_INFO(getActiveChainId())
     openConfirmWindow({
       title: `Deploy Farm contract`,
-      message: `Deploy Farm contract at ${activeChainInfo.chainName} (${activeChainId})?`,
+      message: `Deploy Farm contract at ${activeChainInfo.chainName} (${getActiveChainId()})?`,
       okLabel: `Deploy`,
       onConfirm: () => {
         setIsFarmContractDeploying(true)
@@ -667,10 +670,18 @@ const Settings: NextPage = (props) => {
           </div>
         )}
         <div className={styles.actionsRow}>
-          <button disabled={!canDeploy || farmInfoFetching || isFarmContractDeploying} className={styles.secondaryButton} onClick={doDeployFarmContract}>
+          {!rewardTokenFetched && (
+            <b className={styles.hasError}>Fetch raward token info first</b>
+          )}
+          <SwitchNetworkAndCall
+            chainId={newChainId}
+            className={styles.adminButton}
+            disabled={!canDeploy || farmInfoFetching || isFarmContractDeploying}
+            onClick={doDeployFarmContract} action={`Deploy farm`}
+          >
             {isFarmContractDeploying ? `Deploying Farm contract...` : `Deploy new farm contract`}
-          </button>
-          <button disabled={isFarmContractDeploying} className={styles.secondaryButton} onClick={doHideFarmDeploy}>
+          </SwitchNetworkAndCall>
+          <button disabled={isFarmContractDeploying} className={styles.adminButton} onClick={doHideFarmDeploy}>
             Cancel
           </button>
         </div>
@@ -765,12 +776,16 @@ const Settings: NextPage = (props) => {
               placeholder: `Enter address of NFT collection for stack`,
               buttons: (
                 <>
-                  <button disabled={isDeployingNFTDemo || isNFTInfoFetching} className={styles.secondaryButton} onClick={doFetchNFTInfo}>
+                  <button disabled={isDeployingNFTDemo || isNFTInfoFetching} className={styles.adminButton} onClick={doFetchNFTInfo}>
                     {isNFTInfoFetching ? `Fetching NFT info` : `Fetch NFT info`}
                   </button>
-                  <button disabled={isDeployingNFTDemo || isNFTInfoFetching} className={styles.secondaryButton} onClick={doDeployDemoNFT}>
+                  <SwitchNetworkAndCall chainId={newChainId} className={styles.adminButton}
+                    disabled={isDeployingNFTDemo || isNFTInfoFetching}
+                    onClick={() => { doDeployDemoNFT.apply(this) }}
+                    action={`Deploy Demo NFT collection`}
+                  >
                     {isDeployingNFTDemo ? `Deploying Demo NFT` : `Deploy Demo NFT collection`}
-                  </button>
+                  </SwitchNetworkAndCall>
                 </>
               )
             })}
@@ -868,10 +883,10 @@ const Settings: NextPage = (props) => {
               placeholder: `Enter address of Farm contract or deploy new`,
               buttons: (
                 <>
-                  <button disabled={farmInfoFetching || isFarmContractDeploying} className={styles.secondaryButton} onClick={doFetchFarmInfo}>
+                  <button disabled={farmInfoFetching || isFarmContractDeploying} className={styles.adminButton} onClick={doFetchFarmInfo}>
                     {(farmInfoFetching) ? `Fetching...` : `Fetch Farm info`}
                   </button>
-                  <button disabled={farmInfoFetching || isFarmContractDeploying} className={styles.secondaryButton} onClick={doShowFarmDeploy}>
+                  <button disabled={farmInfoFetching || isFarmContractDeploying} className={styles.adminButton} onClick={doShowFarmDeploy}>
                     Deploy new Farm
                   </button>
                 </>
@@ -896,12 +911,12 @@ const Settings: NextPage = (props) => {
               {(farmBalanceFetched && farmBalance.normalized !== undefined && rewardTokenInfo && rewardTokenInfo.symbol) ? (
                 <>
                   <span>{farmBalance.normalized} {rewardTokenInfo.symbol}</span>
-                  <button disabled={farmBalanceFetching} className={styles.secondaryButton} onClick={doFetchFarmBalance}>
+                  <button disabled={farmBalanceFetching} className={styles.adminButton} onClick={doFetchFarmBalance}>
                     {farmBalanceFetching ? `Fetching...` : `Refresh`}
                   </button>
                 </>
               ) : (
-                <button disabled={farmBalanceFetching} className={styles.secondaryButton} onClick={doFetchFarmBalance}>
+                <button disabled={farmBalanceFetching} className={styles.adminButton} onClick={doFetchFarmBalance}>
                   {farmBalanceFetching ? `Fetching farm balance...` : `Fetch farm balance`}
                 </button>
               )}
@@ -944,9 +959,9 @@ const Settings: NextPage = (props) => {
           </div>
         )}
         <div className={styles.adminFormBottom}>
-          <button disabled={isStorageSave} className={`${styles.mainButton} primaryButton`} onClick={doSaveMainConfig} >
-            Save changes
-          </button>
+          <SwitchNetworkAndCall chainId={`STORAGE`} icon="save" className={styles.adminMainButton} disabled={isStorageSave} onClick={doSaveMainConfig} action={`Save to storage config`} >
+            {isStorageSave ? `Saving...` : `Save to storage config`}
+          </SwitchNetworkAndCall>
         </div>
       </div>
     )

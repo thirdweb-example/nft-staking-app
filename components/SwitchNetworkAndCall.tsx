@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { switchOrAddChain, getCurrentChainId } from "../helpers/setupWeb3"
+import { switchOrAddChain, getCurrentChainId, waitChain } from "../helpers/setupWeb3"
 import { CHAIN_INFO } from "../helpers/constants"
 import { getStorageInfo } from "../storage/"
 import FaIcon from "./FaIcon"
@@ -48,12 +48,13 @@ export default function SwitchNetworkAndCall(options) {
       setIsSwitching(false)
       if (isSwitched) {
         setIsSelectChainOpened(false)
-        onClick()
+        waitChain(needChainId).then(() => { window.setTimeout( () => { onClick() } , 1000 ) })
       }
     }).catch ((err) => {
       setIsSwitching(false)
     })
   }
+  
   const switchOrClick = () => {
     if (!isCorrectChain) {
       if (multiChain) {
@@ -63,7 +64,7 @@ export default function SwitchNetworkAndCall(options) {
         switchOrAddChain(chainId).then((isSwitched) => {
           setIsSwitching(false)
           if (isSwitched) {
-            onClick()
+            waitChain(chainId).then(() => { window.setTimeout( () => { onClick() } , 1000 ) })
           }
         }).catch ((err) => {
           setIsSwitching(false)

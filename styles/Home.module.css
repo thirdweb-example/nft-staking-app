@@ -1180,3 +1180,217 @@
 .adminPopupWindow .adminForm .subFormInfo {
   border: 0px;
 }
+
+
+/* ADMIN BUTTONS */
+
+.adminMainButton,
+.adminSubButton,
+.adminButton {
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  appearance: none;
+  align-items: center;
+  -webkit-box-align: center;
+  justify-content: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  line-height: 1.2;
+  font-weight: 600;
+  transition-property: background-color, border-color, color, fill, stroke,
+    opacity, box-shadow, transform;
+  transition-duration: 200ms;
+  height: 3rem;
+  min-width: 3rem;
+  font-size: 1rem;
+  background: #e5e5ea;
+  background-image: linear-gradient(to left, #cc25b3 0%, #418dff 101.52%);
+  color: #fff;
+  width: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+  border-radius: 10px;
+  border-style: none;
+}
+
+.adminMainButton:active ,
+.adminSubButton:active ,
+.adminButton:active {
+  background-image: linear-gradient(to left, #418dff 0%, #cc25b3 101.52%);
+}
+
+.adminSubButton {
+  height: 2.5rem;
+}
+.adminButton {
+  height: 2rem;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-size: 11pt;
+  border-radius: 5px;
+}
+
+.adminMainButton:hover,
+.adminSubButton:hover,
+.adminButton:hover {
+  opacity: 0.8;
+}
+
+.adminMainButton[disabled],
+.adminMainButton[disabled]:hover,
+.adminSubButton[disabled],
+.adminSubButton[disabled]:hover,
+.adminButton[disabled],
+.adminButton[disabled]:hover {
+  background: gray;
+  opacity: 1;
+}
+
+.adminButton.isCancel,
+.adminSubButton.isCancel {
+  background-image: linear-gradient(to left, #978494 0%, #7691bb 101.52%);
+}
+.adminButton.isCancel:active ,
+.adminSubButton.isCancel:active {
+  background-image: linear-gradient(to left, #7691bb 0%, #978494 101.52%);
+}
+.adminSubButton SVG,
+.adminMainButton SVG {
+  margin-right: 10px;
+}
+
+.adminButton SVG {
+  margin-right: 5px;
+}
+.adminFieldDesc {
+  display: block;
+  font-size: 10pt;
+  margin-top: -10px;
+  padding-left: 20px;
+}
+
+DIV.helpTooltip {
+  display: inline-block;
+  position: relative;
+}
+DIV.helpTooltip>SPAN {
+  font-size: 10pt;
+  font-weight: bold;
+  background: #0d6587;
+  border: 2px solid #FFF;
+  border-radius: 9999px;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 21px;
+  text-align: center;
+  vertical-align: baseline;
+  margin-right: 10px;
+}
+
+DIV.helpTooltip DIV {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 10px;
+  min-width: 300px;
+  background: #f1f1ba;
+  color: #000;
+  padding: 10px;
+  border: 2px solid gray;
+  border-radius: 5px;
+  font-size: 10pt;
+  font-weight: bold;
+  line-height: 11pt;
+  box-shadow: 0px 0px 3px 2px #0a7f8f;
+  margin-bottom: 5px;
+  z-index: 99999;
+}
+DIV.helpTooltip DIV > SPAN {
+  display: block;
+}
+
+DIV.helpTooltip:hover DIV {
+  display: block;
+}
+
+.adminSectionDescription {
+  display: block;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 12pt;
+  font-weight: bold;
+  text-align: center;
+  color: #FFF;
+  background: #4c4a07;
+  border: 1px solid #FFF;
+}
+
+.adminSubFormDesc {
+  display: block;
+  padding: 5px;
+  font-weight: bold;
+  border-bottom: 1px solid gray;
+}
+
+
+.adminPopupWindow {
+  display: flex !important;
+  position: fixed !important;
+  left: 0px !important;
+  top: 0px !important;
+  bottom: 0px !important;
+  right: 0px !important;
+  background: #0000007a !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 100000 !important;
+}
+
+.adminPopupWindow>DIV {
+  width: 100% !important;
+  max-width: 600px !important;
+  border: 2px solid #FFF !important;
+  background: #5a5959 !important;
+  box-shadow: 0px 0px 5px 5px rgba(0,0,0,0.75) !important;
+}
+.adminPopupWindow>DIV>H3 {
+  margin: 0px !important;
+  padding: 10px !important;
+  font-size: 12pt !important;
+  background: #0862af !important;
+  border-bottom: 1px solid #FFF !important;
+  position: relative !important;
+  text-align: left;
+}
+.adminPopupWindow>DIV>H3>A {
+  position: absolute !important;
+  display: block !important;
+  border: 2px solid #FFF !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 25px !important;
+  right: 8px !important;
+  top: 8px !important;
+  cursor: pointer !important;
+  text-align: center !important;
+}
+.adminPopupWindow>DIV>H3>A:active {
+  box-shadow: inset 0px 0px 4px 1px #0000008c !important;
+}
+.adminPopupWindow>DIV>H3>A:hover {
+  background: #FFF !important;
+  color: #106daf !important;
+  box-shadow: 0px 0px 5px 2px #0000008c !important;
+}
+.adminPopupWindow .adminForm {
+  width: 100%;
+}
+.adminPopupWindow .adminForm .subFormInfo {
+  border: 0px;
+}

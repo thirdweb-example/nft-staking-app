@@ -195,6 +195,31 @@ const getConnectedAddress = () => {
   } else return false
 }
 
+const waitChain = (chainId) => {
+  return new Promise((resolve, reject) => {
+    const maxWait = 10
+    let waitTick = 0
+    const doWait = () => {
+      const curChainId = window.ethereum && window.ethereum.networkVersion
+      if (`${curChainId}` == `${chainId}`) {
+        resolve()
+      } else {
+        waitTick++
+        if (waitTick < maxWait) {
+          setTimeout( doWait, 500 )
+        } else {
+          reject()
+        }
+      }
+    }
+    setTimeout( doWait, 500 )
+  })
+}
+
+const getActiveChainId = () => {
+  return window.ethereum && window.ethereum.networkVersion
+}
+
 export {
   switchOrAddChain,
   onBlockchainChanged,
@@ -204,6 +229,8 @@ export {
   getConnectedAddress,
   getCurrentChainId,
   onWalletChanged,
+  waitChain,
+  getActiveChainId,
 }
 
 export default setupWeb3
