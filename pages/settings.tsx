@@ -49,8 +49,8 @@ const storageChainId = 5
 const storageAddress = '0xafb8f27df1f629432a47214b4e1674cbcbdb02df'
 */
 const settingsTabs = {
-  main: `Main settings`,
   nftconfig: `NFT collection`,
+  main: `Farm settings`,
   mainmenu: `Menu Items`,
   texts: `Edit texts`,
   design: `Design`,

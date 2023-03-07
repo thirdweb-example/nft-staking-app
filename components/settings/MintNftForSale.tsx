@@ -14,7 +14,7 @@ import InputImage from "../InputImage"
 
 import AdminNftMetadataGenerator from "../AdminNftMetadataGenerator"
 import { createNftMetadata } from "../../helpers/createNftMetadata"
-
+import SwitchNetworkAndCall from "../SwitchNetworkAndCall"
 
 export default function MintNftForSale(options) {
   const {
@@ -206,12 +206,14 @@ export default function MintNftForSale(options) {
                   </span>
                 </div>
                 <div className={styles.actionsRow}>
-                  <button
+                  <SwitchNetworkAndCall
+                    chainId={chainId}
+                    className={styles.adminSubButton}
                     disabled={!nftMetadataValid || hasTokenPriceError}
                     onClick={doMintNtf}
-                  >
+                    action={`Mint NFT`} >
                     {isNftMinting ? `Minting NFT for sale...` : `Mint NFT for sale`}
-                  </button>
+                  </SwitchNetworkAndCall>
                 </div>
               </div>
             ) : (

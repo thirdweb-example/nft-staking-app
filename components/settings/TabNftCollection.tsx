@@ -14,6 +14,7 @@ import { toWei, fromWei } from "../../helpers/wei"
 import isImageUrl from "../../helpers/isImageUrl"
 import callNftMethod from "../../helpers/callNftMethod"
 import fetchTokensListInfo from "../../helpers/fetchTokensListInfo"
+import SwitchNetworkAndCall from "../SwitchNetworkAndCall"
 import FaIcon from "../FaIcon"
 import MintNftForSale from "./MintNftForSale"
 import List from "../List"
@@ -352,11 +353,11 @@ export default function TabNftCollection(options) {
               )}
               <div className={styles.actionsRow}>
                 {(nftCollection && nftChainId) && (
-                  <button disabled={nftInfoFetching || nftIsDeploying} onClick={doFetchNftInfo}>
+                  <button disabled={nftInfoFetching || nftIsDeploying}  className={styles.adminButton} onClick={doFetchNftInfo}>
                     {nftInfoFetching ? `Fetching NFT info` : `Fetch NFT info`}
                   </button>
                 )}
-                <button disabled={nftInfoFetching || nftIsDeploying} onClick={openNftDeploy}>
+                <button disabled={nftInfoFetching || nftIsDeploying} className={styles.adminButton} onClick={openNftDeploy}>
                   Deploy NFT collection
                 </button>
               </div>
@@ -498,17 +499,23 @@ export default function TabNftCollection(options) {
                   </div>
                 )}
                 <div className={styles.actionsRow}>
-                  <button disabled={!canDeployNft || nftIsDeploying} onClick={deployNewNft} >
+                  <SwitchNetworkAndCall
+                    chainId={nftChainId}
+                    className={styles.adminButton}
+                    disabled={!canDeployNft || nftIsDeploying}
+                    onClick={deployNewNft}
+                    action={`Deploy`}
+                  >
                     Deploy
-                  </button>
-                  <button disabled={nftIsDeploying} onClick={closeNftDeploy}>
+                  </SwitchNetworkAndCall>
+                  <button disabled={nftIsDeploying} className={styles.adminButton} onClick={closeNftDeploy}>
                     Cancel
                   </button>
                 </div>
               </div>
             )}
           </div>
-          {nftInfo && nftInfo && nftInfo.NFTStakeInfo && (
+          {nftInfo && nftInfo && nftInfo.NFTStakeInfo && !nftDeployOpened && (
             <NftInfoBlock
               NFTStakeInfo={nftInfo.NFTStakeInfo}
               chainId={nftChainId}
@@ -519,7 +526,7 @@ export default function TabNftCollection(options) {
               onSaveChanges={doFetchNftInfo}
             />
           )}
-          {nftInfo && nftInfo && nftInfo.NFTStakeInfo && (
+          {nftInfo && nftInfo && nftInfo.NFTStakeInfo && !nftDeployOpened && (
             <div className={styles.adminForm}>
               {mintNftForSale.render()}
             </div>
