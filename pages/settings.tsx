@@ -830,7 +830,7 @@ const Settings: NextPage = (props) => {
               onChange: doSetRewardToken,
               placeholder: `Enter address of Token for reward`,
               buttons: (
-                <button disabled={rewardTokenFetching} className={styles.secondaryButton} onClick={fetchRewardTokenInfo}>
+                <button disabled={rewardTokenFetching} className={styles.adminButton} onClick={fetchRewardTokenInfo}>
                   {rewardTokenFetching ? `Fetching...` : `Fetch reward token info`}
                 </button>
               )

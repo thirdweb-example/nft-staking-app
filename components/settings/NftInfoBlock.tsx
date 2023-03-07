@@ -321,9 +321,15 @@ export default function NftInfoBlock(options) {
               <div className={styles.actionsRow}>
                 {isEditValues ? (
                   <>
-                    <button onClick={saveChanges} className={styles.adminButton}>
+                    <SwitchNetworkAndCall
+                      chainId={chainId}
+                      className={styles.adminButton}
+                      disabled={false}
+                      onClick={saveChanges}
+                      action={`Save changes`}
+                    >
                       Save changes
-                    </button>
+                    </SwitchNetworkAndCall>
                     <button onClick={offEditValues} className={styles.adminButton}>
                       Cancel
                     </button>
