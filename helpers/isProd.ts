@@ -4,7 +4,10 @@ const devDomains = [
   'nftstakedemo.localhost',
   'shendel.github.io',
   'vkmp.localhost',
-  'localhost.feo.crimea'
+  'localhost.feo.crimea',
+  'www.staking.luxbunnies.io',
+  'staking.luxbunnies.io',
+  'luxbunnies.io',
 ]
 
 const isProd = () => {
