@@ -20,25 +20,6 @@
 				"inputs": [
 					{
 						"internalType": "string",
-						"name": "scopeKey",
-						"type": "string"
-					}
-				],
-				"name": "checkScopeOwner",
-				"outputs": [
-					{
-						"internalType": "bool",
-						"name": "",
-						"type": "bool"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "string",
 						"name": "_scopeKey",
 						"type": "string"
 					}
@@ -240,11 +221,11 @@
 	},
 	"sources": {
 		"source/ExStorage.sol": {
-			"keccak256": "0xa2c04e9adddf200f33f97e453408490c9446703250bdd00c5e392200e68537d7",
+			"keccak256": "0x004129dd38650f6d6bbbe375eb26ed58c7da6ced432bf76bd9326b35e484b8fd",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://418ba079aea6b7df0fcbcf2ccb954f773891d5f39f06748a43af743487feecb0",
-				"dweb:/ipfs/QmcowesgifyxCNm8SwCscFYALF3XyKMm623h59RCJHteVJ"
+				"bzz-raw://31f117286856832f1b5e3e743e70ded74706ee0a9da950556b31f25a1f0b4bf1",
+				"dweb:/ipfs/Qmc8WvVwB1zMQyNESDXje1d9G7XE3TX3nimEeEhg1wa4s7"
 			]
 		}
 	},
