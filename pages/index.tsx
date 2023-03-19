@@ -20,7 +20,7 @@ const Home: NextPage = () => {
           <Image src="/icons/drop.webp" alt="drop" width={64} height={64} />
           <h2 className={styles.selectBoxTitle}>Get an L2NFTOG NFT</h2>
           <p className={styles.selectBoxDescription}>
-            https://nftearth.exchange/collection/optimism/0x00e3aa03e47c32397a94509e50b0558988c0d04e
+            NFTEarth 
           </p>
         </div>
 
