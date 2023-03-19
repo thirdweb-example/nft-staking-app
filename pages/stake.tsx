@@ -105,7 +105,7 @@ const Stake: NextPage = () => {
           </Web3Button>
 
           <hr className={`${styles.divider} ${styles.spacerTop}`} />
-          <h2>Your Staked NFTs</h2>
+          <h2>Your Staked L2NFTOG NFTs</h2>
           <div className={styles.nftBoxGrid}>
             {stakedTokens &&
               stakedTokens[0]?.map((stakedToken: BigNumber) => (
