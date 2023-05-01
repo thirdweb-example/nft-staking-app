@@ -36,7 +36,7 @@ const Stake: NextPage = () => {
   const { data: stakedTokens } = useContractRead(contract, "getStakeInfo", [
     address,
   ]);
-  const [selectedNfts, setSelectedNfts] = useState<string[]>([]);
+  const [selectedNftsToStake, setSelectedNftsToStake] = useState<string[]>([]);
   const [selectedNftsToWithdraw, setSelectedNftsToWithdraw] = useState<string[]>([]);
 
   useEffect(() => {
@@ -62,7 +62,7 @@ const Stake: NextPage = () => {
       await nftDropContract?.setApprovalForAll(stakingContractAddress, true);
     }
     await contract?.call("stake", [ids]);
-    setSelectedNfts([]);  // clear the selected NFTs after staking
+    setSelectedNftsToStake([]);
   }
 
   if (isLoading) {
@@ -156,11 +156,11 @@ const Stake: NextPage = () => {
             {ownedNfts?.map((nft) => (
               <div
                 className={`${styles.nftBox} ${
-                  selectedNfts.includes(nft.metadata.id) ? styles.selected : ""
+                  selectedNftsToStake.includes(nft.metadata.id) ? styles.selected : ""
                 }`}
                 key={nft.metadata.id.toString()}
                 onClick={() => {
-                  setSelectedNfts((prevSelectedNfts) => {
+                  setSelectedNftsToStake((prevSelectedNfts) => {
                     if (prevSelectedNfts.includes(nft.metadata.id)) {
                       return prevSelectedNfts.filter(
                         (id) => id !== nft.metadata.id
@@ -182,8 +182,8 @@ const Stake: NextPage = () => {
 
           <Web3Button
             contractAddress={stakingContractAddress}
-            action={() => stakeNfts(selectedNfts)}
-            isDisabled={selectedNfts.length === 0}
+            action={() => stakeNfts(selectedNftsToStake)}
+            isDisabled={selectedNftsToStake.length === 0}
             >
             Stake Selected NFTs
           </Web3Button>
