@@ -2,12 +2,10 @@ import {
   ThirdwebNftMedia,
   useContract,
   useNFT,
-  Web3Button,
 } from "@thirdweb-dev/react";
 import type { FC } from "react";
 import {
   nftDropContractAddress,
-  stakingContractAddress,
 } from "../consts/contractAddresses";
 import styles from "../styles/Home.module.css";
 
@@ -22,7 +20,7 @@ const NFTCard: FC<NFTCardProps> = ({ tokenId }) => {
   return (
     <>
       {nft && (
-        <div className={styles.nftBox}>
+        <div>
           {nft.metadata && (
             <ThirdwebNftMedia
               metadata={nft.metadata}
@@ -30,12 +28,6 @@ const NFTCard: FC<NFTCardProps> = ({ tokenId }) => {
             />
           )}
           <h3>{nft.metadata.name}</h3>
-          <Web3Button
-            action={(contract) => contract?.call("withdraw", [[nft.metadata.id]])}
-            contractAddress={stakingContractAddress}
-          >
-            Withdraw
-          </Web3Button>
         </div>
       )}
     </>
